@@ -1,0 +1,19 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Общий словарь движения (ARCHITECTURE §19.4) — справочные значения для XAML.
+        Код-behind берёт длительности и easing НЕ отсюда, а из статического Services/Motion
+        (Phase 13.10): тумблер «Анимации» переключает их там, не трогая словарь ресурсов приложения —
+        запись в него на живом окне обходит всё дерево и валила слой композиции WPF. Значения здесь
+        и в MotionService обязаны совпадать.
+    -->
+
+    <Duration x:Key="MotionDurationFast">0:0:0.13</Duration>
+    <Duration x:Key="MotionDurationMedium">0:0:0.22</Duration>
+    <Duration x:Key="MotionDurationSlow">0:0:0.34</Duration>
+
+    <CubicEase x:Key="MotionEaseOut" EasingMode="EaseOut" />
+    <CubicEase x:Key="MotionEaseInOut" EasingMode="EaseInOut" />
+
+</ResourceDictionary>

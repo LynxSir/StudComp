@@ -1,0 +1,178 @@
+<UserControl x:Class="StudComp.Views.Organizer.Dialogs.SemesterEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Organizer"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:SemesterEditorViewModel}"
+             MinWidth="480">
+
+    <StackPanel>
+        <TextBlock Text="Название" Margin="0,0,0,4" />
+        <ui:TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                    PlaceholderText="Например, «Осень 2026»" Margin="0,0,0,12" />
+
+        <Grid Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Курс" Margin="0,0,0,4" />
+                <ui:NumberBox Value="{Binding CourseNumber, Mode=TwoWay}" Minimum="1" Maximum="12"
+                              SpinButtonPlacementMode="Inline" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="Начало" Margin="0,0,0,4" />
+                <DatePicker SelectedDate="{Binding StartDate, Mode=TwoWay}" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="4">
+                <TextBlock Text="Окончание" Margin="0,0,0,4" />
+                <DatePicker SelectedDate="{Binding EndDate, Mode=TwoWay}" />
+            </StackPanel>
+        </Grid>
+
+        <TextBlock TextWrapping="Wrap" FontSize="11" Margin="0,0,0,12"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                   Text="Дата окончания нужна, чтобы посчитать часы за семестр и «проведено / осталось»." />
+
+        <CheckBox Content="Первая неделя семестра — числитель" Margin="0,0,0,12"
+                  IsChecked="{Binding FirstWeekIsOdd, Mode=TwoWay}" />
+        <TextBlock TextWrapping="Wrap" FontSize="11" Margin="0,0,0,12"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                   Text="Дальше числитель и знаменатель чередуются строго по очереди до конца семестра — двух одинаковых недель подряд не бывает." />
+
+        <Grid Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Перерыв между парами, мин" Margin="0,0,0,4" />
+                <ui:NumberBox Value="{Binding DefaultBreakMinutes, Mode=TwoWay}" Minimum="0" Maximum="180"
+                              SpinButtonPlacementMode="Inline" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="Обеденный перерыв — с" Margin="0,0,0,4" />
+                <ui:TextBox Text="{Binding LunchBreakStartText, UpdateSourceTrigger=PropertyChanged}"
+                            PlaceholderText="13:20" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="4">
+                <TextBlock Text="По" Margin="0,0,0,4" />
+                <ui:TextBox Text="{Binding LunchBreakEndText, UpdateSourceTrigger=PropertyChanged}"
+                            PlaceholderText="13:50" />
+            </StackPanel>
+        </Grid>
+        <TextBlock TextWrapping="Wrap" FontSize="11" Margin="0,0,0,12"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                   Text="Оба поля обеда пустые — обеденный перерыв не учитывается при подсказке времени пары (new_addons.md §5.1)." />
+
+        <ui:CardExpander ContentPadding="14" Margin="0,0,0,4">
+            <ui:CardExpander.Header>
+                <StackPanel>
+                    <ui:TextBlock Text="Сетка звонков" FontTypography="Body" />
+                    <ui:TextBlock FontTypography="Caption"
+                                  Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                  Text="Подставляется в форму пары при клике по пустой ячейке расписания" />
+                </StackPanel>
+            </ui:CardExpander.Header>
+
+            <StackPanel>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Первая пара" FontSize="11" Margin="0,0,0,2" />
+                        <ui:TextBox Text="{Binding GeneratorStartText, UpdateSourceTrigger=PropertyChanged}"
+                                    PlaceholderText="08:00" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Длит., мин" FontSize="11" Margin="0,0,0,2" />
+                        <ui:NumberBox Value="{Binding GeneratorDurationMinutes, Mode=TwoWay}"
+                                      Minimum="5" Maximum="360" SpinButtonPlacementMode="Hidden" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="4">
+                        <TextBlock Text="Перемена" FontSize="11" Margin="0,0,0,2" />
+                        <ui:NumberBox Value="{Binding GeneratorBreakMinutes, Mode=TwoWay}"
+                                      Minimum="0" Maximum="180" SpinButtonPlacementMode="Hidden" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="6">
+                        <TextBlock Text="Пар" FontSize="11" Margin="0,0,0,2" />
+                        <ui:NumberBox Value="{Binding GeneratorCount, Mode=TwoWay}"
+                                      Minimum="1" Maximum="12" SpinButtonPlacementMode="Hidden" />
+                    </StackPanel>
+                    <ui:Button Grid.Column="8" VerticalAlignment="Bottom" Appearance="Secondary"
+                               Content="Построить" Command="{Binding GenerateSlotsCommand}" />
+                </Grid>
+
+                <ItemsControl ItemsSource="{Binding Slots}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:PairSlotRowViewModel}">
+                            <Grid Margin="0,0,0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="64" />
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="8" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <ui:NumberBox Grid.Column="0" Value="{Binding Order, Mode=TwoWay}"
+                                              Minimum="1" Maximum="12" SpinButtonPlacementMode="Hidden" />
+                                <ui:TextBox Grid.Column="2"
+                                            Text="{Binding StartText, UpdateSourceTrigger=PropertyChanged}"
+                                            PlaceholderText="08:00" />
+                                <ui:TextBox Grid.Column="4"
+                                            Text="{Binding EndText, UpdateSourceTrigger=PropertyChanged}"
+                                            PlaceholderText="09:30" />
+                                <ui:Button Grid.Column="6" Appearance="Secondary" Padding="8,4"
+                                           Icon="{ui:SymbolIcon Delete24}"
+                                           Command="{Binding DataContext.RemoveSlotCommand,
+                                                     RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                           CommandParameter="{Binding}" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <ui:Button HorizontalAlignment="Left" Appearance="Secondary" Margin="0,4,0,0"
+                           Icon="{ui:SymbolIcon Add24}" Content="Добавить пару"
+                           Command="{Binding AddSlotCommand}" />
+            </StackPanel>
+        </ui:CardExpander>
+
+        <!-- Видимая причина недоступности «Сохранить» вместо молчаливо задизейбленной кнопки
+             (new_addons.md §6.1, Тест.txt №4). -->
+        <TextBlock Text="{Binding ValidationHint}" FontSize="11" Margin="0,10,0,0"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                   Visibility="{Binding ValidationHint, Converter={x:Static conv:StringPresenceToVisibilityConverter.Instance}}" />
+    </StackPanel>
+
+</UserControl>

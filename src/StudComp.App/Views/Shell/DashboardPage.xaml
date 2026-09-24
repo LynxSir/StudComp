@@ -1,0 +1,573 @@
+<UserControl x:Class="StudComp.Views.Shell.DashboardPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Shell"
+             xmlns:vmCards="clr-namespace:StudComp.ViewModels.Cards"
+             xmlns:svc="clr-namespace:StudComp.Services"
+             xmlns:controls="clr-namespace:StudComp.Controls"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:DashboardPageViewModel}">
+
+    <!--
+        Дашборд (Phase 13.5, new_addons.md §2/§18): премиальный редизайн. Каждый смысловой блок —
+        именованный DataTemplate-ресурс, использованный дважды: в широкой бенто-сетке (окно ≥1280px,
+        WideContent) и в узкой раскладке-списке со скроллом (NarrowContent). Переключение между ними —
+        по ширине окна, в code-behind (SizeChanged), чисто View-слой. Загрузка данных — из
+        DashboardPageViewModel.OnNavigatedTo, не из Loaded этой страницы.
+    -->
+
+    <UserControl.Resources>
+
+        <!-- ============================== Заголовок ============================== -->
+        <DataTemplate x:Key="HeaderTemplate" DataType="{x:Type vm:DashboardPageViewModel}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <ui:TextBlock FontTypography="Title">
+                        <Run Text="{Binding Greeting, Mode=OneWay}" />
+                        <Run Text="!" />
+                    </ui:TextBlock>
+                    <TextBlock Text="{Binding DaySummaryText}" Style="{StaticResource Dashboard.EmptyHint}" Margin="0,4,0,0" />
+                </StackPanel>
+                <ui:Button Grid.Column="1" Appearance="Transparent" Padding="8"
+                           Icon="{ui:SymbolIcon FolderOpen24}" ToolTip="Открыть учебную папку"
+                           Command="{Binding OpenStudyFolderCommand}"
+                           Visibility="{Binding HasStudyRoot, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+            </Grid>
+        </DataTemplate>
+
+        <!-- ============================== Онбординг ============================== -->
+        <DataTemplate x:Key="OnboardingTemplate" DataType="{x:Type vm:DashboardPageViewModel}">
+            <Border Style="{StaticResource Dashboard.WidgetCard}" BorderBrush="{StaticResource ColorAccentGoldBrush}"
+                    Visibility="{Binding ShowOnboarding, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                <StackPanel>
+                    <ui:TextBlock Text="Выберите учебную папку" FontTypography="BodyStrong" />
+                    <TextBlock Style="{StaticResource Dashboard.EmptyHint}" Margin="0,6,0,12"
+                               Text="Одна папка на диске, где всё по учёбе разложено по предметам. Архивариус будет складывать распознанные файлы туда же." />
+                    <ui:Button Content="Задать учебную папку" Appearance="Primary"
+                               Command="{Binding OpenOnboardingCommand}" HorizontalAlignment="Left" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- ============================== Активный предмет (герой) ============================== -->
+        <DataTemplate x:Key="ActiveSubjectTemplate" DataType="{x:Type vm:DashboardPageViewModel}">
+            <Border Style="{StaticResource Dashboard.HeroCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="4" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" CornerRadius="2" Margin="0,2,14,2"
+                            Background="{Binding ActiveSubject.ColorHex, Converter={x:Static conv:StringToBrushConverter.Instance}}"
+                            Visibility="{Binding ActiveSubject, Converter={x:Static conv:NullToCollapsedConverter.Instance}}" />
+
+                    <StackPanel Grid.Column="1">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:TextBlock Text="Активный предмет" Style="{StaticResource Dashboard.WidgetTitle}" />
+                            <controls:TermHint Margin="6,0,0,0"
+                                                Text="Показывает предмет, у которого сейчас идёт пара, ближайшую следующую пару на сегодня либо закреплённый вами предмет — в таком порядке." />
+                        </StackPanel>
+
+                        <!-- Есть текущая или ближайшая пара -->
+                        <StackPanel Visibility="{Binding ActiveSubject, Converter={x:Static conv:NullToCollapsedConverter.Instance}}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:TextBlock Text="{Binding ActiveSubject.SubjectName}" FontTypography="Subtitle" />
+                                <ui:Button Appearance="Transparent" Padding="6" Margin="8,0,0,0"
+                                           ToolTip="{Binding PinToggleTooltip}"
+                                           Icon="{ui:SymbolIcon Pin24}"
+                                           Command="{Binding ToggleActiveSubjectPinCommand}" />
+                            </StackPanel>
+                            <TextBlock Text="{Binding ActiveSubjectStatusText}" Style="{StaticResource Dashboard.EmptyHint}" Margin="0,2,0,12" />
+                            <StackPanel Orientation="Horizontal">
+                                <ui:Button Content="Открыть Хаб" Appearance="Secondary" Margin="0,0,6,0"
+                                           ToolTip="Хаб — всё по этому предмету в одном месте: расписание, дедлайны, зачётка, файлы, заметки, карточки"
+                                           Command="{Binding OpenActiveSubjectCommand}" />
+                                <ui:Button Content="Отчёт" Appearance="Secondary" Margin="0,0,6,0"
+                                           Icon="{ui:SymbolIcon DocumentText24}"
+                                           Command="{Binding GenerateReportCommand}" />
+                                <ui:Button Content="Заметка к паре" Appearance="Secondary"
+                                           Icon="{ui:SymbolIcon Notepad24}"
+                                           Command="{Binding NoteForClassCommand}"
+                                           CommandParameter="{Binding CurrentClass.Class}"
+                                           Visibility="{Binding CurrentClass, Converter={x:Static conv:NullToCollapsedConverter.Instance}}" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Пусто: пар сейчас нет -->
+                        <StackPanel Visibility="{Binding ActiveSubject, Converter={x:Static conv:NullToVisibleConverter.Instance}}">
+                            <TextBlock Style="{StaticResource Dashboard.EmptyHint}" Text="Сейчас пар нет" />
+                            <TextBlock Style="{StaticResource Dashboard.EmptyHint}" Margin="0,4,0,0"
+                                       Visibility="{Binding NextClass, Converter={x:Static conv:NullToCollapsedConverter.Instance}}">
+                                <Run Text="Ближайшая пара: " />
+                                <Run Text="{Binding NextClass.SubjectName, Mode=OneWay}" FontWeight="SemiBold" />
+                                <Run Text=" в " />
+                                <Run Text="{Binding NextClass.Start, Mode=OneWay, StringFormat='HH\\:mm'}" />
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <!-- ============================== Быстрые действия (герой) ============================== -->
+        <DataTemplate x:Key="QuickActionsTemplate" DataType="{x:Type vm:DashboardPageViewModel}">
+            <Border Style="{StaticResource Dashboard.HeroCard}">
+                <StackPanel>
+                    <ui:TextBlock Text="Быстрые действия" Style="{StaticResource Dashboard.WidgetTitle}" />
+
+                    <ui:Button Appearance="Primary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                               Padding="12,9" Margin="0,0,0,6"
+                               Icon="{ui:SymbolIcon Notepad24}" Content="Быстрая заметка"
+                               ToolTip="Заметка для предмета, который идёт сейчас"
+                               Command="{Binding QuickNoteCommand}" />
+
+                    <Grid Margin="0,0,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBox Grid.Column="0" PlaceholderText="Быстрая карточка: термин или вопрос"
+                                    Text="{Binding QuickCardText, UpdateSourceTrigger=PropertyChanged}">
+                            <ui:TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding QuickCardCommand}" />
+                            </ui:TextBox.InputBindings>
+                        </ui:TextBox>
+                        <ui:Button Grid.Column="1" Margin="8,0,0,0" Appearance="Secondary"
+                                   Icon="{ui:SymbolIcon Add24}" Command="{Binding QuickCardCommand}"
+                                   ToolTip="Создать карточку" />
+                    </Grid>
+
+                    <!-- «Разобрать неразобранное»: приглушённый вид при нуле — не исчезновение (кнопки
+                         не должны прыгать), акцент при N>0. Appearance у ui:Button не биндится напрямую
+                         к bool без риска затереть тему Style'ом — переключаем видимость двух кнопок. -->
+                    <ui:Button Appearance="Primary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                               Padding="12,9" Margin="0,0,0,6"
+                               Content="{Binding UnsortedActionText}" Icon="{ui:SymbolIcon FolderArrowRight24}"
+                               Command="{Binding ResolveUnsortedCommand}"
+                               Visibility="{Binding HasUnsorted, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+                    <ui:Button Appearance="Secondary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                               Padding="12,9" Margin="0,0,0,6"
+                               Content="{Binding UnsortedActionText}" Icon="{ui:SymbolIcon FolderArrowRight24}"
+                               Command="{Binding ResolveUnsortedCommand}"
+                               Visibility="{Binding HasUnsorted, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}" />
+
+                    <ui:Button Appearance="Primary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                               Padding="12,9"
+                               Content="{Binding ReviewActionText}" Icon="{ui:SymbolIcon Play24}"
+                               Command="{Binding OpenCardsDueCommand}"
+                               Visibility="{Binding HasCardsDue, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+                    <ui:Button Appearance="Secondary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                               Padding="12,9"
+                               Content="{Binding ReviewActionText}" Icon="{ui:SymbolIcon Play24}"
+                               Command="{Binding OpenCardsDueCommand}"
+                               Visibility="{Binding HasCardsDue, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- ============================== Расписание на сегодня ============================== -->
+        <DataTemplate x:Key="TodayClassRowTemplate" DataType="{x:Type vm:TodayClassRowViewModel}">
+            <Border CornerRadius="8" Padding="8,7" Margin="0,2" Cursor="Hand">
+                <Border.InputBindings>
+                    <MouseBinding MouseAction="LeftClick"
+                                  Command="{Binding DataContext.OpenClassCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                  CommandParameter="{Binding Class}" />
+                </Border.InputBindings>
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                            </Trigger>
+                            <DataTrigger Binding="{Binding IsOnNow}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="4" />
+                        <ColumnDefinition Width="52" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" CornerRadius="2"
+                            Background="{Binding ColorHex, Converter={x:Static conv:StringToBrushConverter.Instance}}" />
+                    <TextBlock Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" FontWeight="SemiBold"
+                               Text="{Binding Start, StringFormat='HH\\:mm'}" />
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding SubjectName}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding Room}" FontSize="11"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                   Visibility="{Binding Room, Converter={x:Static conv:StringPresenceToVisibilityConverter.Instance}}" />
+                    </StackPanel>
+                    <Border Grid.Column="3" CornerRadius="6" Padding="7,2" Margin="0,0,6,0"
+                            Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                            Visibility="{Binding IsOnNow, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                        <TextBlock Text="Сейчас" FontSize="10" FontWeight="SemiBold" Foreground="{StaticResource ColorPrimaryBrush}" />
+                    </Border>
+                    <Border Grid.Column="3" CornerRadius="6" Padding="7,2" Margin="0,0,6,0" BorderThickness="1"
+                            BorderBrush="{DynamicResource ControlElevationBorderBrush}"
+                            Visibility="{Binding IsNext, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                        <TextBlock Text="Далее" FontSize="10" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    </Border>
+                    <ui:Button Grid.Column="4" Appearance="Transparent" Padding="6,2"
+                               Icon="{ui:SymbolIcon Notepad24}" ToolTip="Заметка к паре"
+                               Command="{Binding DataContext.NoteForClassCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                               CommandParameter="{Binding Class}" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ScheduleTemplate" DataType="{x:Type vm:DashboardPageViewModel}">
+            <Border Style="{StaticResource Dashboard.WidgetCard}">
+                <DockPanel LastChildFill="True">
+                    <ui:TextBlock DockPanel.Dock="Top" Text="Расписание на сегодня" Style="{StaticResource Dashboard.WidgetTitle}" />
+                    <TextBlock DockPanel.Dock="Top" Style="{StaticResource Dashboard.EmptyHint}" Text="На сегодня пар нет"
+                               Visibility="{Binding HasTodayClasses, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  Visibility="{Binding HasTodayClasses, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                        <ItemsControl ItemsSource="{Binding TodayClasses}"
+                                      ItemTemplate="{StaticResource TodayClassRowTemplate}" />
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- ============================== Горящие дедлайны ============================== -->
+        <DataTemplate x:Key="DeadlinesTemplate" DataType="{x:Type vm:DashboardPageViewModel}">
+            <Border Style="{StaticResource Dashboard.WidgetCard}">
+                <DockPanel LastChildFill="True">
+                    <ui:TextBlock DockPanel.Dock="Top" Text="Горящие дедлайны" Style="{StaticResource Dashboard.WidgetTitle}" />
+                    <TextBlock DockPanel.Dock="Top" Style="{StaticResource Dashboard.EmptyHint}" Text="Ближайших дедлайнов нет"
+                               Visibility="{Binding HasDeadlines, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  Visibility="{Binding HasDeadlines, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                        <ItemsControl ItemsSource="{Binding HotDeadlines}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type svc:DashboardDeadline}">
+                                    <Border CornerRadius="6" Padding="10,7" Margin="0,3" BorderThickness="1" Cursor="Hand"
+                                            ToolTip="Открыть задание, материалы и ответ">
+                                        <Border.InputBindings>
+                                            <MouseBinding MouseAction="LeftClick"
+                                                          Command="{Binding DataContext.OpenDeadlineCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                          CommandParameter="{Binding}" />
+                                        </Border.InputBindings>
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="BorderBrush" Value="{DynamicResource ControlElevationBorderBrush}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsUrgent}" Value="True">
+                                                        <Setter Property="BorderBrush" Value="{StaticResource ColorAccentGoldBrush}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsOverdue}" Value="True">
+                                                        <Setter Property="BorderBrush" Value="#C0392B" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+                                                <TextBlock Style="{StaticResource Dashboard.EmptyHint}" Text="{Binding SubjectName}" FontSize="11" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Margin="8,0,0,0"
+                                                       Style="{StaticResource Dashboard.EmptyHint}" FontSize="11"
+                                                       Text="{Binding DueDate, Converter={x:Static conv:RelativeDayToTextConverter.Instance}}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- ============================== Картотека ============================== -->
+        <DataTemplate x:Key="CardsTemplate" DataType="{x:Type vm:DashboardPageViewModel}">
+            <Border Style="{StaticResource Dashboard.WidgetCard}">
+                <DockPanel LastChildFill="True">
+                    <ui:TextBlock DockPanel.Dock="Top" Text="Картотека" Style="{StaticResource Dashboard.WidgetTitle}" />
+
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
+                        <ui:TextBlock Text="{Binding CardsDueCount}" FontTypography="TitleLarge" />
+                        <TextBlock Text="{Binding CardsDueText}" Style="{StaticResource Dashboard.EmptyHint}"
+                                   VerticalAlignment="Bottom" Margin="8,0,0,3" />
+                    </StackPanel>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <!-- Обратный отсчёт к экзамену (new_addons.md §6.4). -->
+                            <ItemsControl ItemsSource="{Binding ExamCountdowns}" Margin="0,0,0,10"
+                                          Visibility="{Binding HasExamCountdowns, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vmCards:CramRowViewModel}">
+                                        <Border CornerRadius="10" Padding="10,9" Margin="0,0,0,8" BorderThickness="1"
+                                                Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                                                BorderBrush="{DynamicResource ColorAccentGoldBrush}">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Title}" FontSize="12" TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding ProgressText}" FontSize="11" Margin="0,4,0,0"
+                                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                                                <TextBlock Text="{Binding Warning}" FontSize="11" Margin="0,2,0,0"
+                                                           TextWrapping="Wrap" Foreground="#B26A00"
+                                                           Visibility="{Binding HasWarning, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+                                                <ui:Button Content="Готовиться" Padding="10,3" FontSize="11" Margin="0,6,0,0"
+                                                           HorizontalAlignment="Left"
+                                                           Command="{Binding DataContext.PrepareForExamCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                           CommandParameter="{Binding}" />
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Карточка дня: сначала вспоминаем сами, ответ раскрывается по кнопке. -->
+                            <Border CornerRadius="10" Padding="12,10" BorderThickness="1"
+                                    Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                                    Visibility="{Binding HasCardOfTheDay, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                        <ui:SymbolIcon Symbol="Lightbulb24" FontSize="13" VerticalAlignment="Center"
+                                                       Margin="0,0,6,0" Foreground="{StaticResource ColorAccentGoldBrush}" />
+                                        <TextBlock Text="Карточка дня" FontSize="11" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                                        <TextBlock Text="{Binding CardOfTheDay.SubjectName}" FontSize="11" Margin="8,0,0,0"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                                    </StackPanel>
+
+                                    <TextBlock Text="{Binding CardOfTheDay.Front}" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap" />
+
+                                    <TextBlock Text="{Binding CardOfTheDay.Back}" FontSize="12" Margin="0,6,0,0" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                               Visibility="{Binding IsCardAnswerVisible, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+
+                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                        <ui:Button Appearance="Secondary" Padding="10,3" FontSize="11"
+                                                   Content="Показать ответ" Command="{Binding RevealCardOfTheDayCommand}"
+                                                   Visibility="{Binding IsCardAnswerVisible, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}" />
+                                        <ui:Button Appearance="Transparent" Padding="10,3" FontSize="11"
+                                                   Content="Открыть в картотеке" Command="{Binding OpenCardOfTheDayCommand}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- ============================== Активность (Файлы/Заметки/Отчёты/Архивариус) ============================== -->
+        <DataTemplate x:Key="RecentFileRowTemplate" DataType="{x:Type svc:DashboardFile}">
+            <Grid Margin="0,3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ui:Button Grid.Column="0" Appearance="Transparent" HorizontalAlignment="Stretch"
+                           HorizontalContentAlignment="Left" Icon="{ui:SymbolIcon Document24}"
+                           Content="{Binding Title}"
+                           Command="{Binding DataContext.OpenFileCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                           CommandParameter="{Binding}" />
+                <ui:Button Grid.Column="1" Appearance="Transparent" Icon="{ui:SymbolIcon FolderOpen24}"
+                           ToolTip="Показать в проводнике"
+                           Command="{Binding DataContext.RevealFileCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                           CommandParameter="{Binding}" />
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ActivityTemplate" DataType="{x:Type vm:DashboardPageViewModel}">
+            <Border Style="{StaticResource Dashboard.WidgetCard}" Padding="8">
+                <TabControl SelectedIndex="{Binding SelectedActivityTabIndex}" Padding="8">
+
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Document24" FontSize="14" Margin="0,0,6,0" />
+                                <TextBlock Text="Файлы" />
+                                <TextBlock Text="{Binding RecentFiles.Count, StringFormat=' · {0}'}"
+                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                            </StackPanel>
+                        </TabItem.Header>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <ItemsControl ItemsSource="{Binding RecentFiles}" ItemTemplate="{StaticResource RecentFileRowTemplate}" />
+                                <TextBlock Style="{StaticResource Dashboard.EmptyHint}"
+                                           Text="Пока пусто — открытые и отсортированные файлы появятся здесь"
+                                           Visibility="{Binding HasRecentFiles, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Notepad24" FontSize="14" Margin="0,0,6,0" />
+                                <TextBlock Text="Заметки" />
+                                <TextBlock Text="{Binding RecentNotes.Count, StringFormat=' · {0}'}"
+                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                            </StackPanel>
+                        </TabItem.Header>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <ItemsControl ItemsSource="{Binding RecentNotes}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type svc:DashboardNote}">
+                                            <Border CornerRadius="8" Padding="10,7" Margin="0,0,0,6"
+                                                    Cursor="Hand" BorderThickness="1"
+                                                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+                                                <Border.InputBindings>
+                                                    <MouseBinding MouseAction="LeftClick"
+                                                                  Command="{Binding DataContext.OpenNoteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                  CommandParameter="{Binding}" />
+                                                </Border.InputBindings>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" FontSize="13" TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{Binding Excerpt}" FontSize="11" TextTrimming="CharacterEllipsis"
+                                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                                    <TextBlock FontSize="10" Foreground="{DynamicResource TextFillColorTertiaryBrush}">
+                                                        <Run Text="{Binding SubjectName, Mode=OneWay}" />
+                                                        <Run Text=" · " />
+                                                        <Run Text="{Binding UpdatedAt, Mode=OneWay, StringFormat='dd.MM HH\:mm'}" />
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Style="{StaticResource Dashboard.EmptyHint}"
+                                           Text="Заметок пока нет — «Быстрая заметка» создаст первую для текущей пары"
+                                           Visibility="{Binding HasRecentNotes, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="DocumentText24" FontSize="14" Margin="0,0,6,0"
+                                               Foreground="{StaticResource ColorAccentGoldBrush}" />
+                                <TextBlock Text="Отчёты" />
+                                <TextBlock Text="{Binding RecentReports.Count, StringFormat=' · {0}'}"
+                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                            </StackPanel>
+                        </TabItem.Header>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <ItemsControl ItemsSource="{Binding RecentReports}" ItemTemplate="{StaticResource RecentFileRowTemplate}" />
+                                <TextBlock Style="{StaticResource Dashboard.EmptyHint}" Text="Пока нет сгенерированных отчётов"
+                                           Visibility="{Binding HasRecentReports, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="FolderArrowRight24" FontSize="14" Margin="0,0,6,0" />
+                                <TextBlock Text="Архивариус" />
+                                <TextBlock Text="{Binding SortedTodayCount, StringFormat=' · {0}'}"
+                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                            </StackPanel>
+                        </TabItem.Header>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <TextBlock Margin="0,0,0,8" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="12">
+                                    <Run Text="Сегодня отсортировано: " />
+                                    <Run Text="{Binding SortedTodayCount, Mode=OneWay}" FontWeight="SemiBold" />
+                                </TextBlock>
+                                <ItemsControl ItemsSource="{Binding RecentSortedFiles}" ItemTemplate="{StaticResource RecentFileRowTemplate}" />
+                                <TextBlock Style="{StaticResource Dashboard.EmptyHint}" Text="Пока ничего не разложено"
+                                           Visibility="{Binding HasRecentSortedFiles, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                </TabControl>
+            </Border>
+        </DataTemplate>
+
+    </UserControl.Resources>
+
+    <Grid>
+
+        <!-- ============================== Широкая бента: окно ≥1280px, без скролла страницы ============================== -->
+        <Grid x:Name="WideContent" Visibility="Collapsed" Margin="28,22">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <ContentControl Grid.Row="0" Content="{Binding}" ContentTemplate="{StaticResource HeaderTemplate}" Margin="0,0,0,16" />
+            <ContentControl Grid.Row="1" Content="{Binding}" ContentTemplate="{StaticResource OnboardingTemplate}" Margin="0,0,0,16" />
+
+            <Grid Grid.Row="2" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="11*" />
+                    <ColumnDefinition Width="9*" />
+                </Grid.ColumnDefinitions>
+                <ContentControl Grid.Column="0" Margin="0,0,7,0" Content="{Binding}" ContentTemplate="{StaticResource ActiveSubjectTemplate}" />
+                <ContentControl Grid.Column="1" Margin="7,0,0,0" Content="{Binding}" ContentTemplate="{StaticResource QuickActionsTemplate}" />
+            </Grid>
+
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4*" />
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="3*" />
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0" Margin="0,0,7,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="3*" />
+                        <RowDefinition Height="2*" />
+                    </Grid.RowDefinitions>
+                    <ContentControl Grid.Row="0" Margin="0,0,0,7" Content="{Binding}" ContentTemplate="{StaticResource ScheduleTemplate}" />
+                    <ContentControl Grid.Row="1" Margin="0,7,0,0" Content="{Binding}" ContentTemplate="{StaticResource DeadlinesTemplate}" />
+                </Grid>
+
+                <ContentControl Grid.Column="1" Margin="7,0" Content="{Binding}" ContentTemplate="{StaticResource CardsTemplate}" />
+
+                <ContentControl Grid.Column="2" Margin="7,0,0,0" Content="{Binding}" ContentTemplate="{StaticResource ActivityTemplate}" />
+            </Grid>
+        </Grid>
+
+        <!-- ============================== Узкая раскладка: окно &lt;1280px, естественная высота + скролл ============================== -->
+        <ScrollViewer x:Name="NarrowContent" Visibility="Visible" VerticalScrollBarVisibility="Auto" Padding="28,22">
+            <StackPanel MaxWidth="900">
+                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource HeaderTemplate}" Margin="0,0,0,16" />
+                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource OnboardingTemplate}" Margin="0,0,0,14" />
+                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ActiveSubjectTemplate}" Margin="0,0,0,14" />
+                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource QuickActionsTemplate}" Margin="0,0,0,14" />
+                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ScheduleTemplate}" Margin="0,0,0,14" MinHeight="200" />
+                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource DeadlinesTemplate}" Margin="0,0,0,14" MinHeight="160" />
+                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource CardsTemplate}" Margin="0,0,0,14" MinHeight="220" />
+                <ContentControl Content="{Binding}" ContentTemplate="{StaticResource ActivityTemplate}" Margin="0,0,0,14" MinHeight="320" />
+            </StackPanel>
+        </ScrollViewer>
+
+    </Grid>
+</UserControl>

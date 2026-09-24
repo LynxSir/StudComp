@@ -1,0 +1,763 @@
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="center" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:bCs />
+          <w:caps />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">Технологический университет</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="center" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">Институт информационных технологий</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="center" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">Кафедра Программной инженерии</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="center" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:bCs />
+          <w:caps />
+          <w:sz w:val="32" />
+          <w:szCs w:val="32" />
+        </w:rPr>
+        <w:t xml:space="preserve">Отчёт по лабораторной работе</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="center" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">по дисциплине «Математический анализ»</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="right" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">Выполнил:</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="right" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">студент группы ИВТ-201</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="right" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">Иванов И. И.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="right" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">Проверил:</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="right" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">Петров П. П.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="center" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">Новосибирск 2026</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:br w:type="page" />
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="center" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:bCs />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">СОДЕРЖАНИЕ</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:fldSimple w:instr=" TOC \o &quot;1-3&quot; \h \z \u " w:dirty="true">
+        <w:r>
+          <w:rPr>
+            <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          </w:rPr>
+          <w:t xml:space="preserve">Оглавление собирается при обновлении полей (Ctrl+A, затем F9).</w:t>
+        </w:r>
+      </w:fldSimple>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:br w:type="page" />
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Heading1" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Списки произвольной вложенности</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:t xml:space="preserve">Проверяется перенос многоуровневых списков в документ по ГОСТ.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Heading2" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Маркированный список на три уровня</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="0" />
+          <w:numId w:val="1" />
+        </w:numPr>
+        <w:ind w:left="720" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">оборудование</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="1" />
+          <w:numId w:val="1" />
+        </w:numPr>
+        <w:ind w:left="1440" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">системный блок</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="2" />
+          <w:numId w:val="1" />
+        </w:numPr>
+        <w:ind w:left="2160" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">материнская плата</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="2" />
+          <w:numId w:val="1" />
+        </w:numPr>
+        <w:ind w:left="2160" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">блок питания</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="1" />
+          <w:numId w:val="1" />
+        </w:numPr>
+        <w:ind w:left="1440" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">монитор</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="0" />
+          <w:numId w:val="1" />
+        </w:numPr>
+        <w:ind w:left="720" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">программное обеспечение</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="1" />
+          <w:numId w:val="1" />
+        </w:numPr>
+        <w:ind w:left="1440" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">операционная система</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="1" />
+          <w:numId w:val="1" />
+        </w:numPr>
+        <w:ind w:left="1440" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">среда разработки</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Heading2" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Нумерованный список с вложением</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="0" />
+          <w:numId w:val="2" />
+        </w:numPr>
+        <w:ind w:left="720" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Подготовка стенда.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="1" />
+          <w:numId w:val="2" />
+        </w:numPr>
+        <w:ind w:left="1440" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Установить ОС.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="1" />
+          <w:numId w:val="2" />
+        </w:numPr>
+        <w:ind w:left="1440" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Настроить сеть.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="0" />
+          <w:numId w:val="2" />
+        </w:numPr>
+        <w:ind w:left="720" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Прогон эксперимента.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="0" />
+          <w:numId w:val="2" />
+        </w:numPr>
+        <w:ind w:left="720" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Обработка результатов.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Heading2" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Смешанная вложенность и начертания</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="0" />
+          <w:numId w:val="2" />
+        </w:numPr>
+        <w:ind w:left="720" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Первый шаг с </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:b />
+          <w:bCs />
+        </w:rPr>
+        <w:t xml:space="preserve">полужирным</w:t>
+      </w:r>
+      <w:r>
+        <w:t xml:space="preserve"> акцентом.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="1" />
+          <w:numId w:val="1" />
+        </w:numPr>
+        <w:ind w:left="1440" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">подпункт с </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:i />
+          <w:iCs />
+        </w:rPr>
+        <w:t xml:space="preserve">курсивом</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="1" />
+          <w:numId w:val="1" />
+        </w:numPr>
+        <w:ind w:left="1440" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">подпункт с </w:t>
+      </w:r>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Consolas" w:hAnsi="Consolas" w:cs="Consolas" />
+        </w:rPr>
+        <w:t xml:space="preserve">фрагментом кода</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:numPr>
+          <w:ilvl w:val="0" />
+          <w:numId w:val="2" />
+        </w:numPr>
+        <w:ind w:left="720" w:hanging="360" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Второй шаг.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:t xml:space="preserve">Список завершён.</w:t>
+      </w:r>
+    </w:p>
+    <w:sectPr>
+      <w:footerReference w:type="default" r:id="rel1" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" />
+      <w:footerReference w:type="first" r:id="rel2" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" />
+      <w:pgSz w:w="11906" w:h="16838" w:orient="portrait" />
+      <w:pgMar w:top="1134" w:right="850" w:bottom="1134" w:left="1701" w:header="709" w:footer="709" w:gutter="0" />
+      <w:titlePg />
+    </w:sectPr>
+  </w:body>
+</w:document>

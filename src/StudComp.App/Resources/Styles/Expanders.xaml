@@ -1,0 +1,20 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+
+    <!--
+        Единая конвенция прогрессивного раскрытия (Phase 13.9, new_addons.md §15): CardExpander —
+        единственный контейнер для «редко нужного» на экране. Правило по умолчанию:
+        IsExpanded=False, если содержимое не основной путь работы на этом экране (аналитика,
+        диагностика, тонкая настройка); IsExpanded=True — только если пользователь уже что-то туда
+        положил (например, шаблон уже задан) или это первое, что нужно увидеть на пустом экране.
+
+        ОБЯЗАТЕЛЬНО с BasedOn — без него собственный Style на themed WPF-UI контроле затирает тему
+        и откатывает вид к голому классическому WPF (ловили дважды: Phase 12.8 — ComboBox/NumberBox,
+        Phase 13.5 — Button).
+    -->
+    <Style x:Key="AppExpander" TargetType="ui:CardExpander" BasedOn="{StaticResource {x:Type ui:CardExpander}}">
+        <Setter Property="ContentPadding" Value="{DynamicResource Space.Card.Padding}" />
+    </Style>
+
+</ResourceDictionary>

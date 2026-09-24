@@ -1,0 +1,62 @@
+<UserControl x:Class="StudComp.Views.Settings.Dialogs.BackupRestoreConfirmation"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Settings"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:BackupRestoreConfirmationViewModel}"
+             Width="560">
+
+    <StackPanel>
+        <Grid Margin="0,0,0,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource SettingsCard}" Margin="0,0,0,0">
+                <StackPanel>
+                    <TextBlock Text="Текущая база" Style="{StaticResource SettingsLabel}" />
+                    <TextBlock Text="{Binding LocalLineageShort}" FontFamily="Consolas" FontSize="16"
+                               FontWeight="SemiBold" Margin="0,6,0,0" />
+                    <TextBlock Text="{Binding LocalVersionText}" FontSize="11" Margin="0,4,0,0"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </Border>
+
+            <ui:SymbolIcon Grid.Column="1" Symbol="ArrowRight24" FontSize="20" Margin="10,0"
+                           VerticalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+
+            <Border Grid.Column="2" Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Text="Импортируемый архив" Style="{StaticResource SettingsLabel}" />
+                    <TextBlock Text="{Binding RemoteLineageShort}" FontFamily="Consolas" FontSize="16"
+                               FontWeight="SemiBold" Margin="0,6,0,0" />
+                    <TextBlock Text="{Binding RemoteVersionText}" FontSize="11" Margin="0,4,0,0"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{Binding RemoteCreatedText}" FontSize="11"
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <ui:InfoBar Severity="{Binding Severity}" IsOpen="True" IsClosable="False" Margin="0,10,0,0"
+                    Title="{Binding Headline}" Message="{Binding Detail}" />
+
+        <TextBlock Text="Файлы из новых архивов будут восстановлены в отдельную подпапку выбранного каталога. Папки наблюдения останутся локальными, Архивариус будет выключен. В старых архивах учебных файлов нет."
+                   TextWrapping="Wrap" FontSize="12" Margin="0,10,0,0" />
+
+        <CheckBox Content="Понимаю — данные будут заменены содержимым архива."
+                  IsChecked="{Binding Acknowledged, Mode=TwoWay}" Margin="0,12,0,0"
+                  Visibility="{Binding IsRisky, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+
+        <TextBlock FontSize="11" TextWrapping="Wrap" Margin="0,12,0,0"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                   Text="Перед заменой будет сделана страховочная копия текущей базы. После восстановления приложение нужно перезапустить." />
+    </StackPanel>
+
+</UserControl>

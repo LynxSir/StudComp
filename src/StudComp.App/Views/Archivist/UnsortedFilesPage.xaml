@@ -1,0 +1,288 @@
+<UserControl x:Class="StudComp.Views.Archivist.UnsortedFilesPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             xmlns:behaviors="clr-namespace:StudComp.Behaviors"
+             xmlns:controls="clr-namespace:StudComp.Controls"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Archivist"
+             xmlns:domain="clr-namespace:StudComp.Core.Domain;assembly=StudComp.Core"
+             xmlns:archivistSvc="clr-namespace:StudComp.Modules.Archivist.Services;assembly=StudComp.Modules.Archivist"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:UnsortedFilesViewModel}"
+             d:DesignHeight="700" d:DesignWidth="1100">
+
+    <UserControl.Resources>
+        <!-- Пилюля-чип: подсказка предмета в строке файла и элемент рельса для drag-and-drop -->
+        <Style x:Key="Chip" TargetType="Border">
+            <Setter Property="CornerRadius" Value="999" />
+            <Setter Property="Padding" Value="10,4" />
+            <Setter Property="Margin" Value="0,0,6,0" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="0,12,0,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Наблюдение выключено / папка не выбрана — дип-линк в настройки -->
+        <Grid Grid.Row="0" Margin="0,0,0,12"
+              Visibility="{Binding IsWatchingDisabled, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ui:InfoBar Grid.Column="0" Severity="Warning" IsClosable="False"
+                        IsOpen="{Binding IsWatchingDisabled}"
+                        Title="Наблюдение выключено"
+                        Message="Включите его и выберите папку в разделе «Настройки», иначе новые файлы не будут появляться здесь." />
+            <ui:Button Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center" Appearance="Secondary"
+                       Content="Открыть настройки" Command="{Binding OpenArchivistSettingsCommand}" />
+        </Grid>
+
+        <!-- Шапка: папка наблюдения, счётчик «сегодня», пересканировать -->
+        <Grid Grid.Row="1" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="Наблюдаемая папка" FontSize="11"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                <TextBlock Text="{Binding WatchedFolderText}" TextTrimming="CharacterEllipsis" MaxWidth="380" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
+                <TextBlock FontSize="11" HorizontalAlignment="Right"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="Отсортировано сегодня" />
+                <ui:TextBlock Text="{Binding SortedTodayCount}" FontTypography="BodyStrong" HorizontalAlignment="Right" />
+            </StackPanel>
+
+            <ui:Button Grid.Column="2" Command="{Binding RescanCommand}" Appearance="Secondary"
+                       Icon="{ui:SymbolIcon ArrowSync24}" Content="Пересканировать" />
+        </Grid>
+
+        <!--
+            Рельс предметов: цель для drag-and-drop файлов. WrapPanel вместо горизонтального
+            ScrollViewer (Phase 13.5, по замечанию владельца) — при 6+ предметах чипы раньше обрезались
+            за границей окна без видимого намёка на скролл; перенос по строкам показывает все предметы
+            сразу, без прокрутки.
+        -->
+        <ItemsControl Grid.Row="2" Margin="0,0,0,12" ItemsSource="{Binding Subjects}"
+                      Visibility="{Binding IsEmpty, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type domain:Subject}">
+                    <Border Style="{StaticResource Chip}" Margin="0,0,8,8" ToolTip="Перетащите файл сюда, чтобы разложить"
+                            behaviors:DragDropSortBehavior.DropCommand="{Binding DataContext.DropSortCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center"
+                                     Fill="{Binding ColorHex, Converter={x:Static conv:StringToBrushConverter.Instance}}" />
+                            <TextBlock Text="{Binding Name}" FontSize="12" />
+                            <ui:SymbolIcon Symbol="ArrowMove24" FontSize="10" Margin="4,0,0,0" Opacity="0.5"
+                                           VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Панель пакетной сортировки — появляется при мультивыборе -->
+        <Border Grid.Row="3" Margin="0,0,0,12" CornerRadius="8" Padding="12,8" BorderThickness="1"
+                Background="{DynamicResource ControlFillColorDefaultBrush}"
+                BorderBrush="{StaticResource ColorPrimaryBrush}"
+                Visibility="{Binding HasSelection, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <ui:SymbolIcon Grid.Column="0" Symbol="CheckmarkCircle24" VerticalAlignment="Center" Margin="0,0,8,0"
+                               Foreground="{StaticResource ColorPrimaryBrush}" />
+                <TextBlock Grid.Column="1" VerticalAlignment="Center">
+                    <Run Text="Выбрано:" />
+                    <Run Text="{Binding SelectedCount, Mode=OneWay}" FontWeight="SemiBold" />
+                </TextBlock>
+
+                <ComboBox Grid.Column="2" MinWidth="200" Margin="0,0,8,0"
+                          ItemsSource="{Binding Subjects}" DisplayMemberPath="Name"
+                          SelectedItem="{Binding BatchTargetSubject, Mode=TwoWay}" />
+                <ui:Button Grid.Column="3" Appearance="Primary" Margin="0,0,4,0"
+                           Content="Разобрать выбранные" Command="{Binding BatchSortCommand}" />
+                <ui:Button Grid.Column="4" Appearance="Secondary" Content="Снять выделение"
+                           Command="{Binding ClearSelectionCommand}" />
+            </Grid>
+        </Border>
+
+        <!-- Список + предпросмотр -->
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="360" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Пустое состояние -->
+            <StackPanel Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center"
+                        Visibility="{Binding IsEmpty, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="40" HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                <TextBlock Text="Всё разобрано" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,10,0,4" />
+                <TextBlock Text="Новые файлы появятся здесь сами, как только архивариус их обнаружит."
+                           TextWrapping="Wrap" TextAlignment="Center" MaxWidth="280"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="12" />
+            </StackPanel>
+
+            <ListBox Grid.Column="0" ItemsSource="{Binding Items}"
+                     SelectionMode="Extended" SelectedItem="{Binding FocusedRow, Mode=TwoWay}"
+                     BorderThickness="0" Background="Transparent"
+                     ScrollViewer.CanContentScroll="True"
+                     VirtualizingPanel.IsVirtualizing="True"
+                     VirtualizingPanel.VirtualizationMode="Recycling"
+                     VirtualizingPanel.ScrollUnit="Pixel"
+                     HorizontalContentAlignment="Stretch"
+                     behaviors:DragDropSortBehavior.IsDragSource="True"
+                     Visibility="{Binding IsEmpty, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="0" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:UnsortedFileRowViewModel}">
+                        <Border Cursor="Arrow">
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource Cards.RowBorder}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsBlocked}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{StaticResource ColorAccentGoldBrush}" />
+                                            <Setter Property="BorderThickness" Value="1.5" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{StaticResource ColorPrimaryBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Акцентная полоска мультивыбора -->
+                                <Border Grid.Column="0" CornerRadius="2" Background="{StaticResource ColorPrimaryBrush}"
+                                        Visibility="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+
+                                <ui:SymbolIcon Grid.Column="2" VerticalAlignment="Center" FontSize="20"
+                                               Symbol="{Binding Extension, Converter={x:Static conv:FileExtensionToSymbolConverter.Instance}}"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                <ui:SymbolIcon Grid.Column="2" VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                               FontSize="12" Symbol="Warning24" Margin="0,0,-2,-2"
+                                               Foreground="{StaticResource ColorAccentGoldBrush}"
+                                               Visibility="{Binding IsBlocked, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+
+                                <StackPanel Grid.Column="4" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding FileName}" FontWeight="SemiBold" FontSize="14"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="12"
+                                               TextTrimming="CharacterEllipsis">
+                                        <Run Text="{Binding StatusText, Mode=OneWay}" />
+                                        <Run Text="·" />
+                                        <Run Text="{Binding SizeText, Mode=OneWay}" />
+                                        <Run Text="·" />
+                                        <Run Text="{Binding DetectedText, Mode=OneWay}" />
+                                        <Run Text="·" />
+                                        <Run Text="{Binding FolderName, Mode=OneWay}" />
+                                    </TextBlock>
+
+                                    <!-- Подсказки-кандидаты по похожести (ARCHITECTURE §8.4 п.7) -->
+                                    <ItemsControl ItemsSource="{Binding Suggestions}" Margin="0,6,0,0"
+                                                  Visibility="{Binding HasSuggestions, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type archivistSvc:UnsortedSuggestion}">
+                                                <Border Style="{StaticResource Chip}" Cursor="Hand"
+                                                        ToolTip="Проставить этот предмет в строке">
+                                                    <Border.InputBindings>
+                                                        <MouseBinding MouseAction="LeftClick"
+                                                                      Command="{Binding DataContext.ApplySuggestionCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                      CommandParameter="{Binding}" />
+                                                    </Border.InputBindings>
+                                                    <TextBlock Text="{Binding SubjectName}" FontSize="11" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <ComboBox MinWidth="150" Margin="0,0,6,0"
+                                              ItemsSource="{Binding DataContext.Subjects, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                              DisplayMemberPath="Name"
+                                              SelectedItem="{Binding SelectedSubject, Mode=TwoWay}" />
+                                    <ui:Button Appearance="Primary" Padding="10,4" Margin="0,0,4,0"
+                                               Command="{Binding DataContext.SortCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                               CommandParameter="{Binding}"
+                                               Content="Разобрать" />
+                                    <ui:Button Appearance="Secondary" Padding="8,4" ToolTip="Убрать из списка, файл не трогать"
+                                               Style="{StaticResource RowAction.HoverReveal}"
+                                               Command="{Binding DataContext.ForgetCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                               CommandParameter="{Binding}"
+                                               Icon="{ui:SymbolIcon EyeOff24}" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <controls:FilePreview Grid.Column="2" DataContext="{Binding Preview}" />
+        </Grid>
+    </Grid>
+
+</UserControl>

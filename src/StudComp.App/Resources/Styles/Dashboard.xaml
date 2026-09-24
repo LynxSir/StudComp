@@ -1,0 +1,50 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+
+    <!--
+        Стили редизайна Дашборда (Phase 13.5, new_addons.md §2/§18). Карточки виджетов — единая точка,
+        вместо трёх локальных стилей, которые раньше жили прямо в DashboardPage.xaml.Resources.
+        Отступы — через токены Spacing.xaml (DynamicResource), чтобы плотность интерфейса
+        (AppDensity.Compact, Phase 12.5) наконец действовала и на Дашборде.
+    -->
+
+    <Style x:Key="Dashboard.WidgetCard" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="Padding" Value="{DynamicResource Space.Card.Padding}" />
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="14" ShadowDepth="1" Direction="270" Opacity="0.08" Color="Black" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Геройские карточки верхней строки — чуть просторнее. -->
+    <Style x:Key="Dashboard.HeroCard" TargetType="Border" BasedOn="{StaticResource Dashboard.WidgetCard}">
+        <Setter Property="Padding" Value="20,18" />
+        <Setter Property="CornerRadius" Value="16" />
+    </Style>
+
+    <Style x:Key="Dashboard.WidgetTitle" TargetType="ui:TextBlock">
+        <Setter Property="FontTypography" Value="BodyStrong" />
+        <Setter Property="Margin" Value="0,0,0,10" />
+    </Style>
+
+    <Style x:Key="Dashboard.EmptyHint" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <!--
+        Намеренно НЕТ собственных Style-ресурсов для ui:Button/ui:ComboBox и подобных тематических
+        контролов: явный Style без BasedOn на теме затирает неявный стиль ui:ControlsDictionary и
+        откатывает контрол к голому классическому виду WPF (тот самый баг, найденный и исправленный в
+        Phase 12.8 для ComboBox/NumberBox). Кнопки Дашборда получают Padding/Margin/Appearance прямыми
+        атрибутами на каждом экземпляре — тем же способом, что и везде в приложении.
+    -->
+
+</ResourceDictionary>

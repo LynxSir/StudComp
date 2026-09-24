@@ -1,0 +1,21 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Фирменные цветовые токены (ARCHITECTURE §19.2, §19.6). Phase 3 — только база:
+        винный primary + редкое золото. Полная палитра поверхностей/статусов и тёмная адаптация —
+        по ходу Phase 4–9. Имена токенов: ColorPrimary / ColorAccentGold / ColorSurface.
+        Винный дополнительно прокидывается в accent WPF-UI из App.xaml.cs (ApplicationAccentColorManager).
+    -->
+
+    <Color x:Key="ColorPrimary">#8A1C2B</Color>
+    <Color x:Key="ColorPrimaryHover">#A32235</Color>
+    <Color x:Key="ColorPrimaryPressed">#731623</Color>
+    <Color x:Key="ColorAccentGold">#C9A227</Color>
+
+    <SolidColorBrush x:Key="ColorPrimaryBrush" Color="{StaticResource ColorPrimary}" />
+    <SolidColorBrush x:Key="ColorPrimaryHoverBrush" Color="{StaticResource ColorPrimaryHover}" />
+    <SolidColorBrush x:Key="ColorPrimaryPressedBrush" Color="{StaticResource ColorPrimaryPressed}" />
+    <SolidColorBrush x:Key="ColorAccentGoldBrush" Color="{StaticResource ColorAccentGold}" />
+
+</ResourceDictionary>

@@ -1,0 +1,471 @@
+<UserControl x:Class="StudComp.Views.Organizer.SchedulePage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Organizer"
+             xmlns:behaviors="clr-namespace:StudComp.Behaviors"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             xmlns:controls="clr-namespace:StudComp.Controls"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:ScheduleViewModel}"
+             d:DesignHeight="600" d:DesignWidth="900">
+
+    <UserControl.Resources>
+        <!-- Получасовая сетка одной кистью: часовая линия заметнее получасовой, ноль элементов. -->
+        <DrawingBrush x:Key="GridLinesBrush" TileMode="Tile" Stretch="None"
+                      Viewport="0,0,8,52" ViewportUnits="Absolute">
+            <DrawingBrush.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing Brush="{DynamicResource ControlStrokeColorDefaultBrush}">
+                        <GeometryDrawing.Geometry>
+                            <RectangleGeometry Rect="0,25.5,8,0.5" />
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                    <GeometryDrawing Brush="{DynamicResource ControlElevationBorderBrush}">
+                        <GeometryDrawing.Geometry>
+                            <RectangleGeometry Rect="0,51.3,8,0.7" />
+                        </GeometryDrawing.Geometry>
+                    </GeometryDrawing>
+                </DrawingGroup>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+
+        <!-- Сегментированный переключатель чётности -->
+        <Style x:Key="SegmentToggle" TargetType="RadioButton">
+            <Setter Property="Padding" Value="14,5" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Bd" CornerRadius="7" Background="Transparent"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background"
+                                        Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="Background"
+                                        Value="{StaticResource ColorPrimaryBrush}" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="0,12,0,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Шапка: семестр и неделя, чип чётности, фильтр, «обе недели», добавление -->
+        <Grid Grid.Row="0" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <ui:TextBlock Text="{Binding WeekHeader}" FontTypography="BodyStrong"
+                              VerticalAlignment="Center" />
+
+                <!-- Числитель или знаменатель на текущей неделе -->
+                <Border CornerRadius="999" Padding="10,3" Margin="10,0,0,0" VerticalAlignment="Center"
+                        Background="{StaticResource ColorPrimaryBrush}"
+                        Visibility="{Binding HasSemester,
+                                     Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                    <TextBlock Text="{Binding CurrentParityText}" Foreground="White" FontSize="11"
+                               FontWeight="SemiBold" />
+                </Border>
+                <controls:TermHint Margin="6,0,0,0"
+                                    Visibility="{Binding HasSemester, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}"
+                                    Text="«Числитель»/«знаменатель» — народное обозначение первой и второй недели чередующегося расписания. Совпадает с датами в семестре (Настройки → Расписание и семестр)." />
+            </StackPanel>
+
+            <Border Grid.Column="1" CornerRadius="9" Padding="3" Margin="0,0,12,0" BorderThickness="1"
+                    VerticalAlignment="Center"
+                    Background="{DynamicResource ControlFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource ControlElevationBorderBrush}"
+                    IsEnabled="{Binding ShowBothWeeks,
+                                Converter={x:Static conv:InverseBooleanConverter.Instance}}">
+                <ItemsControl ItemsSource="{Binding ParityFilters}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <RadioButton Style="{StaticResource SegmentToggle}" GroupName="ParityFilter"
+                                         Content="{Binding Display}"
+                                         Command="{Binding DataContext.SetParityFilterCommand,
+                                                   RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                         CommandParameter="{Binding}">
+                                <RadioButton.IsChecked>
+                                    <MultiBinding Mode="OneWay"
+                                                  Converter="{x:Static conv:EqualityConverter.Instance}">
+                                        <Binding Path="." />
+                                        <Binding Path="DataContext.SelectedParityFilter"
+                                                 RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                                    </MultiBinding>
+                                </RadioButton.IsChecked>
+                            </RadioButton>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+
+            <CheckBox Grid.Column="2" Margin="0,0,12,0" VerticalAlignment="Center"
+                      Content="Обе недели" IsChecked="{Binding ShowBothWeeks, Mode=TwoWay}"
+                      ToolTip="Показать числитель и знаменатель рядом" />
+
+            <ui:Button Grid.Column="3" Command="{Binding AddCommand}" Appearance="Primary"
+                       Icon="{ui:SymbolIcon Add24}" Content="Добавить пару" />
+        </Grid>
+
+        <!-- Сетка время×день -->
+        <Border Grid.Row="1" CornerRadius="12" BorderThickness="1"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          Padding="10,8,10,10">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="54" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="{Binding GridPixelHeight}" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Гаттер часов: строки генерируются из SlotCount, подписи — из HourLabels -->
+                    <ItemsControl Grid.Row="1" Grid.Column="0" ItemsSource="{Binding HourLabels}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Grid behaviors:GridDefinitions.Rows="26" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemContainerStyle>
+                            <Style TargetType="ContentPresenter">
+                                <Setter Property="Grid.Row" Value="{Binding RowIndex}" />
+                            </Style>
+                        </ItemsControl.ItemContainerStyle>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:HourLabel}">
+                                <TextBlock Text="{Binding Text}" FontSize="11" Margin="0,-7,10,0"
+                                           HorizontalAlignment="Right"
+                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Заголовки дней -->
+                    <ItemsControl Grid.Row="0" Grid.Column="1" ItemsSource="{Binding DayHeaders}"
+                                  Margin="0,0,0,6">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="1" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:DayHeader}">
+                                <Border Margin="2,0" CornerRadius="8" Padding="0,6">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsToday}" Value="True">
+                                                    <Setter Property="Background"
+                                                            Value="{StaticResource ColorPrimaryBrush}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding Name}" TextAlignment="Center" FontSize="12"
+                                               FontWeight="SemiBold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground"
+                                                        Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsToday}" Value="True">
+                                                        <Setter Property="Foreground" Value="White" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!--
+                        Полотно: линии, клик по пустому месту, плитки, линия «сейчас».
+                        Attached-свойства ScheduleGridBehavior — на самом Canvas (их настоящем общем
+                        предке и с подложкой, и с плитками), а не на подложке-сиблинге: FindCanvas
+                        ищет предка вверх по дереву от плитки, а сиблинга так не найти (new_addons.md
+                        §3.3 — этим был сломан не только клик, но и перенос/растягивание пары).
+                    -->
+                    <Grid x:Name="Canvas" Grid.Row="1" Grid.Column="1"
+                          behaviors:ScheduleGridBehavior.RowCount="26"
+                          behaviors:ScheduleGridBehavior.EmptyCellCommand="{Binding OpenCellCommand}"
+                          behaviors:ScheduleGridBehavior.MoveCommand="{Binding MoveTileCommand}"
+                          behaviors:ScheduleGridBehavior.ResizeCommand="{Binding ResizeTileCommand}"
+                          behaviors:ScheduleGridBehavior.TileClickCommand="{Binding OpenHubCommand}">
+
+                        <Border Background="{StaticResource GridLinesBrush}" />
+
+                        <!-- Одна прозрачная подложка вместо 182 контролов-ячеек -->
+                        <Border Background="Transparent" Cursor="Hand" />
+
+                        <ItemsControl ItemsSource="{Binding Tiles}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Grid behaviors:GridDefinitions.Rows="26"
+                                          behaviors:GridDefinitions.Columns="7" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemContainerStyle>
+                                <Style TargetType="ContentPresenter">
+                                    <Setter Property="Grid.Column" Value="{Binding DayColumn}" />
+                                    <Setter Property="Grid.Row" Value="{Binding RowOffset}" />
+                                    <Setter Property="Grid.RowSpan" Value="{Binding RowSpan}" />
+                                </Style>
+                            </ItemsControl.ItemContainerStyle>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:ScheduleTileViewModel}">
+                                    <Border x:Name="Tile" CornerRadius="8" Padding="8,5"
+                                            behaviors:ScheduleGridBehavior.IsTile="True"
+                                            Background="{Binding FillBrush}"
+                                            BorderThickness="3,0,0,0"
+                                            BorderBrush="{Binding AccentBrush}"
+                                            Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                        <Border.Margin>
+                                            <MultiBinding Converter="{x:Static conv:LaneMarginConverter.Instance}">
+                                                <Binding Path="Lane" />
+                                                <Binding Path="LaneCount" />
+                                                <Binding Path="ActualWidth" ElementName="Canvas" />
+                                            </MultiBinding>
+                                        </Border.Margin>
+
+                                        <!--
+                                            PlacementTarget.DataContext давал бы DataContext самого Tile
+                                            (ScheduleTileViewModel — команд там нет), а не страницы. Команды
+                                            живут на ScheduleViewModel, поэтому идём через Tag (Phase 13.11).
+                                        -->
+                                        <Border.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Открыть предмет"
+                                                          Command="{Binding PlacementTarget.Tag.OpenHubCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                          CommandParameter="{Binding}" />
+                                                <Separator />
+                                                <MenuItem Header="Изменить"
+                                                          Command="{Binding PlacementTarget.Tag.EditCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                          CommandParameter="{Binding}" />
+                                                <MenuItem Header="Продублировать на другую чётность"
+                                                          Command="{Binding PlacementTarget.Tag.DuplicateToOtherParityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                          CommandParameter="{Binding}" />
+                                                <Separator />
+                                                <MenuItem Header="Удалить"
+                                                          Command="{Binding PlacementTarget.Tag.DeleteCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                          CommandParameter="{Binding}" />
+                                            </ContextMenu>
+                                        </Border.ContextMenu>
+
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding SubjectName}" FontWeight="SemiBold"
+                                                       FontSize="12" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{Binding TimeRange}" FontSize="11"
+                                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Room}" FontSize="11"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                                <Border CornerRadius="999" Padding="5,0" Margin="5,0,0,0"
+                                                        VerticalAlignment="Center"
+                                                        Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                                                        Visibility="{Binding HasParity,
+                                                                     Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                                                    <TextBlock Text="{Binding ParityText}" FontSize="9" />
+                                                </Border>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <DataTemplate.Triggers>
+                                        <Trigger SourceName="Tile" Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Tile" Property="Effect">
+                                                <Setter.Value>
+                                                    <DropShadowEffect BlurRadius="10" ShadowDepth="1"
+                                                                      Opacity="0.18" />
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                        <!-- Идущая сейчас пара — винный контур со свечением -->
+                                        <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                            <Setter TargetName="Tile" Property="BorderThickness" Value="2" />
+                                            <Setter TargetName="Tile" Property="BorderBrush"
+                                                    Value="{StaticResource ColorPrimaryBrush}" />
+                                            <Setter TargetName="Tile" Property="Effect">
+                                                <Setter.Value>
+                                                    <DropShadowEffect BlurRadius="12" ShadowDepth="0"
+                                                                      Opacity="0.35" Color="#8A1C2B" />
+                                                </Setter.Value>
+                                            </Setter>
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Линия «сейчас» в колонке сегодняшнего дня -->
+                        <Border VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="2"
+                                IsHitTestVisible="False" CornerRadius="1"
+                                Background="{StaticResource ColorAccentGoldBrush}"
+                                Visibility="{Binding ShowNowLine,
+                                             Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                            <Border.Margin>
+                                <MultiBinding Converter="{x:Static conv:TodayColumnOffsetConverter.Instance}">
+                                    <Binding Path="TodayColumn" />
+                                    <Binding Path="ActualWidth" ElementName="Canvas" />
+                                    <Binding Path="NowLineOffset" />
+                                </MultiBinding>
+                            </Border.Margin>
+                        </Border>
+                    </Grid>
+
+                    <!-- Дружелюбное пустое состояние поверх сетки -->
+                    <StackPanel Grid.Row="1" Grid.Column="1" VerticalAlignment="Center"
+                                HorizontalAlignment="Center" IsHitTestVisible="False" MaxWidth="380"
+                                Visibility="{Binding HasTiles,
+                                             Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}">
+                        <ui:SymbolIcon Symbol="CalendarAdd24" FontSize="34" HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                        <TextBlock Text="Расписание пустое" FontSize="15" FontWeight="SemiBold"
+                                   Margin="0,10,0,0" HorizontalAlignment="Center" />
+                        <TextBlock TextWrapping="Wrap" TextAlignment="Center" FontSize="12" Margin="0,4,0,0"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                   Text="Кликните по любой пустой клетке — откроется быстрая форма, время подставится из сетки звонков." />
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Поповер быстрого добавления пары -->
+        <Popup IsOpen="{Binding Popover.IsOpen, Mode=TwoWay}" StaysOpen="False"
+               Placement="Center" PlacementTarget="{Binding ElementName=Canvas}"
+               AllowsTransparency="True" PopupAnimation="Fade">
+            <Border CornerRadius="12" Padding="16" Width="340" BorderThickness="1" Margin="20"
+                    Background="{DynamicResource ApplicationBackgroundBrush}"
+                    BorderBrush="{DynamicResource ControlElevationBorderBrush}">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="24" ShadowDepth="2" Opacity="0.3" />
+                </Border.Effect>
+                <StackPanel DataContext="{Binding Popover}">
+                    <Grid Margin="0,0,0,8">
+                        <ui:TextBlock Text="{Binding Header}" FontTypography="BodyStrong"
+                                      VerticalAlignment="Center" />
+                        <ui:Button HorizontalAlignment="Right" Appearance="Secondary" Padding="6,2"
+                                   Icon="{ui:SymbolIcon Dismiss24}" Command="{Binding CloseCommand}" />
+                    </Grid>
+
+                    <TextBlock Text="{Binding SlotHint}" FontSize="11" Margin="0,0,0,10"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+
+                    <TextBlock Text="Предмет" FontSize="11" Margin="0,0,0,3" />
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox Grid.Column="0" ItemsSource="{Binding Subjects}" DisplayMemberPath="Name"
+                                  IsEditable="True" IsTextSearchEnabled="True" TextSearch.TextPath="Name"
+                                  SelectedItem="{Binding SelectedSubject, Mode=TwoWay}" />
+                        <ui:Button Grid.Column="1" Margin="6,0,0,0" Appearance="Secondary" Padding="8,4"
+                                   Icon="{ui:SymbolIcon Add24}" ToolTip="Новый предмет"
+                                   Command="{Binding RequestNewSubjectCommand}" />
+                    </Grid>
+
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Тип" FontSize="11" Margin="0,0,0,3" />
+                            <ComboBox ItemsSource="{Binding Types}" DisplayMemberPath="Display"
+                                      SelectedItem="{Binding SelectedType, Mode=TwoWay}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Неделя" FontSize="11" Margin="0,0,0,3" />
+                            <ComboBox ItemsSource="{Binding Parities}" DisplayMemberPath="Display"
+                                      SelectedItem="{Binding SelectedParity, Mode=TwoWay}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Начало" FontSize="11" Margin="0,0,0,3" />
+                            <ui:TextBox Text="{Binding StartTimeText, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Конец" FontSize="11" Margin="0,0,0,3" />
+                            <ui:TextBox Text="{Binding EndTimeText, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Аудитория" FontSize="11" Margin="0,0,0,3" />
+                            <ui:TextBox Text="{Binding Room, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Преподаватель" FontSize="11" Margin="0,0,0,3" />
+                            <ui:TextBox Text="{Binding Teacher, UpdateSourceTrigger=PropertyChanged}"
+                                        IsEnabled="{Binding IsTeacherEditable}" />
+                            <ui:Button Appearance="Transparent" Padding="0,4,0,0" FontSize="11"
+                                       HorizontalAlignment="Left" Content="Указать другого преподавателя"
+                                       Command="{Binding UnlockTeacherCommand}"
+                                       Visibility="{Binding IsTeacherLocked, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Видимая причина недоступности «Добавить пару» вместо молчаливо
+                         задизейбленной кнопки (new_addons.md §6.1, Тест.txt №4). -->
+                    <TextBlock Text="{Binding ValidationHint}" FontSize="11" Margin="0,0,0,6"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               Visibility="{Binding ValidationHint, Converter={x:Static conv:StringPresenceToVisibilityConverter.Instance}}" />
+
+                    <ui:Button HorizontalAlignment="Stretch" Appearance="Primary"
+                               Icon="{ui:SymbolIcon Checkmark24}" Content="Добавить пару"
+                               Command="{Binding SubmitCommand}" />
+                </StackPanel>
+            </Border>
+        </Popup>
+    </Grid>
+
+</UserControl>

@@ -1,0 +1,65 @@
+<UserControl x:Class="StudComp.Views.Organizer.OrganizerPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:local="clr-namespace:StudComp.Views.Organizer"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Organizer"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:OrganizerPageViewModel}">
+
+    <Grid Margin="16,12,16,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Шапка раздела: переключатель семестра (new_addons.md §5) -->
+        <Grid Grid.Row="0" Margin="0,0,0,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <ui:SymbolIcon Grid.Column="0" Symbol="CalendarLtr24" FontSize="16" Margin="0,0,8,0"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+
+            <ComboBox Grid.Column="1" MinWidth="220" DisplayMemberPath="Name"
+                      ItemsSource="{Binding Semesters}"
+                      SelectedItem="{Binding SelectedSemester, Mode=TwoWay}"
+                      ToolTip="Выбранный семестр становится активным во всём приложении"
+                      Visibility="{Binding HasSemesters,
+                                   Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+
+            <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="12"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                       Text="Семестр не настроен"
+                       Visibility="{Binding HasSemesters,
+                                    Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}" />
+
+            <ui:Button Grid.Column="2" HorizontalAlignment="Left" Margin="8,0,0,0" Appearance="Secondary"
+                       Padding="10,4" FontSize="12" Content="Управление семестрами"
+                       Command="{Binding ManageSemestersCommand}" />
+        </Grid>
+
+        <TabControl Grid.Row="1" SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
+            <TabItem Header="Расписание">
+                <local:SchedulePage DataContext="{Binding Schedule}" />
+            </TabItem>
+            <TabItem Header="Дедлайны">
+                <local:DeadlinesPage DataContext="{Binding Deadlines}" />
+            </TabItem>
+            <TabItem Header="Зачётка">
+                <local:GradeBookPage DataContext="{Binding GradeBook}" />
+            </TabItem>
+            <TabItem Header="Предметы">
+                <local:SubjectsPage DataContext="{Binding Subjects}" />
+            </TabItem>
+        </TabControl>
+    </Grid>
+
+</UserControl>

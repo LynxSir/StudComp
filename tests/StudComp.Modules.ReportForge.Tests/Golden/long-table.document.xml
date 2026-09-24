@@ -1,0 +1,2179 @@
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="center" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:bCs />
+          <w:caps />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">Технологический университет</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="center" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">Институт информационных технологий</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="center" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">Кафедра Программной инженерии</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="center" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:bCs />
+          <w:caps />
+          <w:sz w:val="32" />
+          <w:szCs w:val="32" />
+        </w:rPr>
+        <w:t xml:space="preserve">Отчёт по лабораторной работе</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="center" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">по дисциплине «Математический анализ»</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="right" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">Выполнил:</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="right" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">студент группы ИВТ-201</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="right" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">Иванов И. И.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="right" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">Проверил:</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="right" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">Петров П. П.</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="center" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">Новосибирск 2026</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:br w:type="page" />
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="center" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:b />
+          <w:bCs />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve">СОДЕРЖАНИЕ</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:r>
+        <w:rPr>
+          <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          <w:sz w:val="28" />
+          <w:szCs w:val="28" />
+        </w:rPr>
+        <w:t xml:space="preserve"></w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:spacing w:line="360" w:lineRule="auto" />
+        <w:ind w:firstLine="0" />
+        <w:jc w:val="left" />
+      </w:pPr>
+      <w:fldSimple w:instr=" TOC \o &quot;1-3&quot; \h \z \u " w:dirty="true">
+        <w:r>
+          <w:rPr>
+            <w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman" />
+          </w:rPr>
+          <w:t xml:space="preserve">Оглавление собирается при обновлении полей (Ctrl+A, затем F9).</w:t>
+        </w:r>
+      </w:fldSimple>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:br w:type="page" />
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Heading1" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Длинные таблицы</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Heading2" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Результаты измерений</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Caption" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Таблица 1 — Замеры времени отклика по итерациям</w:t>
+      </w:r>
+    </w:p>
+    <w:tbl>
+      <w:tblPr>
+        <w:tblStyle w:val="TableGrid" />
+        <w:tblW w:w="9355" w:type="dxa" />
+        <w:tblLayout w:type="fixed" />
+        <w:tblLook w:val="04A0" />
+      </w:tblPr>
+      <w:tblGrid>
+        <w:gridCol w:w="869" />
+        <w:gridCol w:w="1022" />
+        <w:gridCol w:w="1636" />
+        <w:gridCol w:w="1431" />
+        <w:gridCol w:w="1431" />
+        <w:gridCol w:w="2966" />
+      </w:tblGrid>
+      <w:tr>
+        <w:trPr>
+          <w:tblHeader />
+        </w:trPr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="869" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="center" />
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:b />
+                <w:bCs />
+              </w:rPr>
+              <w:t xml:space="preserve">№</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1022" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="center" />
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:b />
+                <w:bCs />
+              </w:rPr>
+              <w:t xml:space="preserve">Итерация</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1636" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="center" />
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:b />
+                <w:bCs />
+              </w:rPr>
+              <w:t xml:space="preserve">Нагрузка, запр/с</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="center" />
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:b />
+                <w:bCs />
+              </w:rPr>
+              <w:t xml:space="preserve">Отклик p50, мс</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="center" />
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:b />
+                <w:bCs />
+              </w:rPr>
+              <w:t xml:space="preserve">Отклик p95, мс</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2966" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="center" />
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:b />
+                <w:bCs />
+              </w:rPr>
+              <w:t xml:space="preserve">Комментарий</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="869" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">1</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1022" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">разогрев</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1636" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">10</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">12</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">30</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2966" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">кэш холодный</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="869" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">2</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1022" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">разогрев</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1636" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">20</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">14</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">33</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2966" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">кэш прогревается</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="869" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">3</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1022" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">плато</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1636" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">50</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">18</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">41</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2966" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">стабильно</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="869" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">4</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1022" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">плато</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1636" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">50</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">17</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">39</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2966" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">стабильно</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="869" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">5</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1022" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">плато</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1636" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">50</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">19</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">44</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2966" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">стабильно</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="869" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">6</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1022" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">рост</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1636" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">80</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">24</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">60</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2966" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">появляются очереди</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="869" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">7</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1022" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">рост</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1636" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">110</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">33</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">88</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2966" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">очереди растут</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="869" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">8</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1022" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">рост</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1636" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">140</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">47</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">121</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2966" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">близко к пределу</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="869" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">9</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1022" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">пик</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1636" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">170</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">71</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">190</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2966" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">деградация</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="869" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">10</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1022" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">пик</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1636" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">200</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">118</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">320</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2966" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">предел пропускной способности</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="869" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">11</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1022" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">спад</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1636" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">140</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">44</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">118</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2966" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">восстановление</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="869" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">12</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1022" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">спад</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1636" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">90</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">26</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">64</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2966" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">восстановление</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="869" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">13</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1022" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">спад</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1636" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">40</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">16</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">37</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2966" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">норма</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="869" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">14</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1022" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">завершение</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1636" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">10</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">12</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1431" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">29</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="2966" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">норма</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p />
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Heading2" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Таблица без подписи</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Caption" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Таблица 2</w:t>
+      </w:r>
+    </w:p>
+    <w:tbl>
+      <w:tblPr>
+        <w:tblStyle w:val="TableGrid" />
+        <w:tblW w:w="9355" w:type="dxa" />
+        <w:tblLayout w:type="fixed" />
+        <w:tblLook w:val="04A0" />
+      </w:tblPr>
+      <w:tblGrid>
+        <w:gridCol w:w="8019" />
+        <w:gridCol w:w="1336" />
+      </w:tblGrid>
+      <w:tr>
+        <w:trPr>
+          <w:tblHeader />
+        </w:trPr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="8019" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="center" />
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:b />
+                <w:bCs />
+              </w:rPr>
+              <w:t xml:space="preserve">Параметр</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1336" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="center" />
+            </w:pPr>
+            <w:r>
+              <w:rPr>
+                <w:b />
+                <w:bCs />
+              </w:rPr>
+              <w:t xml:space="preserve">Значение</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="8019" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">Длинная ячейка с развёрнутым пояснением, которое заведомо шире соседних столбцов и заставляет распределитель ширины прижать колонку к верхней границе доли</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1336" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">да</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+      <w:tr>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="8019" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">Короткая</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w="1336" w:type="dxa" />
+            <w:vAlign w:val="center" />
+          </w:tcPr>
+          <w:p>
+            <w:pPr>
+              <w:spacing w:before="20" w:after="20" w:line="240" w:lineRule="auto" />
+              <w:ind w:firstLine="0" />
+              <w:jc w:val="left" />
+            </w:pPr>
+            <w:r>
+              <w:t xml:space="preserve">нет</w:t>
+            </w:r>
+          </w:p>
+        </w:tc>
+      </w:tr>
+    </w:tbl>
+    <w:p />
+    <w:p>
+      <w:r>
+        <w:t xml:space="preserve">Проверка завершена.</w:t>
+      </w:r>
+    </w:p>
+    <w:sectPr>
+      <w:footerReference w:type="default" r:id="rel1" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" />
+      <w:footerReference w:type="first" r:id="rel2" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" />
+      <w:pgSz w:w="11906" w:h="16838" w:orient="portrait" />
+      <w:pgMar w:top="1134" w:right="850" w:bottom="1134" w:left="1701" w:header="709" w:footer="709" w:gutter="0" />
+      <w:titlePg />
+    </w:sectPr>
+  </w:body>
+</w:document>

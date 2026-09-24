@@ -1,0 +1,112 @@
+<UserControl x:Class="StudComp.Views.Settings.NotificationSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Settings"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:NotificationSettingsViewModel}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="{DynamicResource Space.Page.Padding}">
+        <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                <ui:SymbolIcon Symbol="Alert24" FontSize="22" VerticalAlignment="Center"
+                               Foreground="{DynamicResource ColorPrimaryBrush}" />
+                <TextBlock Text="Дедлайны и уведомления" FontSize="22" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center" />
+            </StackPanel>
+            <TextBlock Style="{StaticResource SettingsCaption}" Margin="0,0,0,8"
+                       Text="Напоминания о парах и дедлайнах, тихие часы и звук." />
+
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Показывать напоминания" />
+                        <TextBlock Style="{StaticResource SettingsCaption}" Text="О ближайших парах и дедлайнах." />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" VerticalAlignment="Center"
+                                     IsChecked="{Binding RemindersEnabled, Mode=TwoWay}" />
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Напоминать за N минут" />
+                        <TextBlock Style="{StaticResource SettingsCaption}"
+                                   Text="За сколько минут до события показать напоминание — та же настройка, что в разделе «Расписание и семестр»." />
+                    </StackPanel>
+                    <ui:NumberBox Grid.Column="1" MinWidth="120" Minimum="0" Maximum="240"
+                                  Value="{Binding RemindMinutesBefore, Mode=TwoWay}" />
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                            <TextBlock Style="{StaticResource SettingsLabel}" Text="Тихие часы" />
+                            <TextBlock Style="{StaticResource SettingsCaption}" Text="Не показывать напоминания в заданном интервале." />
+                        </StackPanel>
+                        <ui:ToggleSwitch Grid.Column="1" VerticalAlignment="Center"
+                                         IsChecked="{Binding QuietHoursEnabled, Mode=TwoWay}" />
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0"
+                                IsEnabled="{Binding QuietHoursEnabled}">
+                        <TextBlock Text="с" VerticalAlignment="Center" Margin="0,0,6,0"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <ui:TextBox Width="70" Text="{Binding QuietHoursStartText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+                        <TextBlock Text="до" VerticalAlignment="Center" Margin="10,0,6,0"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <ui:TextBox Width="70" Text="{Binding QuietHoursEndText, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Звук напоминания" />
+                        <TextBlock Style="{StaticResource SettingsCaption}" Text="Короткий сигнал при показе напоминания." />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" VerticalAlignment="Center"
+                                     IsChecked="{Binding SoundEnabled, Mode=TwoWay}" />
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Напоминать о залежавшихся файлах" />
+                        <TextBlock Style="{StaticResource SettingsCaption}"
+                                   Text="Через сколько дней без разбора напомнить (0 — не напоминать)." />
+                    </StackPanel>
+                    <ui:NumberBox Grid.Column="1" MinWidth="120" Minimum="0" Maximum="365"
+                                  Value="{Binding UnsortedReminderDays, Mode=TwoWay}" />
+                </Grid>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,195 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vmArchivist="clr-namespace:StudComp.ViewModels.Archivist"
+                    xmlns:vmCards="clr-namespace:StudComp.ViewModels.Cards"
+                    xmlns:vmOrganizer="clr-namespace:StudComp.ViewModels.Organizer"
+                    xmlns:vmOrganizerHub="clr-namespace:StudComp.ViewModels.Organizer.Hub"
+                    xmlns:vmReport="clr-namespace:StudComp.ViewModels.ReportForge"
+                    xmlns:vmShell="clr-namespace:StudComp.ViewModels.Shell"
+                    xmlns:vmSettings="clr-namespace:StudComp.ViewModels.Settings"
+                    xmlns:viewSettings="clr-namespace:StudComp.Views.Settings"
+                    xmlns:viewArchivist="clr-namespace:StudComp.Views.Archivist"
+                    xmlns:viewArchivistDialogs="clr-namespace:StudComp.Views.Archivist.Dialogs"
+                    xmlns:viewCards="clr-namespace:StudComp.Views.Cards"
+                    xmlns:viewCardsDialogs="clr-namespace:StudComp.Views.Cards.Dialogs"
+                    xmlns:viewOrganizer="clr-namespace:StudComp.Views.Organizer"
+                    xmlns:viewOrganizerDialogs="clr-namespace:StudComp.Views.Organizer.Dialogs"
+                    xmlns:viewReport="clr-namespace:StudComp.Views.ReportForge"
+                    xmlns:viewReportDialogs="clr-namespace:StudComp.Views.ReportForge.Dialogs"
+                    xmlns:vm="clr-namespace:StudComp.ViewModels"
+                    xmlns:controls="clr-namespace:StudComp.Controls"
+                    xmlns:viewShell="clr-namespace:StudComp.Views.Shell"
+                    xmlns:viewShellDialogs="clr-namespace:StudComp.Views.Shell.Dialogs"
+                    xmlns:viewSettingsDialogs="clr-namespace:StudComp.Views.Settings.Dialogs">
+
+    <DataTemplate DataType="{x:Type controls:NoteImageSizeViewModel}">
+        <StackPanel Width="320">
+            <TextBlock Text="Ширина изображения в пикселях" Margin="0,0,0,8" />
+            <TextBox Text="{Binding WidthText, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Text="От 32 до 2400. Пустое поле — автоматический размер. Пропорции сохраняются."
+                       TextWrapping="Wrap" Margin="0,8,0,0" />
+        </StackPanel>
+    </DataTemplate>
+
+    <!-- Связь «страница-VM → View» (ARCHITECTURE §11.5): ContentControl в MainWindow рендерит
+         текущую VM через соответствующий шаблон. -->
+
+    <DataTemplate DataType="{x:Type vmShell:DashboardPageViewModel}">
+        <viewShell:DashboardPage />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmArchivist:ArchivistPageViewModel}">
+        <viewArchivist:ArchivistPage />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmOrganizer:SubjectHubViewModel}">
+        <viewOrganizer:SubjectHubPage />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmOrganizer:DeadlineWorkViewModel}">
+        <viewOrganizer:DeadlineWorkPage />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmOrganizer:OrganizerPageViewModel}">
+        <viewOrganizer:OrganizerPage />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmReport:ReportForgePageViewModel}">
+        <viewReport:ReportForgePage />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmCards:StudySessionViewModel}">
+        <viewCards:StudySessionPage />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmCards:CardsPageViewModel}">
+        <viewCards:CardsPage />
+    </DataTemplate>
+
+    <!-- Разделы модалки настроек (new_addons.md §7): рендерятся справа в SettingsOverlay. -->
+
+    <DataTemplate DataType="{x:Type vmSettings:GeneralSettingsViewModel}">
+        <viewSettings:GeneralSettingsView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmSettings:AppearanceSettingsViewModel}">
+        <viewSettings:AppearanceSettingsView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmSettings:WorkspaceSettingsViewModel}">
+        <viewSettings:WorkspaceSettingsView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmSettings:ArchivistSettingsViewModel}">
+        <viewSettings:ArchivistSettingsView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmSettings:SemesterSettingsViewModel}">
+        <viewSettings:SemesterSettingsView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmSettings:NotificationSettingsViewModel}">
+        <viewSettings:NotificationSettingsView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmSettings:ReportSettingsViewModel}">
+        <viewSettings:ReportSettingsView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmSettings:AutostartSettingsViewModel}">
+        <viewSettings:AutostartSettingsView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmSettings:DataSettingsViewModel}">
+        <viewSettings:DataSettingsView />
+    </DataTemplate>
+
+    <!-- Диалог «Восстановление из резервной копии» (Phase 13.8) — через IDialogService.ShowEditorAsync. -->
+    <DataTemplate DataType="{x:Type vmSettings:BackupRestoreConfirmationViewModel}">
+        <viewSettingsDialogs:BackupRestoreConfirmation />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmSettings:CardsSettingsViewModel}">
+        <viewSettings:CardsSettingsView />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmSettings:AboutViewModel}">
+        <viewSettings:AboutView />
+    </DataTemplate>
+
+    <!-- Формы-редакторы Органайзера: контент модальных диалогов (IDialogService). -->
+
+    <DataTemplate DataType="{x:Type vmOrganizer:SemesterEditorViewModel}">
+        <viewOrganizerDialogs:SemesterEditor />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmOrganizer:SubjectEditorViewModel}">
+        <viewOrganizerDialogs:SubjectEditor />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmOrganizer:ScheduleEntryEditorViewModel}">
+        <viewOrganizerDialogs:ScheduleEntryEditor />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmOrganizer:DeadlineEditorViewModel}">
+        <viewOrganizerDialogs:DeadlineEditor />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmOrganizer:GradeEntryEditorViewModel}">
+        <viewOrganizerDialogs:GradeEntryEditor />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmOrganizerHub:NoteCardsPreviewViewModel}">
+        <viewOrganizerDialogs:NoteCardsPreview />
+    </DataTemplate>
+
+    <!-- Формы-редакторы Архивариуса: контент модальных диалогов (IDialogService). -->
+
+    <DataTemplate DataType="{x:Type vmArchivist:RuleEditorViewModel}">
+        <viewArchivistDialogs:RuleEditor />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmArchivist:RulesImportViewModel}">
+        <viewArchivistDialogs:RulesImport />
+    </DataTemplate>
+
+    <!-- Форма редактора профиля оформления отчётов: контент master–detail вкладки «Профили оформления». -->
+
+    <DataTemplate DataType="{x:Type vmReport:ProfileEditorViewModel}">
+        <viewReportDialogs:ProfileEditor />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmReport:ComposeFromNotesViewModel}">
+        <viewReportDialogs:ComposeFromNotes />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmReport:ComposeFromCardsViewModel}">
+        <viewReportDialogs:ComposeFromCards />
+    </DataTemplate>
+
+    <!-- Формы-редакторы Картотеки: контент модальных диалогов (IDialogService). -->
+
+    <DataTemplate DataType="{x:Type vmCards:CardEditorViewModel}">
+        <viewCardsDialogs:CardEditor />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmCards:CardDeckEditorViewModel}">
+        <viewCardsDialogs:CardDeckEditor />
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vmCards:CardsImportViewModel}">
+        <viewCardsDialogs:CardsImport />
+    </DataTemplate>
+
+    <!-- Общее для всех разделов: справка по разметке (new_addons.md §11.4). -->
+
+    <DataTemplate DataType="{x:Type vm:MarkdownHelpViewModel}">
+        <viewShellDialogs:MarkdownHelp />
+    </DataTemplate>
+
+    <!-- Рисование в заметках (new_addons.md §12, Phase 13.7). -->
+    <DataTemplate DataType="{x:Type controls:NoteDrawingDialogViewModel}">
+        <controls:NoteDrawingDialog />
+    </DataTemplate>
+
+</ResourceDictionary>

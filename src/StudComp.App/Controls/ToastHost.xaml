@@ -1,0 +1,57 @@
+<UserControl x:Class="StudComp.Controls.ToastHost"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Shell"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:ToastHostViewModel}"
+             IsHitTestVisible="True">
+
+    <ItemsControl ItemsSource="{Binding Toasts}">
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <StackPanel />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="{x:Type vm:ToastViewModel}">
+                <Border Margin="0,8,0,0" CornerRadius="8" Padding="14,12" BorderThickness="1"
+                        MinWidth="300" MaxWidth="380"
+                        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="18" ShadowDepth="2" Direction="270" Opacity="0.28" />
+                    </Border.Effect>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="4" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" CornerRadius="2" Background="{Binding AccentBrush}" />
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="12" Margin="0,2,0,0"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                            <ui:Button Margin="0,8,0,0" Padding="10,3" Appearance="Secondary"
+                                       Content="{Binding ActionLabel}"
+                                       Command="{Binding RunActionCommand}"
+                                       Visibility="{Binding HasAction, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+                        </StackPanel>
+
+                        <ui:Button Grid.Column="3" Appearance="Transparent" Padding="4,2" VerticalAlignment="Top"
+                                   Icon="{ui:SymbolIcon Dismiss24}" Command="{Binding DismissCommand}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+
+</UserControl>

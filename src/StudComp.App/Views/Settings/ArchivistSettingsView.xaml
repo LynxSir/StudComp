@@ -1,0 +1,317 @@
+<UserControl x:Class="StudComp.Views.Settings.ArchivistSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Settings"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:ArchivistSettingsViewModel}">
+
+    <UserControl.Resources>
+        <!-- Пара «подпись слева · контрол справа» внутри карточки. -->
+        <Style x:Key="NumberRow" TargetType="Grid">
+            <Setter Property="Margin" Value="0,0,0,10" />
+        </Style>
+        <Style x:Key="NumberRowLabel" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,0,16,0" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="{DynamicResource Space.Page.Padding}">
+        <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                <ui:SymbolIcon Symbol="FolderArrowRight24" FontSize="22" VerticalAlignment="Center"
+                               Foreground="{DynamicResource ColorPrimaryBrush}" />
+                <TextBlock Text="Архивариус" FontSize="22" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center" />
+            </StackPanel>
+            <TextBlock Style="{StaticResource SettingsCaption}" Margin="0,0,0,10"
+                       Text="Наблюдение за папками и разбор новых файлов по правилам сортировки." />
+
+            <!-- Следить -->
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Следить за папками" />
+                        <TextBlock Style="{StaticResource SettingsCaption}"
+                                   Text="Новые файлы в наблюдаемых папках будут разбираться автоматически." />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" VerticalAlignment="Center"
+                                     IsChecked="{Binding Enabled, Mode=TwoWay}" />
+                </Grid>
+            </Border>
+
+            <!-- Учебная папка под наблюдением -->
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Наблюдать учебную папку" />
+                        <TextBlock Style="{StaticResource SettingsCaption}"
+                                   Text="Её корень работает «входящими»: что положили — разложится по папкам предметов. Файлы, уже лежащие в подпапках, не трогаются." />
+                        <TextBlock Style="{StaticResource SettingsCaption}" Text="{Binding StudyRootDisplay}"
+                                   TextTrimming="CharacterEllipsis" FontStyle="Italic" />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" VerticalAlignment="Center"
+                                     IsEnabled="{Binding HasStudyRoot}"
+                                     IsChecked="{Binding WatchStudyRoot, Mode=TwoWay}" />
+                </Grid>
+            </Border>
+
+            <!-- Наблюдаемые папки -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,16,0" VerticalAlignment="Center">
+                            <TextBlock Style="{StaticResource SettingsLabel}" Text="Дополнительные папки вне учебной" />
+                            <TextBlock Style="{StaticResource SettingsCaption}"
+                                       Text="Обычно это «Загрузки». За каждой папкой следит свой наблюдатель; правило можно ограничить одной из них." />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <ui:Button Command="{Binding AddWatchedFolderCommand}" Appearance="Primary"
+                                       Icon="{ui:SymbolIcon Add24}" Content="Добавить" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Border Margin="0,12,0,0" Padding="12" CornerRadius="8"
+                            Background="{DynamicResource ControlFillColorDefaultBrush}"
+                            Visibility="{Binding HasWatchedFolders, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}">
+                        <TextBlock Style="{StaticResource SettingsCaption}" Margin="0"
+                                   Text="Дополнительных папок нет — это нормально: учебная папка наблюдается галочкой выше. Добавьте «Загрузки», если файлы приходят туда." />
+                    </Border>
+
+                    <ItemsControl ItemsSource="{Binding WatchedFolders}" Margin="0,6,0,0"
+                                  Visibility="{Binding HasWatchedFolders, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,3" Padding="10,7" CornerRadius="8"
+                                        Background="{DynamicResource ControlFillColorDefaultBrush}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <ui:SymbolIcon Grid.Column="0" Symbol="Folder24" FontSize="16" Margin="0,0,10,0"
+                                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding}" VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <ui:Button Grid.Column="2" Appearance="Transparent" Padding="6,2"
+                                                   ToolTip="Убрать из наблюдения" Icon="{ui:SymbolIcon Delete24}"
+                                                   Command="{Binding DataContext.RemoveWatchedFolderCommand,
+                                                             RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                   CommandParameter="{Binding}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Корень архива -->
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Корень архива" />
+                        <TextBlock Style="{StaticResource SettingsCaption}"
+                                   Text="Не задан — файлы едут в учебную папку, ровно туда, где их показывает Хаб предмета. Задайте, только если архив лежит отдельно." />
+                        <TextBlock Style="{StaticResource SettingsCaption}" Text="{Binding ArchiveRootFolderDisplay}"
+                                   TextTrimming="CharacterEllipsis" FontStyle="Italic" />
+                    </StackPanel>
+                    <ui:Button Grid.Column="1" Command="{Binding PickArchiveRootFolderCommand}" Appearance="Secondary"
+                               VerticalAlignment="Center" Icon="{ui:SymbolIcon FolderOpen24}" Content="Выбрать" />
+                </Grid>
+            </Border>
+
+            <!-- Корень архива уводит файлы не туда, где их ищет Хаб предмета -->
+            <ui:InfoBar Severity="Warning" IsOpen="True" IsClosable="False" Margin="0,0,0,12"
+                        Title="Архив отдельно от учебной папки"
+                        Message="Архивариус раскладывает файлы в корень архива, а Хаб предмета показывает содержимое учебной папки — это разные места."
+                        Visibility="{Binding ArchiveRootDivergesFromStudyRoot, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                <ui:Button Command="{Binding UseStudyRootAsArchiveCommand}" Appearance="Secondary"
+                           Margin="0,8,0,0" Icon="{ui:SymbolIcon FolderLink24}"
+                           Content="Свести к учебной папке" />
+            </ui:InfoBar>
+
+            <!-- Пороги -->
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SettingsLabel}" Text="Пороги" Margin="0,0,0,10" />
+                    <Grid Style="{StaticResource NumberRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource NumberRowLabel}" Text="Минимальный размер файла, КБ" />
+                        <ui:NumberBox Grid.Column="1" MinWidth="130" Minimum="0" Maximum="1048576"
+                                      Value="{Binding MinFileSizeKib, Mode=TwoWay}" />
+                    </Grid>
+                    <Grid Margin="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource NumberRowLabel}" Text="Минимальный возраст файла, сек" />
+                        <ui:NumberBox Grid.Column="1" MinWidth="130" Minimum="0" Maximum="3600"
+                                      Value="{Binding MinFileAgeSeconds, Mode=TwoWay}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Игнор-паттерны -->
+            <ui:CardExpander Margin="{DynamicResource Space.Card.Margin}" ContentPadding="16">
+                <ui:CardExpander.Header>
+                    <StackPanel Margin="0,0,28,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Игнор-паттерны" />
+                        <TextBlock Style="{StaticResource SettingsCaption}"
+                                   Text="Маски имён файлов, которые Архивариус не трогает (напр. *.tmp)." />
+                    </StackPanel>
+                </ui:CardExpander.Header>
+                <StackPanel>
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBox Grid.Column="0" Text="{Binding NewIgnoredPattern, Mode=TwoWay}"
+                                    PlaceholderText="*.tmp" Margin="0,0,8,0" />
+                        <ui:Button Grid.Column="1" Appearance="Secondary" Icon="{ui:SymbolIcon Add24}" Content="Добавить"
+                                   Command="{Binding AddIgnoredPatternCommand}" />
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding IgnoredPatterns}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,3" Padding="10,6" CornerRadius="8"
+                                        Background="{DynamicResource ControlFillColorDefaultBrush}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding}" VerticalAlignment="Center"
+                                                   FontFamily="Consolas, Courier New, monospace"
+                                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <ui:Button Grid.Column="1" Appearance="Transparent" Padding="6,2"
+                                                   ToolTip="Убрать" Icon="{ui:SymbolIcon Delete24}"
+                                                   Command="{Binding DataContext.RemoveIgnoredPatternCommand,
+                                                             RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                   CommandParameter="{Binding}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ui:CardExpander>
+
+            <!-- Дополнительно -->
+            <ui:CardExpander Margin="{DynamicResource Space.Card.Margin}" ContentPadding="16">
+                <ui:CardExpander.Header>
+                    <StackPanel Margin="0,0,28,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Дополнительно" />
+                        <TextBlock Style="{StaticResource SettingsCaption}"
+                                   Text="Тонкая настройка — обычно менять не нужно." />
+                    </StackPanel>
+                </ui:CardExpander.Header>
+                <StackPanel>
+                    <Grid Style="{StaticResource NumberRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource NumberRowLabel}" Text="Таймаут regex, мс" />
+                        <ui:NumberBox Grid.Column="1" MinWidth="130" Minimum="10" Maximum="5000"
+                                      Value="{Binding RegexMatchTimeoutMs, Mode=TwoWay}" />
+                    </Grid>
+                    <Grid Style="{StaticResource NumberRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource NumberRowLabel}" Text="Попыток отложенного ретрая" />
+                        <ui:NumberBox Grid.Column="1" MinWidth="130" Minimum="0" Maximum="20"
+                                      Value="{Binding DeferredRetryMaxAttempts, Mode=TwoWay}" />
+                    </Grid>
+                    <Grid Style="{StaticResource NumberRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource NumberRowLabel}" Text="Первый интервал ретрая, сек" />
+                        <ui:NumberBox Grid.Column="1" MinWidth="130" Minimum="1" Maximum="3600"
+                                      Value="{Binding DeferredRetryInitialSeconds, Mode=TwoWay}" />
+                    </Grid>
+                    <Grid Style="{StaticResource NumberRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource NumberRowLabel}" Text="Интервал сверки папок, мин" />
+                        <ui:NumberBox Grid.Column="1" MinWidth="130" Minimum="1" Maximum="240"
+                                      Value="{Binding ReconciliationIntervalMinutes, Mode=TwoWay}" />
+                    </Grid>
+                    <Grid Style="{StaticResource NumberRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource NumberRowLabel}" Text="Проверка наблюдателей, сек" />
+                        <ui:NumberBox Grid.Column="1" MinWidth="130" Minimum="10" Maximum="3600"
+                                      Value="{Binding WatcherHealthCheckSeconds, Mode=TwoWay}" />
+                    </Grid>
+                    <Grid Style="{StaticResource NumberRow}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                            <TextBlock Text="Пропускать облачные placeholder'ы"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                            <TextBlock Style="{StaticResource SettingsCaption}"
+                                       Text="Не трогать файлы OneDrive «только в облаке» — иначе они выкачаются." />
+                        </StackPanel>
+                        <ui:ToggleSwitch Grid.Column="1" VerticalAlignment="Center"
+                                         IsChecked="{Binding SkipCloudPlaceholders, Mode=TwoWay}" />
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                            <TextBlock Text="Предлагать привязку файла к дедлайну"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                            <TextBlock Style="{StaticResource SettingsCaption}"
+                                       Text="После сортировки — подсказка «Привязать к ЛР…», если имя похоже." />
+                        </StackPanel>
+                        <ui:ToggleSwitch Grid.Column="1" VerticalAlignment="Center"
+                                         IsChecked="{Binding DeadlineLinkSuggestionEnabled, Mode=TwoWay}" />
+                    </Grid>
+                </StackPanel>
+            </ui:CardExpander>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

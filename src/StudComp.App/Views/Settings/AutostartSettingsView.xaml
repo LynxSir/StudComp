@@ -1,0 +1,55 @@
+<UserControl x:Class="StudComp.Views.Settings.AutostartSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Settings"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:AutostartSettingsViewModel}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="{DynamicResource Space.Page.Padding}">
+        <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                <ui:SymbolIcon Symbol="Power24" FontSize="22" VerticalAlignment="Center"
+                               Foreground="{DynamicResource ColorPrimaryBrush}" />
+                <TextBlock Text="Автозапуск" FontSize="22" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center" />
+            </StackPanel>
+            <TextBlock Style="{StaticResource SettingsCaption}" Margin="0,0,0,8"
+                       Text="Запуск вместе с Windows — без прав администратора, через ключ реестра текущего пользователя." />
+
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Запускать вместе с Windows" />
+                        <TextBlock Style="{StaticResource SettingsCaption}" Text="Rubrica будет стартовать при входе в систему." />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" VerticalAlignment="Center"
+                                     IsChecked="{Binding RunOnWindowsStartup, Mode=TwoWay}" />
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Запускать свёрнутым в трей" />
+                        <TextBlock Style="{StaticResource SettingsCaption}"
+                                   Text="Окно не показывается при старте — Rubrica доступна из иконки в трее." />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" VerticalAlignment="Center"
+                                     IsChecked="{Binding LaunchMinimized, Mode=TwoWay}" />
+                </Grid>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

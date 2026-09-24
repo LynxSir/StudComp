@@ -1,0 +1,116 @@
+<UserControl x:Class="StudComp.Views.Settings.DataSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Settings"
+             xmlns:controls="clr-namespace:StudComp.Controls"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:DataSettingsViewModel}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="{DynamicResource Space.Page.Padding}">
+        <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                <ui:SymbolIcon Symbol="Database24" FontSize="22" VerticalAlignment="Center"
+                               Foreground="{DynamicResource ColorPrimaryBrush}" />
+                <TextBlock Text="Данные и резервные копии" FontSize="22" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center" />
+            </StackPanel>
+            <TextBlock Style="{StaticResource SettingsCaption}" Margin="0,0,0,8"
+                       Text="Расположение базы и логов, резервное копирование, хранение истории." />
+
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SettingsLabel}" Text="База данных" />
+                    <TextBlock Style="{StaticResource SettingsCaption}" Text="{Binding DatabaseFilePath}"
+                               TextTrimming="CharacterEllipsis" />
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <ui:Button Command="{Binding OpenDatabaseFolderCommand}" Appearance="Secondary"
+                                   Icon="{ui:SymbolIcon FolderOpen24}" Content="Открыть папку с базой" Margin="0,0,8,0" />
+                        <ui:Button Command="{Binding OpenLogsFolderCommand}" Appearance="Secondary"
+                                   Icon="{ui:SymbolIcon DocumentBulletList24}" Content="Открыть логи" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SettingsLabel}" Text="Резервная копия" />
+                    <TextBlock Style="{StaticResource SettingsCaption}" Margin="0,2,0,4"
+                               Text="Один zip-архив с базой, настройками, учебными файлами и вложениями заметок, включая отдельные папки предметов. Перед восстановлением создаётся страховочная копия." />
+                    <TextBlock Style="{StaticResource SettingsCaption}" Margin="0,0,0,10" FontStyle="Italic"
+                               Text="Файлы восстанавливаются в новую папку, ссылки обновляются автоматически. Папки наблюдения берутся с этого ПК; Архивариус остаётся выключенным до проверки настроек. Старые архивы содержат только базу и настройки." />
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Text="{Binding LineageText}" FontFamily="Consolas" FontSize="11"
+                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                        <controls:TermHint Margin="6,0,0,0"
+                                            Text="Техническая цепочка версий базы — на что она ссылается при восстановлении. Нужна только при обращении в поддержку." />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <ui:Button Command="{Binding BackupCommand}" Appearance="Primary"
+                                   Icon="{ui:SymbolIcon Save24}" Content="Сделать резервную копию" Margin="0,0,8,0" />
+                        <ui:Button Command="{Binding RestoreCommand}" Appearance="Secondary"
+                                   Icon="{ui:SymbolIcon ArrowUpload24}" Content="Восстановить из копии" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0"
+                                Visibility="{Binding IsBusy, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                        <ui:ProgressRing IsIndeterminate="True" Width="18" Height="18" Margin="0,0,8,0" />
+                        <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SettingsLabel}" Text="Хранение истории" />
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Лента активности: держать последних записей" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <ui:NumberBox Grid.Column="1" MinWidth="120" Minimum="0" Maximum="10000"
+                                      Value="{Binding ActivityRetentionKeepCount, Mode=TwoWay}" />
+                    </Grid>
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Лента активности: хранить дней" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <ui:NumberBox Grid.Column="1" MinWidth="120" Minimum="1" Maximum="3650"
+                                      Value="{Binding ActivityRetentionDays, Mode=TwoWay}" />
+                    </Grid>
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Журнал операций Архивариуса: хранить дней" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <ui:NumberBox Grid.Column="1" MinWidth="120" Minimum="1" Maximum="3650"
+                                      Value="{Binding OperationLogRetentionDays, Mode=TwoWay}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SettingsLabel}" Text="Обслуживание" />
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <ui:Button Command="{Binding ClearTemporaryFilesCommand}" Appearance="Secondary"
+                                   Icon="{ui:SymbolIcon Broom24}" Content="Очистить временные файлы" Margin="0,0,8,0" />
+                        <ui:Button Command="{Binding OpenRuleExportImportCommand}" Appearance="Secondary"
+                                   Icon="{ui:SymbolIcon ArrowSwap24}" Content="Экспорт / импорт правил" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

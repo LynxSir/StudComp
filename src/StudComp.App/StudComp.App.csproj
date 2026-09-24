@@ -1,0 +1,88 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- Платформенно-версионированный TFM нужен CommunityToolkit-тостам
+         (Microsoft.Toolkit.Uwp.Notifications) для доступа к WinRT ToastNotificationManager.
+         Только у App: библиотеки остаются net10.0. -->
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>StudComp</RootNamespace>
+    <!-- Явная точка входа (Phase 13): VelopackApp.Build().Run() обязан отработать до любого UI. -->
+    <StartupObject>StudComp.Program</StartupObject>
+    <!-- Имя продукта, а не проекта: публикуется Rubrica.exe (ARCHITECTURE §1). -->
+    <AssemblyName>Rubrica</AssemblyName>
+    <Product>Rubrica</Product>
+    <!-- SemVer-версия релиза (ARCHITECTURE §13). Тег git = версия; релизная сборка/Velopack
+         переопределяют -p:Version=<tag без v>. Держим только здесь — единственная поставляемая
+         сборка, тестовые проекты версионировать незачем. -->
+    <Version>1.1.5</Version>
+    <AssemblyVersion>1.1.5.0</AssemblyVersion>
+    <FileVersion>1.1.5.0</FileVersion>
+    <InformationalVersion>1.1.5</InformationalVersion>
+    <!-- Иконка exe/окна/инсталлятора — мультиразмер из assets/logo_icr.png (new_addons.md §1.7,
+         пересобирается scripts/branding/build_icons.py). -->
+    <ApplicationIcon>Resources\Branding\Rubrica.ico</ApplicationIcon>
+    <!-- Phase 13.11: публикация тащила сателлитные языковые сборки фреймворка (WPF/WinForms) для
+         всех 13 культур .NET (cs/de/es/fr/it/ja/ko/pl/pt-BR/ru/tr/zh-Hans/zh-Hant) — ~17 МБ мусора,
+         которые не используются в русскоязычном продукте. "en" среди
+         них не было и не нужен: нейтральные (английские) строки фреймворка зашиты в сами основные
+         сборки, не в сателлитные, поэтому при отсутствии "ru" .NET и так откатится на них сам. -->
+    <SatelliteResourceLanguages>ru</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
+    <!-- Phase 13: настоящие Windows-тосты (ADR §16.20) — ToastContentBuilder /
+         ToastNotificationManagerCompat для unpackaged WPF; AppUserModelID даёт ярлык Velopack. -->
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
+    <!-- Phase 13: упаковка (Setup.exe + delta) и автообновление (ARCHITECTURE §13, ADR §16.9). -->
+    <PackageReference Include="Velopack" Version="1.2.0" />
+    <!-- Нужен только инструменту dotnet ef (startup-project = App). В рантайм/публикацию
+         не попадает: PrivateAssets=all. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="9.0.0" />
+    <PackageReference Include="WPF-UI" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StudComp.Core\StudComp.Core.csproj" />
+    <ProjectReference Include="..\StudComp.Data\StudComp.Data.csproj" />
+    <ProjectReference Include="..\StudComp.Infrastructure\StudComp.Infrastructure.csproj" />
+    <ProjectReference Include="..\StudComp.Modules.Archivist\StudComp.Modules.Archivist.csproj" />
+    <ProjectReference Include="..\StudComp.Modules.Cards\StudComp.Modules.Cards.csproj" />
+    <ProjectReference Include="..\StudComp.Modules.Organizer\StudComp.Modules.Organizer.csproj" />
+    <ProjectReference Include="..\StudComp.Modules.ReportForge\StudComp.Modules.ReportForge.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="appsettings.Development.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- Брендовые растры (герб, глифы) — как WPF Resource, грузятся по pack://-URI из трея и окон.
+       Глобом, чтобы новые размеры из build_icons.py подхватывались автоматически. -->
+  <ItemGroup>
+    <Resource Include="Resources\Branding\Rubrica.ico" />
+    <Resource Include="Resources\Branding\*.png" />
+  </ItemGroup>
+
+  <!-- Скелет локализации (Phase 12): .resx встраивается в сборку как ресурс, типизированный доступ —
+       через рукописный AppText поверх ResourceManager (design-time генератор VS в SDK-проекте не
+       запускается, а StronglyTyped-генерация MSBuild конфликтует с WPF markup-compile). Полная
+       миграция строк — отдельная задача (PLAN «Бэклог», ARCHITECTURE §18). -->
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\AppText.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

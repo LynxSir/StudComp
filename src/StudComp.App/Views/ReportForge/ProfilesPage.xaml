@@ -1,0 +1,133 @@
+<UserControl x:Class="StudComp.Views.ReportForge.ProfilesPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.ReportForge"
+             xmlns:controls="clr-namespace:StudComp.Controls"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:ProfilesViewModel}"
+             d:DesignHeight="640" d:DesignWidth="960">
+
+    <Grid Margin="0,12,0,0">
+
+        <!-- Список профилей -->
+
+        <Grid Visibility="{Binding IsListVisible, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <DockPanel Grid.Column="0" LastChildFill="True">
+                    <controls:TermHint DockPanel.Dock="Right" Margin="6,0,0,0" VerticalAlignment="Top"
+                                        Text="ГОСТ 7.32-2017 — российский стандарт оформления отчётов о НИР: поля, шрифт, интервалы, титульный лист. Заводской профиль настроен по нему и не редактируется — клонируйте его, чтобы менять." />
+                    <TextBlock VerticalAlignment="Center" TextWrapping="Wrap"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="12"
+                               Text="Профиль задаёт оформление отчёта: шрифт, поля, интервал, заголовки, нумерацию. Заводской ГОСТ 7.32-2017 менять нельзя — склонируйте его и правьте копию." />
+                </DockPanel>
+
+                <ui:Button Grid.Column="1" Margin="12,0,0,0" Appearance="Primary"
+                           Command="{Binding CloneDefaultCommand}"
+                           Icon="{ui:SymbolIcon Copy24}" Content="Клонировать стандартный ГОСТ" />
+            </Grid>
+
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Profiles}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:ProfileRowViewModel}">
+                            <Border Style="{StaticResource Cards.RowBorder}" Cursor="Arrow">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14"
+                                                       TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                            <Border Margin="8,0,0,0" Padding="6,1" CornerRadius="4"
+                                                    Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                                                    Visibility="{Binding IsFactoryDefault, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                                                <TextBlock Text="по умолчанию" FontSize="10"
+                                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            </Border>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding SummaryLine}" FontSize="12" Margin="0,3,0,0"
+                                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal">
+                                            <ui:Button Appearance="Secondary" Padding="8,4" Margin="0,0,4,0"
+                                                       ToolTip="Клонировать" Icon="{ui:SymbolIcon Copy24}"
+                                                       Command="{Binding DataContext.CloneCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                       CommandParameter="{Binding}" />
+                                            <ui:Button Appearance="Secondary" Padding="8,4" Margin="0,0,4,0"
+                                                       ToolTip="Изменить" Icon="{ui:SymbolIcon Edit24}"
+                                                       IsEnabled="{Binding IsFactoryDefault, Converter={x:Static conv:InverseBooleanConverter.Instance}}"
+                                                       Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                       CommandParameter="{Binding}" />
+                                            <ui:Button Appearance="Secondary" Padding="8,4"
+                                                       ToolTip="Удалить" Icon="{ui:SymbolIcon Delete24}"
+                                                       IsEnabled="{Binding IsFactoryDefault, Converter={x:Static conv:InverseBooleanConverter.Instance}}"
+                                                       Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                       CommandParameter="{Binding}" />
+                                        </StackPanel>
+                                        <TextBlock Text="Заводской — сначала клонируйте" FontSize="10" Margin="0,4,0,0"
+                                                   HorizontalAlignment="Right" TextWrapping="Wrap" MaxWidth="140"
+                                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                                   Visibility="{Binding IsFactoryDefault, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Форма редактора профиля -->
+
+        <Grid Visibility="{Binding IsListVisible, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="14"
+                           TextTrimming="CharacterEllipsis"
+                           Text="{Binding ActiveEditor.HeaderText}" />
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <ui:Button Appearance="Secondary" Margin="0,0,8,0" Content="Отмена"
+                               Command="{Binding CancelEditorCommand}" />
+                    <ui:Button Appearance="Primary" Content="Сохранить"
+                               Command="{Binding SaveEditorCommand}"
+                               IsEnabled="{Binding ActiveEditor.CanSave}" />
+                </StackPanel>
+            </Grid>
+
+            <ContentControl Grid.Row="1" Content="{Binding ActiveEditor}"
+                            HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+        </Grid>
+
+    </Grid>
+
+</UserControl>

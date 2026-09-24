@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <!-- Явно, для читаемости — транзитивно приходят через модуль и StudComp.Data. -->
+    <PackageReference Include="DocumentFormat.OpenXml" Version="3.3.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\StudComp.Modules.ReportForge\StudComp.Modules.ReportForge.csproj" />
+    <ProjectReference Include="..\..\src\StudComp.Data\StudComp.Data.csproj" />
+    <ProjectReference Include="..\..\src\StudComp.Infrastructure\StudComp.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Исходный markdown и эталон document.xml нужны рядом с тестовой сборкой. -->
+    <None Update="Fixtures\**" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Golden\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,28 @@
+<Application x:Class="StudComp.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:local="clr-namespace:StudComp"
+             ShutdownMode="OnExplicitShutdown">
+    <!-- StartupUri убран намеренно: запуск идёт из App.OnStartup через generic host (ARCHITECTURE §6).
+         ShutdownMode=OnExplicitShutdown — приложение живёт в трее и завершается только по «Выход». -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:ThemesDictionary Theme="Light" />
+                <ui:ControlsDictionary />
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Typography.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Animations.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Spacing.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Settings.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Cards.xaml" />
+                <ResourceDictionary Source="Resources/Styles/DeadlineCard.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Expanders.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Dashboard.xaml" />
+                <ResourceDictionary Source="Resources/Styles/DatePicker.xaml" />
+                <ResourceDictionary Source="Resources/DataTemplates.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

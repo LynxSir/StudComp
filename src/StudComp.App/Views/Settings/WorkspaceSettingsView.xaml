@@ -1,0 +1,102 @@
+<UserControl x:Class="StudComp.Views.Settings.WorkspaceSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Settings"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:WorkspaceSettingsViewModel}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="{DynamicResource Space.Page.Padding}">
+        <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                <ui:SymbolIcon Symbol="Folder24" FontSize="22" VerticalAlignment="Center"
+                               Foreground="{DynamicResource ColorPrimaryBrush}" />
+                <TextBlock Text="Учебная папка" FontSize="22" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center" />
+            </StackPanel>
+            <TextBlock Style="{StaticResource SettingsCaption}" Margin="0,0,0,8"
+                       Text="Одна папка на диске: внутри всё по учёбе, разложенное по предметам." />
+
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SettingsLabel}" Text="Папка с учебными файлами" />
+                    <TextBlock Style="{StaticResource SettingsCaption}"
+                               Text="{Binding StudyRootPath}" TextTrimming="CharacterEllipsis" />
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <ui:Button Command="{Binding PickStudyRootCommand}" Appearance="Secondary"
+                                   Icon="{ui:SymbolIcon FolderOpen24}" Content="Выбрать" Margin="0,0,8,0" />
+                        <ui:Button Command="{Binding OpenStudyRootCommand}" Appearance="Secondary"
+                                   Icon="{ui:SymbolIcon Open24}" Content="Открыть"
+                                   IsEnabled="{Binding HasStudyRoot}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="При смене учебной папки" />
+                        <TextBlock Style="{StaticResource SettingsCaption}"
+                                   Text="Содержимое старой папки не переносится автоматически." />
+                    </StackPanel>
+                    <ComboBox Grid.Column="1" MinWidth="220" VerticalAlignment="Center"
+                              ItemsSource="{Binding RootChangeChoices}" DisplayMemberPath="Display"
+                              SelectedItem="{Binding SelectedRootChangeBehavior, Mode=TwoWay}" />
+                </Grid>
+            </Border>
+
+            <ui:CardExpander Margin="{DynamicResource Space.Card.Margin}" ContentPadding="16" IsExpanded="True">
+                <ui:CardExpander.Header>
+                    <StackPanel Margin="0,0,28,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Подпапки нового предмета" />
+                        <TextBlock Style="{StaticResource SettingsCaption}"
+                                   Text="Создаются внутри папки предмета при его добавлении." />
+                    </StackPanel>
+                </ui:CardExpander.Header>
+                <StackPanel>
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBox Grid.Column="0" Text="{Binding NewSubjectFolder, Mode=TwoWay}" Margin="0,0,8,0"
+                                    PlaceholderText="Название подпапки" />
+                        <ui:Button Grid.Column="1" Appearance="Secondary"
+                                   Icon="{ui:SymbolIcon Add24}" Content="Добавить"
+                                   Command="{Binding AddSubjectFolderCommand}" />
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding SubjectFolderTemplate}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,3" Padding="10,6" CornerRadius="8"
+                                        Background="{DynamicResource ControlFillColorDefaultBrush}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding}" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <ui:Button Grid.Column="1" Appearance="Transparent" Padding="6,2"
+                                                   ToolTip="Убрать" Icon="{ui:SymbolIcon Delete24}"
+                                                   Command="{Binding DataContext.RemoveSubjectFolderCommand,
+                                                             RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                   CommandParameter="{Binding}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ui:CardExpander>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

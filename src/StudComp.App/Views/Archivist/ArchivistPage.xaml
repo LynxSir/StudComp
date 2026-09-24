@@ -1,0 +1,23 @@
+<UserControl x:Class="StudComp.Views.Archivist.ArchivistPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:StudComp.Views.Archivist"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Archivist"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:ArchivistPageViewModel}">
+
+    <TabControl SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}" Margin="16,12,16,16">
+        <TabItem Header="Неразобранное">
+            <local:UnsortedFilesPage DataContext="{Binding Unsorted}" />
+        </TabItem>
+        <TabItem Header="Правила">
+            <local:RulesPage DataContext="{Binding Rules}" />
+        </TabItem>
+        <TabItem Header="Журнал">
+            <local:OperationsLogPage DataContext="{Binding History}" />
+        </TabItem>
+    </TabControl>
+
+</UserControl>

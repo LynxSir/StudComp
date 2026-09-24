@@ -1,0 +1,84 @@
+<UserControl x:Class="StudComp.Controls.NoteDrawingDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:controls="clr-namespace:StudComp.Controls"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=controls:NoteDrawingDialogViewModel}">
+
+    <StackPanel>
+        <!-- Тулбар: инструменты, толщина, цвет, отмена/повтор/очистить -->
+        <Grid Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Инструменты -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <ui:Button x:Name="PenButton" Icon="{ui:SymbolIcon Pen24}" ToolTip="Карандаш"
+                           Click="OnToolButtonClick" Tag="Pen" Appearance="Primary" Margin="0,0,4,0" />
+                <ui:Button x:Name="EraserButton" Icon="{ui:SymbolIcon Eraser24}" ToolTip="Ластик"
+                           Click="OnToolButtonClick" Tag="Eraser" Appearance="Secondary" Margin="0,0,4,0" />
+                <ui:Button x:Name="LineButton" Icon="{ui:SymbolIcon Line24}" ToolTip="Прямая линия"
+                           Click="OnToolButtonClick" Tag="Line" Appearance="Secondary" Margin="0,0,4,0" />
+                <ui:Button x:Name="RectangleButton" Icon="{ui:SymbolIcon RectangleLandscape24}" ToolTip="Прямоугольник"
+                           Click="OnToolButtonClick" Tag="Rectangle" Appearance="Secondary" Margin="0,0,4,0" />
+                <ui:Button x:Name="EllipseButton" Icon="{ui:SymbolIcon Oval24}" ToolTip="Эллипс"
+                           Click="OnToolButtonClick" Tag="Ellipse" Appearance="Secondary" Margin="0,0,4,0" />
+                <ui:Button x:Name="ArrowButton" Icon="{ui:SymbolIcon ArrowUpRight24}" ToolTip="Стрелка"
+                           Click="OnToolButtonClick" Tag="Arrow" Appearance="Secondary" Margin="0,0,4,0" />
+                <ui:Button x:Name="TextButton" Icon="{ui:SymbolIcon TextT24}" ToolTip="Текст"
+                           Click="OnToolButtonClick" Tag="Text" Appearance="Secondary" />
+            </StackPanel>
+
+            <!-- Толщина -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Толщина" VerticalAlignment="Center" Margin="0,0,8,0"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                <Slider x:Name="ThicknessSlider" Width="90" Minimum="1" Maximum="16" Value="3"
+                        ValueChanged="OnThicknessChanged" VerticalAlignment="Center" />
+            </StackPanel>
+
+            <!-- Цвет: пресеты + свой -->
+            <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Click="OnColorPresetClick" Tag="#1A1A1A" Width="22" Height="22" Margin="0,0,4,0"
+                        Background="#1A1A1A" BorderThickness="0" ToolTip="Чёрный" />
+                <Button Click="OnColorPresetClick" Tag="#C0392B" Width="22" Height="22" Margin="0,0,4,0"
+                        Background="#C0392B" BorderThickness="0" ToolTip="Красный" />
+                <Button Click="OnColorPresetClick" Tag="#2980B9" Width="22" Height="22" Margin="0,0,4,0"
+                        Background="#2980B9" BorderThickness="0" ToolTip="Синий" />
+                <Button Click="OnColorPresetClick" Tag="#27AE60" Width="22" Height="22" Margin="0,0,4,0"
+                        Background="#27AE60" BorderThickness="0" ToolTip="Зелёный" />
+                <Button Click="OnColorPresetClick" Tag="#E67E22" Width="22" Height="22" Margin="0,0,10,0"
+                        Background="#E67E22" BorderThickness="0" ToolTip="Оранжевый" />
+                <ui:TextBox x:Name="CustomColorBox" Width="90" PlaceholderText="#RRGGBB"
+                            LostFocus="OnCustomColorChanged" />
+            </StackPanel>
+
+            <!-- Отмена / повтор / очистить -->
+            <StackPanel Grid.Column="6" Orientation="Horizontal">
+                <ui:Button x:Name="UndoButton" Icon="{ui:SymbolIcon ArrowUndo24}" ToolTip="Отменить (Ctrl+Z)"
+                           Click="OnUndoClick" Appearance="Secondary" Margin="0,0,4,0" />
+                <ui:Button x:Name="RedoButton" Icon="{ui:SymbolIcon ArrowRedo24}" ToolTip="Повторить (Ctrl+Y)"
+                           Click="OnRedoClick" Appearance="Secondary" Margin="0,0,10,0" />
+                <ui:Button Icon="{ui:SymbolIcon Delete24}" ToolTip="Очистить холст"
+                           Click="OnClearClick" Appearance="Secondary" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Холст -->
+        <Border BorderThickness="1" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                Background="{DynamicResource ControlFillColorDefaultBrush}" Padding="8" CornerRadius="6">
+            <controls:NoteDrawingCanvas x:Name="DrawingCanvas" Changed="OnCanvasChanged" />
+        </Border>
+    </StackPanel>
+
+</UserControl>

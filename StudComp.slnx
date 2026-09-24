@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/StudComp.App/StudComp.App.csproj" />
+    <Project Path="src/StudComp.Core/StudComp.Core.csproj" />
+    <Project Path="src/StudComp.Data/StudComp.Data.csproj" />
+    <Project Path="src/StudComp.Infrastructure/StudComp.Infrastructure.csproj" />
+    <Project Path="src/StudComp.Modules.Archivist/StudComp.Modules.Archivist.csproj" />
+    <Project Path="src/StudComp.Modules.Cards/StudComp.Modules.Cards.csproj" />
+    <Project Path="src/StudComp.Modules.Organizer/StudComp.Modules.Organizer.csproj" />
+    <Project Path="src/StudComp.Modules.ReportForge/StudComp.Modules.ReportForge.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/StudComp.Core.Tests/StudComp.Core.Tests.csproj" />
+    <Project Path="tests/StudComp.Data.Tests/StudComp.Data.Tests.csproj" />
+    <Project Path="tests/StudComp.Infrastructure.Tests/StudComp.Infrastructure.Tests.csproj" />
+    <Project Path="tests/StudComp.Modules.Archivist.Tests/StudComp.Modules.Archivist.Tests.csproj" />
+    <Project Path="tests/StudComp.Modules.Cards.Tests/StudComp.Modules.Cards.Tests.csproj" />
+    <Project Path="tests/StudComp.Modules.Organizer.Tests/StudComp.Modules.Organizer.Tests.csproj" />
+    <Project Path="tests/StudComp.Modules.ReportForge.Tests/StudComp.Modules.ReportForge.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,90 @@
+# Релиз на тег vX.Y.Z (ARCHITECTURE §13): self-contained publish -> Velopack pack -> GitHub Release.
+# Заведён в Phase 13. Активен только при наличии секрета RELEASE_TOKEN (PAT со scope `repo`) —
+# владелец добавляет его в Settings -> Secrets and variables -> Actions. Без секрета шаг upload
+# упадёт с понятной ошибкой, сборка и pack всё равно отработают и приложат артефакты.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Версия X.Y.Z (без v)'
+        required: true
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Resolve version
+        id: ver
+        shell: pwsh
+        run: |
+          $v = "${{ github.event.inputs.version }}"
+          if ([string]::IsNullOrWhiteSpace($v)) { $v = "${{ github.ref_name }}".TrimStart('v') }
+          "version=$v" >> $env:GITHUB_OUTPUT
+          "Version: $v"
+
+      - name: Install Velopack CLI
+        run: dotnet tool install -g vpk --version 1.2.0
+
+      - name: Test
+        run: dotnet test StudComp.slnx --configuration Release --verbosity minimal
+
+      - name: Publish (self-contained, R2R)
+        run: >
+          dotnet publish src/StudComp.App/StudComp.App.csproj
+          -c Release -r win-x64 --self-contained true
+          -p:PublishReadyToRun=true
+          -p:Version=${{ steps.ver.outputs.version }}
+          -o artifacts/publish
+
+      - name: Download previous releases (for delta)
+        if: ${{ secrets.RELEASE_TOKEN != '' }}
+        continue-on-error: true
+        run: >
+          vpk download github
+          --repoUrl https://github.com/${{ github.repository }}
+          --token ${{ secrets.RELEASE_TOKEN }}
+          --outputDir artifacts/releases
+
+      - name: Pack
+        run: >
+          vpk pack
+          --packId Rubrica
+          --packVersion ${{ steps.ver.outputs.version }}
+          --packDir artifacts/publish
+          --mainExe Rubrica.exe
+          --packTitle Rubrica
+          --packAuthors LynxSir
+          --icon src/StudComp.App/Resources/Branding/Rubrica.ico
+          --outputDir artifacts/releases
+
+      - name: Upload GitHub Release
+        if: ${{ secrets.RELEASE_TOKEN != '' }}
+        run: >
+          vpk upload github
+          --repoUrl https://github.com/${{ github.repository }}
+          --token ${{ secrets.RELEASE_TOKEN }}
+          --publish
+          --releaseName "Rubrica ${{ steps.ver.outputs.version }}"
+          --tag v${{ steps.ver.outputs.version }}
+          --outputDir artifacts/releases
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rubrica-${{ steps.ver.outputs.version }}
+          path: artifacts/releases

@@ -1,0 +1,42 @@
+<UserControl x:Class="StudComp.Controls.TermHint"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             mc:Ignorable="d"
+             x:Name="Root"
+             VerticalAlignment="Center"
+             d:DesignWidth="16" d:DesignHeight="16">
+
+    <Grid>
+        <ToggleButton x:Name="Toggle" Width="16" Height="16" Padding="0" Background="Transparent"
+                      BorderThickness="0" Cursor="Help" Focusable="False"
+                      ToolTip="Нажмите, чтобы увидеть пояснение">
+            <ToggleButton.Template>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                        <ui:SymbolIcon Symbol="QuestionCircle24" FontSize="13"
+                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                    </Border>
+                </ControlTemplate>
+            </ToggleButton.Template>
+        </ToggleButton>
+
+        <Popup x:Name="HintPopup"
+               IsOpen="{Binding IsChecked, ElementName=Toggle, Mode=OneWay}"
+               PlacementTarget="{Binding ElementName=Toggle}"
+               Placement="Bottom" AllowsTransparency="True" StaysOpen="False" PopupAnimation="Fade">
+            <Border CornerRadius="8" Padding="10,8" MaxWidth="260"
+                    Background="{DynamicResource ApplicationBackgroundBrush}"
+                    BorderBrush="{DynamicResource ControlElevationBorderBrush}" BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="14" ShadowDepth="2" Direction="270" Opacity="0.24" />
+                </Border.Effect>
+                <TextBlock Text="{Binding Text, ElementName=Root}" TextWrapping="Wrap" FontSize="12"
+                           Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+            </Border>
+        </Popup>
+    </Grid>
+
+</UserControl>

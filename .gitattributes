@@ -1,0 +1,17 @@
+# Normalize line endings: text files use LF in the repo, checked out native on Windows.
+* text=auto
+
+*.cs      text diff=csharp
+*.csproj  text
+*.slnx    text
+*.xaml    text
+*.json    text
+*.md      text
+*.txt     text
+
+# Binary assets — never munge.
+*.png  binary
+*.jpg  binary
+*.ico  binary
+*.docx binary
+*.db   binary

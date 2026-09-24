@@ -1,0 +1,121 @@
+<UserControl x:Class="StudComp.Views.Settings.ReportSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Settings"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:ReportSettingsViewModel}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="{DynamicResource Space.Page.Padding}">
+        <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                <ui:SymbolIcon Symbol="DocumentText24" FontSize="22" VerticalAlignment="Center"
+                               Foreground="{DynamicResource ColorPrimaryBrush}" />
+                <TextBlock Text="Отчёты и титульный лист" FontSize="22" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center" />
+            </StackPanel>
+            <TextBlock Style="{StaticResource SettingsCaption}" Margin="0,0,0,8"
+                       Text="Куда сохранять отчёты, чем их предзаполнять и данные для титульного листа." />
+
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Папка для готовых отчётов" />
+                        <TextBlock Style="{StaticResource SettingsCaption}" Text="{Binding ReportsFolderDisplay}"
+                                   TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                    <ui:Button Grid.Column="1" Command="{Binding PickReportsFolderCommand}" Appearance="Secondary"
+                               VerticalAlignment="Center" Icon="{ui:SymbolIcon FolderOpen24}" Content="Выбрать" />
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Складывать в подпапку «Отчёты» предмета" />
+                        <TextBlock Style="{StaticResource SettingsCaption}"
+                                   Text="Когда выбран предмет и задана учебная папка — предлагать её подпапку." />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" VerticalAlignment="Center"
+                                     IsChecked="{Binding PreferSubjectSubfolder, Mode=TwoWay}" />
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Открывать отчёт после генерации" />
+                        <TextBlock Style="{StaticResource SettingsCaption}" Text="Готовый .docx сразу откроется в Word." />
+                    </StackPanel>
+                    <ui:ToggleSwitch Grid.Column="1" VerticalAlignment="Center"
+                                     IsChecked="{Binding OpenReportAfterGenerate, Mode=TwoWay}" />
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SettingsLabel}" Text="Тип работы по умолчанию" />
+                    <TextBlock Style="{StaticResource SettingsCaption}" Margin="0,2,0,8"
+                               Text="Подставляется в поле титульного листа новой работы." />
+                    <ui:TextBox Text="{Binding DefaultWorkType, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Профиль оформления по умолчанию" />
+                        <TextBlock Style="{StaticResource SettingsCaption}"
+                                   Text="Используется, если у предмета нет своего профиля." />
+                    </StackPanel>
+                    <ComboBox Grid.Column="1" MinWidth="220" VerticalAlignment="Center"
+                              ItemsSource="{Binding Profiles}" DisplayMemberPath="Name"
+                              SelectedItem="{Binding SelectedProfile, Mode=TwoWay}" />
+                </Grid>
+            </Border>
+
+            <ui:CardExpander Margin="{DynamicResource Space.Card.Margin}" ContentPadding="16">
+                <ui:CardExpander.Header>
+                    <StackPanel Margin="0,0,28,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Данные для титульного листа" />
+                        <TextBlock Style="{StaticResource SettingsCaption}"
+                                   Text="Подставляются в каждый новый отчёт; в самом отчёте их можно поправить." />
+                    </StackPanel>
+                </ui:CardExpander.Header>
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SettingsCaption}" Text="ФИО студента" />
+                    <ui:TextBox Text="{Binding ProfileFullName, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,2,0,8" />
+                    <TextBlock Style="{StaticResource SettingsCaption}" Text="Группа" />
+                    <ui:TextBox Text="{Binding ProfileGroup, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,2,0,8" />
+                    <TextBlock Style="{StaticResource SettingsCaption}" Text="Вуз" />
+                    <ui:TextBox Text="{Binding ProfileUniversity, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,2,0,8" />
+                    <TextBlock Style="{StaticResource SettingsCaption}" Text="Факультет / институт" />
+                    <ui:TextBox Text="{Binding ProfileFaculty, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,2,0,8" />
+                    <TextBlock Style="{StaticResource SettingsCaption}" Text="Кафедра" />
+                    <ui:TextBox Text="{Binding ProfileDepartment, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,2,0,8" />
+                    <TextBlock Style="{StaticResource SettingsCaption}" Text="Город" />
+                    <ui:TextBox Text="{Binding ProfileCity, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Margin="0,2,0,0" />
+                </StackPanel>
+            </ui:CardExpander>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

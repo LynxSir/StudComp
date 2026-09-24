@@ -1,0 +1,30 @@
+# Сборка и тесты на каждый push/PR. Раннер windows — проекту нужен net10.0-windows (WPF).
+# Релиз на тег v* делает отдельный workflow release.yml — здесь теги игнорируются, чтобы не
+# гонять сборку дважды.
+name: CI
+
+on:
+  push:
+    branches: ['**']
+    tags-ignore: ['v*']
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore StudComp.slnx
+
+      - name: Build
+        run: dotnet build StudComp.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test StudComp.slnx --configuration Release --no-build --verbosity minimal

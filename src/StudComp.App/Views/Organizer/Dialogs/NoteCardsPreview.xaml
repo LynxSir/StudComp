@@ -1,0 +1,57 @@
+<UserControl x:Class="StudComp.Views.Organizer.Dialogs.NoteCardsPreview"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Organizer.Hub"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:NoteCardsPreviewViewModel}"
+             Width="520">
+
+    <StackPanel>
+        <TextBlock TextWrapping="Wrap" FontSize="12" Margin="0,0,0,10"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                   Text="Ничего не создастся молча — снимите лишнее и поправьте текст перед сохранением. Уже разобранные отсюда карточки приходят снятыми." />
+
+        <ScrollViewer MaxHeight="420" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Rows}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:NoteCardCandidateRowViewModel}">
+                        <Border CornerRadius="8" Padding="10" Margin="0,0,0,8" BorderThickness="1"
+                                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding KindText}" FontSize="11"
+                                               VerticalAlignment="Center" Margin="6,0,0,0"
+                                               Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                                    <Border Grid.Column="2" CornerRadius="4" Padding="6,2"
+                                            Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                                            ToolTip="Похожая карточка из этой заметки уже есть"
+                                            Visibility="{Binding IsLikelyDuplicate,
+                                                         Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                                        <TextBlock Text="уже есть" FontSize="10"
+                                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    </Border>
+                                </Grid>
+                                <ui:TextBox Margin="0,6,0,0" Text="{Binding Front, UpdateSourceTrigger=PropertyChanged}"
+                                            FontWeight="SemiBold" />
+                                <ui:TextBox Margin="0,6,0,0" Text="{Binding Back, UpdateSourceTrigger=PropertyChanged}"
+                                            AcceptsReturn="True" TextWrapping="Wrap" MinHeight="50" />
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </StackPanel>
+
+</UserControl>

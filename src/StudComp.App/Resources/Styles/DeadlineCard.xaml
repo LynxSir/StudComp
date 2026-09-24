@@ -1,0 +1,177 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                    xmlns:vm="clr-namespace:StudComp.ViewModels.Organizer"
+                    xmlns:conv="clr-namespace:StudComp.Resources.Converters">
+
+    <!--
+        Карточка дедлайна — одна на оба списка: общий раздел «Органайзер» (DeadlinesPage) и вкладка
+        «Дедлайны» Хаба предмета (HubDeadlines). Команды биндятся на DataContext ближайшего
+        UserControl, и у обеих вьюмоделей команды называются одинаково — поэтому шаблон общий,
+        а не две копии, разъезжающиеся при каждой правке (ревизия 2026-09-22).
+        Просрочен — красная рамка, срочный — золотая (§19.2). Заголовок — ссылка на страницу
+        работы над дедлайном (задание, материалы, ответ).
+    -->
+    <DataTemplate x:Key="DeadlineCard" DataType="{x:Type vm:DeadlineRowViewModel}">
+        <Border x:Name="RowBorder" Cursor="Arrow">
+            <Border.Style>
+                <Style TargetType="Border" BasedOn="{StaticResource Cards.RowBorder}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsUrgent}" Value="True">
+                            <Setter Property="BorderBrush" Value="{StaticResource ColorAccentGoldBrush}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsOverdue}" Value="True">
+                            <Setter Property="BorderBrush" Value="#C0392B" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsDone}" Value="True">
+                            <Setter Property="Opacity" Value="0.6" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" CornerRadius="2"
+                        Background="{Binding AccentBrush}" />
+
+                <StackPanel Grid.Row="0" Grid.Column="2">
+                    <!-- Заголовок — кнопка-ссылка: открывает страницу работы над дедлайном -->
+                    <TextBlock FontWeight="SemiBold" FontSize="14" TextTrimming="CharacterEllipsis">
+                        <Hyperlink Command="{Binding DataContext.OpenWorkCommand,
+                                             RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                   CommandParameter="{Binding}"
+                                   TextDecorations="{x:Null}"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                   ToolTip="Открыть задание, материалы и ответ">
+                            <Run Text="{Binding Title, Mode=OneWay}" />
+                        </Hyperlink>
+                    </TextBlock>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontSize="12"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+                            <Run Text="{Binding SubjectName, Mode=OneWay}" />
+                            <Run Text=" · " />
+                            <Run Text="{Binding TypeText, Mode=OneWay}" />
+                            <Run Text=" · " />
+                            <Run Text="{Binding DueText, Mode=OneWay}" />
+                        </TextBlock>
+
+                        <!-- Бейджи: вложения и сданный ответ -->
+                        <Border CornerRadius="999" Padding="6,0" Margin="8,0,0,0" VerticalAlignment="Center"
+                                Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                                ToolTip="Приложенные файлы"
+                                Visibility="{Binding HasAttachments,
+                                             Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Attach24" FontSize="11" Margin="0,0,3,0" VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding AttachmentCount}" FontSize="11" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                        <Border CornerRadius="999" Padding="6,0" Margin="6,0,0,0" VerticalAlignment="Center"
+                                Background="#1A2E7D32" ToolTip="{Binding AnsweredText}"
+                                Visibility="{Binding HasAnswer,
+                                             Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="11" Margin="0,0,3,0"
+                                               VerticalAlignment="Center" Foreground="#2E7D32" />
+                                <TextBlock Text="Сдано" FontSize="11" VerticalAlignment="Center" Foreground="#2E7D32" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Row="0" Grid.Column="3" Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <Border CornerRadius="999" Padding="10,3" Margin="0,0,8,0"
+                            Background="{Binding StatusBrush}">
+                        <TextBlock Text="{Binding StatusText}" Foreground="White" FontSize="11" />
+                    </Border>
+                    <!-- Только у экзамена: уводит в аврал по карточкам предмета (§6.4). -->
+                    <ui:Button Appearance="Secondary" Padding="8,4" Margin="0,0,4,0"
+                               Content="Готовиться" ToolTip="Погонять карточки предмета к экзамену"
+                               Command="{Binding DataContext.PrepareForExamCommand,
+                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
+                               CommandParameter="{Binding}"
+                               Visibility="{Binding IsExam,
+                                            Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+                    <ui:Button Appearance="Secondary" Padding="8,4" Margin="0,0,4,0"
+                               Content="Открыть" ToolTip="Задание, материалы и ответ"
+                               Icon="{ui:SymbolIcon Open24}"
+                               Command="{Binding DataContext.OpenWorkCommand,
+                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
+                               CommandParameter="{Binding}" />
+                    <ui:Button Appearance="Secondary" Padding="8,4" Margin="0,0,4,0"
+                               Content="{Binding ToggleDoneText}"
+                               Command="{Binding DataContext.ToggleDoneCommand,
+                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
+                               CommandParameter="{Binding}" />
+                    <ui:Button Appearance="Secondary" Padding="8,4" Margin="0,0,4,0"
+                               Icon="{ui:SymbolIcon Edit24}"
+                               Command="{Binding DataContext.EditCommand,
+                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
+                               CommandParameter="{Binding}">
+                        <ui:Button.Style>
+                            <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                <Setter Property="Opacity" Value="0" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsMouseOver, ElementName=RowBorder}" Value="True">
+                                        <Setter Property="Opacity" Value="1" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ui:Button.Style>
+                    </ui:Button>
+                    <ui:Button Appearance="Secondary" Padding="8,4"
+                               Icon="{ui:SymbolIcon Delete24}"
+                               Command="{Binding DataContext.DeleteCommand,
+                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
+                               CommandParameter="{Binding}">
+                        <ui:Button.Style>
+                            <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                <Setter Property="Opacity" Value="0" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsMouseOver, ElementName=RowBorder}" Value="True">
+                                        <Setter Property="Opacity" Value="1" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ui:Button.Style>
+                    </ui:Button>
+                </StackPanel>
+
+                <!-- Файл, привязанный архивариусом (Phase 10) -->
+                <StackPanel Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Orientation="Horizontal"
+                            Margin="0,6,0,0"
+                            Visibility="{Binding HasLinkedFile,
+                                         Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                    <ui:SymbolIcon Symbol="Attach24" FontSize="13" Margin="0,0,6,0"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{Binding LinkedFileName}" FontSize="11" VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <ui:Button Appearance="Secondary" Padding="6,1" Margin="8,0,0,0" FontSize="11"
+                               Content="Открыть"
+                               Command="{Binding DataContext.OpenLinkedFileCommand,
+                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
+                               CommandParameter="{Binding}" />
+                    <ui:Button Appearance="Secondary" Padding="6,1" Margin="4,0,0,0" FontSize="11"
+                               Content="Отвязать"
+                               Command="{Binding DataContext.UnlinkFileCommand,
+                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
+                               CommandParameter="{Binding}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+</ResourceDictionary>

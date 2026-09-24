@@ -1,0 +1,29 @@
+<UserControl x:Class="StudComp.Views.Cards.CardsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:StudComp.Views.Cards"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Cards"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:CardsPageViewModel}"
+             d:DesignHeight="600" d:DesignWidth="1000">
+
+    <!-- Четыре вкладки раздела (new_addons.md §2.2). Сама сессия — не вкладка,
+         а отдельная полноэкранная страница навигации. -->
+    <TabControl SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}" Margin="16,12,16,16">
+        <TabItem Header="Библиотека">
+            <local:CardLibraryPage DataContext="{Binding Library}" />
+        </TabItem>
+        <TabItem Header="Повторение">
+            <local:CardReviewPage DataContext="{Binding Review}" />
+        </TabItem>
+        <TabItem Header="Экзамен">
+            <local:CardExamPage DataContext="{Binding Exam}" />
+        </TabItem>
+        <TabItem Header="Статистика">
+            <local:CardStatsPage DataContext="{Binding Stats}" />
+        </TabItem>
+    </TabControl>
+
+</UserControl>

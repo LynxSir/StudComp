@@ -1,0 +1,132 @@
+<UserControl x:Class="StudComp.Views.Cards.CardStatsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:controls="clr-namespace:StudComp.Controls"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Cards"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:CardStatsViewModel}"
+             d:DesignHeight="700" d:DesignWidth="1000">
+
+    <UserControl.Resources>
+
+        <!-- Строка точности: подпись, полоса, числа. Своего контрола здесь не нужно. -->
+        <DataTemplate x:Key="AccuracyRow" DataType="{x:Type vm:StatRowViewModel}">
+            <Grid Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" FontSize="13"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Text}" FontSize="12" Margin="10,0,0,0"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+
+                <ProgressBar Grid.Row="1" Grid.ColumnSpan="2" Height="4" Minimum="0" Maximum="1" Margin="0,5,0,0"
+                             Value="{Binding Ratio, Mode=OneWay}"
+                             Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                             Foreground="{DynamicResource ColorPrimaryBrush}" />
+            </Grid>
+        </DataTemplate>
+
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,8,4,4">
+        <StackPanel>
+
+            <!-- ── Календарь активности за год ──────────────────────────────────────────────── -->
+            <Border CornerRadius="10" Padding="20" Margin="0,0,0,12"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource ControlElevationBorderBrush}" BorderThickness="1">
+                <StackPanel>
+                    <Grid Margin="0,0,0,12">
+                        <TextBlock Text="Календарь активности" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <ComboBox HorizontalAlignment="Right" MinWidth="130"
+                                  ItemsSource="{Binding Periods}" SelectedItem="{Binding SelectedPeriod}"
+                                  DisplayMemberPath="Display" />
+                    </Grid>
+
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                        <controls:ActivityHeatmap Data="{Binding Calendar}" HorizontalAlignment="Left" />
+                    </ScrollViewer>
+
+                    <TextBlock Text="{Binding StreakText}" FontSize="13" Margin="0,12,0,0" />
+                    <TextBlock Text="{Binding TotalText}" FontSize="12" Margin="0,2,0,0"
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+
+                    <TextBlock Margin="0,10,0,0" TextWrapping="Wrap" FontSize="13"
+                               Text="История пока пуста — она наберётся после первых сессий."
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                               Visibility="{Binding HasAnyHistory, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}" />
+                </StackPanel>
+            </Border>
+
+            <!-- ── Точность по предметам и меткам ───────────────────────────────────────────── -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" CornerRadius="10" Padding="20" Margin="0,0,6,0"
+                        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{DynamicResource ControlElevationBorderBrush}" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="Точность по предметам" FontWeight="SemiBold" Margin="0,0,0,12" />
+                        <ItemsControl ItemsSource="{Binding BySubject}" ItemTemplate="{StaticResource AccuracyRow}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" CornerRadius="10" Padding="20" Margin="6,0,0,0"
+                        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{DynamicResource ControlElevationBorderBrush}" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="Точность по меткам" FontWeight="SemiBold" Margin="0,0,0,12" />
+                        <ItemsControl ItemsSource="{Binding ByTag}" ItemTemplate="{StaticResource AccuracyRow}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ── Кривая нагрузки вперёд ───────────────────────────────────────────────────── -->
+            <Border CornerRadius="10" Padding="20" Margin="0,0,0,12"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource ControlElevationBorderBrush}" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="Нагрузка на 30 дней вперёд" FontWeight="SemiBold" />
+                    <TextBlock Text="Видно заранее, где соберётся завал." FontSize="12" Margin="0,2,0,12"
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                    <controls:ReviewForecastChart Data="{Binding Forecast}" Height="130" />
+                </StackPanel>
+            </Border>
+
+            <!-- ── Слабые места ─────────────────────────────────────────────────────────────── -->
+            <Border CornerRadius="10" Padding="20"
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource ControlElevationBorderBrush}" BorderThickness="1">
+                <StackPanel>
+                    <Grid Margin="0,0,0,12">
+                        <TextBlock Text="Слабые места" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <ui:Button HorizontalAlignment="Right" Content="Гонять их" Appearance="Primary"
+                                   Padding="14,6" Command="{Binding DrillWeakCommand}"
+                                   Visibility="{Binding HasWeakCards, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+                    </Grid>
+
+                    <TextBlock TextWrapping="Wrap" FontSize="13"
+                               Text="Слабых мест пока не набралось — карточку нужно показать хотя бы трижды, чтобы считать её трудной, а не случайной ошибкой."
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                               Visibility="{Binding HasWeakCards, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}" />
+
+                    <ItemsControl ItemsSource="{Binding WeakCards}" ItemTemplate="{StaticResource AccuracyRow}" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

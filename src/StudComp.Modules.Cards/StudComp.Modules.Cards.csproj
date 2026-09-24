@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- BackgroundService для напоминания о повторении; IOptionsMonitor для CardsOptions. -->
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.9" />
+    <!-- IMessenger: напоминание просит App открыть вкладку «Повторение» (ADR §16.52). -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StudComp.Core\StudComp.Core.csproj" />
+    <ProjectReference Include="..\StudComp.Data\StudComp.Data.csproj" />
+    <ProjectReference Include="..\StudComp.Infrastructure\StudComp.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Тесты модуля поднимают internal-реализации репозиториев напрямую, без DI-контейнера. -->
+    <InternalsVisibleTo Include="StudComp.Modules.Cards.Tests" />
+  </ItemGroup>
+
+</Project>

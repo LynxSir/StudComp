@@ -1,0 +1,19 @@
+<UserControl x:Class="StudComp.Controls.NoteDrawingCanvas"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d">
+
+    <!-- «Бумага» рисунка всегда белая — независимо от темы приложения, чтобы PNG выглядел
+         одинаково в любой теме и не терялся на светлом фоне предпросмотра заметки. -->
+    <Border x:Name="Paper" Background="White" BorderThickness="1"
+            BorderBrush="{DynamicResource ControlElevationBorderBrush}"
+            HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="True">
+        <Grid x:Name="RootGrid">
+            <InkCanvas x:Name="Ink" Background="Transparent" />
+            <Canvas x:Name="Overlay" Background="Transparent" IsHitTestVisible="False" />
+        </Grid>
+    </Border>
+
+</UserControl>

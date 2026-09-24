@@ -1,0 +1,42 @@
+<UserControl x:Class="StudComp.Views.Cards.Dialogs.CardDeckEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Cards"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:CardDeckEditorViewModel}"
+             Width="480">
+
+    <StackPanel>
+        <TextBlock Text="Название" Margin="0,0,0,4" FontSize="12"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+        <ui:TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                    PlaceholderText="Экзамен по матану" />
+
+        <TextBlock Text="Предмет" Margin="0,12,0,4" FontSize="12"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+        <ComboBox ItemsSource="{Binding Subjects}" SelectedItem="{Binding SelectedSubject}"
+                  DisplayMemberPath="Name" HorizontalAlignment="Stretch" />
+
+        <TextBlock Text="Описание" Margin="0,12,0,4" FontSize="12"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+        <ui:TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                    AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60" />
+
+        <TextBlock Text="Запрос умной подборки" Margin="0,12,0,4" FontSize="12"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+        <ui:TextBox Text="{Binding QueryExpression, UpdateSourceTrigger=PropertyChanged}"
+                    PlaceholderText="#формулы @матан трудные" />
+        <TextBlock Margin="0,4,0,0" FontSize="11" TextWrapping="Wrap"
+                   Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                   Text="Оставьте пустым — получится обычная колода, в которую карточки кладут вручную. Заполните — содержимое будет вычисляться этим запросом и всегда останется свежим." />
+
+        <ui:InfoBar Severity="Success" IsOpen="True" IsClosable="False" Margin="0,10,0,0"
+                    Title="Умная подборка" Message="Карточки в такую колоду не кладут — она собирается запросом."
+                    Visibility="{Binding IsSmartDeck, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+    </StackPanel>
+
+</UserControl>

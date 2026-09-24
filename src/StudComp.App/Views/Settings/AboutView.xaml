@@ -1,0 +1,116 @@
+<UserControl x:Class="StudComp.Views.Settings.AboutView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Settings"
+             xmlns:controls="clr-namespace:StudComp.Controls"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:AboutViewModel}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="{DynamicResource Space.Page.Padding}">
+        <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                <ui:SymbolIcon Symbol="Info24" FontSize="22" VerticalAlignment="Center"
+                               Foreground="{DynamicResource ColorPrimaryBrush}" />
+                <TextBlock Text="О программе" FontSize="22" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center" />
+            </StackPanel>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel Orientation="Horizontal">
+                    <Image Width="56" Height="56" VerticalAlignment="Center"
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           Source="pack://application:,,,/Resources/Branding/logo-256.png" />
+                    <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding ProductName}" FontSize="20" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <TextBlock FontSize="13" Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+                            <Run Text="Версия" />
+                            <Run Text="{Binding Version, Mode=OneWay}" />
+                        </TextBlock>
+                        <TextBlock Text="{Binding LicenseText}" FontSize="12" Margin="0,4,0,0"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                            <TextBlock Style="{StaticResource SettingsLabel}" Text="Обновления" />
+                            <TextBlock Style="{StaticResource SettingsCaption}" Text="{Binding UpdateStatus}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <ui:Button Command="{Binding CheckForUpdatesCommand}" Appearance="Secondary" Content="Проверить" />
+                            <ui:Button Command="{Binding DownloadAndApplyCommand}" Appearance="Primary" Margin="8,0,0,0"
+                                       Content="Обновить и перезапустить"
+                                       Visibility="{Binding UpdateAvailable, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                            <TextBlock Style="{StaticResource SettingsLabel}" Text="Проверять при запуске" />
+                            <TextBlock Style="{StaticResource SettingsCaption}"
+                                       Text="Единственный сетевой запрос приложения. Можно выключить." />
+                        </StackPanel>
+                        <ui:ToggleSwitch Grid.Column="1" VerticalAlignment="Center"
+                                         IsChecked="{Binding AutoCheckOnStartup, Mode=TwoWay}" />
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Токен GitHub" Margin="0" />
+                        <controls:TermHint Margin="6,10,0,0"
+                                            Text="Личный токен доступа GitHub — нужен только если обновления публикуются в приватном репозитории. Обычным пользователям это поле не нужно." />
+                    </StackPanel>
+                    <TextBlock Style="{StaticResource SettingsCaption}"
+                               Text="Нужен для приватного репозитория обновлений. Хранится только на этом компьютере." />
+                    <Grid Margin="0,6,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBox Grid.Column="0" Text="{Binding GithubToken, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    PlaceholderText="ghp_…" FontFamily="Consolas" />
+                        <ui:Button Grid.Column="1" Command="{Binding SaveTokenCommand}" Appearance="Secondary"
+                                   Margin="8,0,0,0" Content="Сохранить" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                            <TextBlock Style="{StaticResource SettingsLabel}" Text="Журнал производительности" />
+                            <TextBlock Style="{StaticResource SettingsCaption}"
+                                       Text="Периодическая запись в лог, сколько памяти и системных ресурсов использует программа. Нужно только по просьбе поддержки при жалобе на тормоза." />
+                        </StackPanel>
+                        <ui:ToggleSwitch Grid.Column="1" VerticalAlignment="Center"
+                                         IsChecked="{Binding PerformanceLoggingEnabled, Mode=TwoWay}" />
+                    </Grid>
+                    <ui:Button Command="{Binding OpenLogCommand}" Appearance="Secondary" Margin="0,10,0,0"
+                               HorizontalAlignment="Left"
+                               Icon="{ui:SymbolIcon DocumentBulletList24}" Content="Открыть папку логов" />
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,314 @@
+<UserControl x:Class="StudComp.Views.ReportForge.NewReportPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:behaviors="clr-namespace:StudComp.Behaviors"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.ReportForge"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:NewReportViewModel}"
+             d:DesignHeight="700" d:DesignWidth="1000">
+
+    <UserControl.Resources>
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Margin" Value="0,8,0,2" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+        </Style>
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="14,12" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="1" Direction="270" Opacity="0.10" Color="Black" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="0,12,0,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MinWidth="360" />
+            <ColumnDefinition Width="16" />
+            <ColumnDefinition Width="360" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Слева: редактор markdown -->
+
+        <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="Текст отчёта (Markdown)" FontWeight="SemiBold" />
+                <TextBlock Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="11"
+                           TextTrimming="CharacterEllipsis"
+                           Visibility="{Binding SourcePath, Converter={x:Static conv:StringPresenceToVisibilityConverter.Instance}}">
+                    <Run Text="источник:" />
+                    <Run Text="{Binding SourcePath, Mode=OneWay}" />
+                </TextBlock>
+            </StackPanel>
+
+            <!-- Три источника текста собраны под одной кнопкой — раньше занимали три места в ряд (Phase 13.9) -->
+            <ui:Button Grid.Column="1" Margin="0,0,4,0" Appearance="Secondary" Click="OnComposeMenuButtonClick"
+                       Icon="{ui:SymbolIcon ArrowImport24}" Content="Собрать текст">
+                <ui:Button.ContextMenu>
+                    <ContextMenu Placement="Bottom">
+                        <MenuItem Header="Собрать из заметок" Command="{Binding ComposeFromNotesCommand}"
+                                  ToolTip="Собрать текст отчёта из заметок предмета">
+                            <MenuItem.Icon>
+                                <ui:SymbolIcon Symbol="Notepad24" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Собрать из карточек" Command="{Binding ComposeFromCardsCommand}"
+                                  ToolTip="Собрать текст отчёта из карточек предмета">
+                            <MenuItem.Icon>
+                                <ui:SymbolIcon Symbol="Layer24" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Импортировать .md" Command="{Binding ImportCommand}">
+                            <MenuItem.Icon>
+                                <ui:SymbolIcon Symbol="ArrowImport24" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </ContextMenu>
+                </ui:Button.ContextMenu>
+            </ui:Button>
+
+            <ui:Button Grid.Column="2" Margin="0,0,4,0" Appearance="Secondary"
+                       ToolTip="Отвязаться от файла и править текст здесь"
+                       Command="{Binding ForgetSourceCommand}"
+                       Icon="{ui:SymbolIcon LinkDismiss24}"
+                       Visibility="{Binding SourcePath, Converter={x:Static conv:StringPresenceToVisibilityConverter.Instance}}" />
+
+            <ui:Button Grid.Column="3" Appearance="Secondary"
+                       Command="{Binding ShowMarkdownHelpCommand}"
+                       ToolTip="Подсказка по разметке Markdown"
+                       Icon="{ui:SymbolIcon QuestionCircle24}" />
+        </Grid>
+
+        <TextBox Grid.Row="1" Grid.Column="0"
+                 Text="{Binding Markdown, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                 AcceptsReturn="True" AcceptsTab="True" TextWrapping="NoWrap"
+                 FontFamily="Consolas" FontSize="13"
+                 behaviors:MarkdownEditingBehavior.IsEnabled="True"
+                 VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
+
+        <!-- Справа: параметры отчёта -->
+
+        <ScrollViewer Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Отчёт" FontWeight="SemiBold" />
+
+                        <TextBlock Text="Предмет" Style="{StaticResource FieldLabel}" />
+                        <ComboBox ItemsSource="{Binding Subjects}" DisplayMemberPath="Name"
+                                  SelectedItem="{Binding SelectedSubject, Mode=TwoWay}"
+                                  HorizontalAlignment="Stretch" />
+
+                        <TextBlock Text="Шаблон оформления" Style="{StaticResource FieldLabel}" />
+                        <ComboBox ItemsSource="{Binding Templates}" DisplayMemberPath="Name"
+                                  SelectedItem="{Binding SelectedTemplate, Mode=TwoWay}"
+                                  HorizontalAlignment="Stretch" />
+
+                        <TextBlock Text="Тип работы" Style="{StaticResource FieldLabel}" />
+                        <ui:TextBox Text="{Binding WorkType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+
+                        <CheckBox Margin="0,12,0,0" Content="Титульный лист"
+                                  IsChecked="{Binding IncludeTitlePage, Mode=TwoWay}" />
+                        <CheckBox Content="Автоматическое оглавление"
+                                  IsChecked="{Binding GenerateTableOfContents, Mode=TwoWay}" />
+                    </StackPanel>
+                </Border>
+
+                <ui:InfoBar Margin="0,8,0,0" Severity="Warning" IsClosable="False"
+                            IsOpen="{Binding IsProfileIncomplete}"
+                            Title="Профиль не заполнен"
+                            Message="Укажите ФИО и вуз здесь или один раз в «Настройках» — иначе титульный лист выйдет пустым." />
+
+                <ui:CardExpander Style="{StaticResource AppExpander}" Header="Титульный лист"
+                        IsExpanded="{Binding TitlePageIsComplete, Mode=OneTime, Converter={x:Static conv:InverseBooleanConverter.Instance}}"
+                        Margin="0,8,0,0"
+                        Visibility="{Binding IncludeTitlePage, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                    <StackPanel>
+                        <TextBlock Text="Вуз" Style="{StaticResource FieldLabel}" />
+                        <ui:TextBox Text="{Binding University, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+
+                        <TextBlock Text="Факультет / институт" Style="{StaticResource FieldLabel}" />
+                        <ui:TextBox Text="{Binding Faculty, Mode=TwoWay}" />
+
+                        <TextBlock Text="Кафедра" Style="{StaticResource FieldLabel}" />
+                        <ui:TextBox Text="{Binding Department, Mode=TwoWay}" />
+
+                        <TextBlock Text="Студент" Style="{StaticResource FieldLabel}" />
+                        <ui:TextBox Text="{Binding StudentName, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+
+                        <TextBlock Text="Группа" Style="{StaticResource FieldLabel}" />
+                        <ui:TextBox Text="{Binding StudentGroup, Mode=TwoWay}" />
+
+                        <TextBlock Text="Руководитель" Style="{StaticResource FieldLabel}" />
+                        <ui:TextBox Text="{Binding SupervisorName, Mode=TwoWay}" />
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="90" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Город" Style="{StaticResource FieldLabel}" />
+                                <ui:TextBox Text="{Binding City, Mode=TwoWay}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Год" Style="{StaticResource FieldLabel}" />
+                                <ui:TextBox Text="{Binding Year, Mode=TwoWay}" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </ui:CardExpander>
+
+                <Border Style="{StaticResource Card}" Margin="0,8,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Структура документа" FontWeight="SemiBold" />
+                        <TextBlock Text="Так генератор прочитал ваш markdown." Style="{StaticResource FieldLabel}" />
+
+                        <ListBox ItemsSource="{Binding Preview}" Margin="0,4,0,0"
+                                 BorderThickness="0" Background="Transparent"
+                                 MaxHeight="360"
+                                 ScrollViewer.CanContentScroll="True"
+                                 VirtualizingPanel.IsVirtualizing="True"
+                                 VirtualizingPanel.VirtualizationMode="Recycling"
+                                 VirtualizingPanel.ScrollUnit="Pixel"
+                                 HorizontalContentAlignment="Stretch">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="0" />
+                                    <Setter Property="Margin" Value="0" />
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <ContentPresenter />
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:ReportBlockPreviewRowViewModel}">
+                                    <Grid Margin="0,0,0,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="8" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border Grid.Column="0" Width="{Binding IndentLevel}" />
+
+                                        <ui:SymbolIcon Grid.Column="1" Symbol="{Binding Icon}" FontSize="14"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+
+                                        <TextBlock Grid.Column="3" TextTrimming="CharacterEllipsis" FontSize="12">
+                                            <Run Text="{Binding Kind, Mode=OneWay}" FontWeight="SemiBold" />
+                                            <Run Text="·" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                            <Run Text="{Binding Description, Mode=OneWay}"
+                                                 Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                        </TextBlock>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <TextBlock Text="Пока пусто — наберите текст слева."
+                                   Style="{StaticResource FieldLabel}"
+                                   Visibility="{Binding HasSource, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Карточка результата — золотая рамка как акцент завершённости (ARCHITECTURE §19.4) -->
+                <Border Margin="0,8,0,0" CornerRadius="10" Padding="14,12" BorderThickness="1.5"
+                        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{StaticResource ColorAccentGoldBrush}"
+                        Visibility="{Binding ShowGeneratedResult, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="CheckmarkCircle24" Foreground="{StaticResource ColorAccentGoldBrush}" />
+                            <TextBlock Text="Отчёт готов" FontWeight="SemiBold" Margin="8,0,0,0" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding LastGeneratedFileName}" FontSize="12" Margin="0,4,0,8"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        <StackPanel Orientation="Horizontal">
+                            <ui:Button Appearance="Primary" Padding="10,4" Margin="0,0,6,0" Content="Открыть"
+                                       Command="{Binding OpenGeneratedResultCommand}" />
+                            <ui:Button Appearance="Secondary" Padding="8,4" ToolTip="Показать в проводнике"
+                                       Icon="{ui:SymbolIcon FolderOpen24}"
+                                       Command="{Binding RevealGeneratedResultCommand}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Оверлей прогресса генерации: закрывает правую панель, пока IsBusy -->
+        <Border Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" CornerRadius="10" Background="#66000000"
+                Visibility="{Binding IsBusy, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ui:ProgressRing IsIndeterminate="True" Width="36" Height="36" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding GenerationStatusText}" Margin="0,10,0,0" FontSize="12" Foreground="White"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- Снизу: путь вывода и генерация -->
+
+        <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0">
+                <TextBlock Text="Файл отчёта" Style="{StaticResource FieldLabel}" Margin="0,0,0,2" />
+                <ui:TextBox Text="{Binding OutputPath, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+            </StackPanel>
+
+            <ui:Button Grid.Column="1" Margin="0,14,8,0" VerticalAlignment="Bottom" Appearance="Secondary"
+                       Command="{Binding PickOutputPathCommand}" ToolTip="Выбрать другой файл"
+                       Icon="{ui:SymbolIcon FolderOpen24}" Content="…" />
+
+            <ui:Button Grid.Column="2" Margin="0,14,0,0" VerticalAlignment="Bottom" Appearance="Primary"
+                       Padding="18,6" Command="{Binding GenerateCommand}"
+                       IsEnabled="{Binding IsBusy, Converter={x:Static conv:InverseBooleanConverter.Instance}}"
+                       Icon="{ui:SymbolIcon DocumentText24}" Content="Сгенерировать" />
+        </Grid>
+    </Grid>
+
+</UserControl>

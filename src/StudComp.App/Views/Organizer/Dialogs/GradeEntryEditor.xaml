@@ -1,0 +1,66 @@
+<UserControl x:Class="StudComp.Views.Organizer.Dialogs.GradeEntryEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Organizer"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:GradeEntryEditorViewModel}"
+             Width="440">
+
+    <StackPanel>
+        <TextBlock Text="Название" Margin="0,0,0,4" />
+        <ui:TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
+                    PlaceholderText="Например, «Лабораторная 3»" Margin="0,0,0,12" />
+
+        <TextBlock Text="Тип" Margin="0,0,0,4" />
+        <ComboBox ItemsSource="{Binding Types}" DisplayMemberPath="Display"
+                  SelectedItem="{Binding SelectedType, Mode=TwoWay}"
+                  HorizontalAlignment="Stretch" Margin="0,0,0,12" />
+
+        <ui:ToggleSwitch Content="Запланировано (ещё не сдано)"
+                         IsChecked="{Binding IsPlanned, Mode=TwoWay}" Margin="0,0,0,12" />
+
+        <Grid Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Набрано" Margin="0,0,0,4" />
+                <ui:TextBox Text="{Binding RawScoreText, UpdateSourceTrigger=PropertyChanged}"
+                            IsEnabled="{Binding IsScoreEnabled}" />
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="Максимум" Margin="0,0,0,4" />
+                <ui:TextBox Text="{Binding MaxScoreText, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+            <StackPanel Grid.Column="4">
+                <TextBlock Text="Вес" Margin="0,0,0,4" />
+                <ui:TextBox Text="{Binding WeightText, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+        </Grid>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Дата" Margin="0,0,0,4" />
+                <DatePicker SelectedDate="{Binding Date, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="Семестр" Margin="0,0,0,4" />
+                <ui:NumberBox Value="{Binding Semester, Mode=TwoWay}" Minimum="1" Maximum="20"
+                              SpinButtonPlacementMode="Inline" Width="110" />
+            </StackPanel>
+        </Grid>
+    </StackPanel>
+
+</UserControl>

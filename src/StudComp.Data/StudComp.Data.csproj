@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Версии EF Core выровнены по установленному dotnet ef (10.0.9). -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
+    <!-- Прямая ссылка перекрывает транзитивный SQLitePCLRaw 2.1.11 из EF Core Sqlite — в нём
+         уязвимость GHSA-2m69-gcr7-jv3q, закрыта в 2.1.12. Снять, когда EF Core подтянет фикс сам. -->
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StudComp.Core\StudComp.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Тесты слоя данных и интеграционные тесты модулей инстанцируют internal-репозитории напрямую. -->
+    <InternalsVisibleTo Include="StudComp.Data.Tests" />
+    <InternalsVisibleTo Include="StudComp.Modules.Organizer.Tests" />
+    <InternalsVisibleTo Include="StudComp.Modules.Archivist.Tests" />
+    <InternalsVisibleTo Include="StudComp.Modules.Cards.Tests" />
+    <InternalsVisibleTo Include="StudComp.Modules.ReportForge.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,64 @@
+{
+  "fontFamily": "Times New Roman",
+  "fontSizePt": 14,
+  "lineSpacing": 1.5,
+  "margins": {
+    "left": 30,
+    "right": 15,
+    "top": 20,
+    "bottom": 20
+  },
+  "paragraphIndentCm": 1.25,
+  "bodyAlignment": "Justify",
+  "bulletMarker": "–",
+  "headingRules": [
+    {
+      "level": 1,
+      "fontSizePt": 16,
+      "bold": true,
+      "pageBreakBefore": true,
+      "alignment": "Center",
+      "upperCase": true
+    },
+    {
+      "level": 2,
+      "fontSizePt": 14,
+      "bold": true,
+      "pageBreakBefore": false,
+      "alignment": "Left",
+      "upperCase": false
+    },
+    {
+      "level": 3,
+      "fontSizePt": 14,
+      "bold": true,
+      "pageBreakBefore": false,
+      "alignment": "Left",
+      "upperCase": false
+    },
+    {
+      "level": 4,
+      "fontSizePt": 14,
+      "bold": false,
+      "pageBreakBefore": false,
+      "alignment": "Left",
+      "upperCase": false
+    }
+  ],
+  "pageNumbering": {
+    "enabled": true,
+    "position": "BottomCenter",
+    "skipTitlePage": true
+  },
+  "tableOfContents": {
+    "minLevel": 1,
+    "maxLevel": 3
+  },
+  "titlePageTemplate": null,
+  "codeBlock": {
+    "monospaceFontFamily": "Consolas",
+    "relativeFontSizePt": -2,
+    "boxed": true,
+    "backgroundHex": "F5F5F5"
+  }
+}

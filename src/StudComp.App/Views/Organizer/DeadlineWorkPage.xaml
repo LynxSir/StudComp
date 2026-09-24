@@ -1,0 +1,313 @@
+<UserControl x:Class="StudComp.Views.Organizer.DeadlineWorkPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Organizer"
+             xmlns:controls="clr-namespace:StudComp.Controls"
+             xmlns:behaviors="clr-namespace:StudComp.Behaviors"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:DeadlineWorkViewModel}">
+
+    <UserControl.Resources>
+        <!-- Строка вложения: иконка по типу, имя, дата; действия появляются по наведению
+             (общий RowAction.HoverReveal — контейнер обязан быть ListBoxItem). -->
+        <DataTemplate x:Key="AttachmentRow" DataType="{x:Type vm:DeadlineAttachmentRowViewModel}">
+            <Border Style="{StaticResource Cards.RowBorder}" Padding="10,6" Margin="0,0,0,6">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <ui:SymbolIcon Grid.Column="0" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"
+                                   Symbol="{Binding Extension, Converter={x:Static conv:FileExtensionToSymbolConverter.Instance}}" />
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding FileName}" FontSize="13" TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding AbsolutePath}" />
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding AddedText}" FontSize="11"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text=" · файл не найден" FontSize="11" Foreground="#C0372A"
+                                       Visibility="{Binding Exists, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,0,0">
+                        <ui:Button Style="{StaticResource RowAction.HoverReveal}" Appearance="Secondary" Padding="6,3"
+                                   ToolTip="Открыть" Icon="{ui:SymbolIcon Open24}"
+                                   Command="{Binding DataContext.OpenAttachmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                   CommandParameter="{Binding}" />
+                        <ui:Button Style="{StaticResource RowAction.HoverReveal}" Appearance="Secondary" Padding="6,3" Margin="4,0,0,0"
+                                   ToolTip="Показать в проводнике" Icon="{ui:SymbolIcon FolderOpen24}"
+                                   Command="{Binding DataContext.RevealAttachmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                   CommandParameter="{Binding}" />
+                        <ui:Button Style="{StaticResource RowAction.HoverReveal}" Appearance="Secondary" Padding="6,3" Margin="4,0,0,0"
+                                   ToolTip="Убрать из списка (файл останется в папке)" Icon="{ui:SymbolIcon Dismiss24}"
+                                   Command="{Binding DataContext.RemoveAttachmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                   CommandParameter="{Binding}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <Style x:Key="AttachmentList" TargetType="ListBox" BasedOn="{StaticResource {x:Type ListBox}}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="ItemTemplate" Value="{StaticResource AttachmentRow}" />
+            <Setter Property="ItemContainerStyle" Value="{StaticResource Cards.ItemContainer}" />
+            <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True" />
+            <Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel" />
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+        </Style>
+
+        <Style x:Key="DropOverlay" TargetType="Border">
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="IsHitTestVisible" Value="False" />
+            <Setter Property="Background" Value="#22000000" />
+            <Setter Property="BorderBrush" Value="{StaticResource ColorPrimaryBrush}" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="16,12,16,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Шапка: назад, цвет предмета, название и предмет, действия -->
+        <Grid Grid.Row="0" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <ui:Button Grid.Column="0" Appearance="Secondary" Padding="8,4" Margin="0,0,12,0"
+                       VerticalAlignment="Center" ToolTip="Назад"
+                       Icon="{ui:SymbolIcon ArrowLeft24}"
+                       Command="{Binding GoBackCommand}" />
+
+            <Border Grid.Column="1" Width="6" CornerRadius="3" Background="{Binding AccentBrush}" />
+
+            <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                <ui:TextBlock Text="{Binding Title}" FontTypography="Title" TextTrimming="CharacterEllipsis" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding SubjectName}" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text=" · " FontSize="12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{Binding MetaText}" FontSize="12"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                <ui:Button Appearance="Secondary" Margin="0,0,6,0"
+                           Icon="{ui:SymbolIcon FolderOpen24}" Content="Папка дедлайна"
+                           ToolTip="Папка предмета → Дедлайны → это задание"
+                           Command="{Binding OpenFolderCommand}" />
+                <ui:Button Appearance="Secondary" Margin="0,0,6,0"
+                           Icon="{ui:SymbolIcon BookOpen24}" Content="Готовиться"
+                           Visibility="{Binding IsExam, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}"
+                           Command="{Binding PrepareForExamCommand}" />
+                <ui:Button Appearance="Secondary" Margin="0,0,6,0"
+                           Icon="{ui:SymbolIcon Edit24}" Content="Изменить"
+                           Command="{Binding EditCommand}" />
+                <ui:Button Appearance="Secondary"
+                           Icon="{ui:SymbolIcon Checkmark24}" Content="{Binding ToggleDoneText}"
+                           Command="{Binding ToggleDoneCommand}" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Строка состояния: срок, статус, сдача -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+            <TextBlock Text="{Binding DueText}" FontSize="13" VerticalAlignment="Center" />
+            <Border CornerRadius="999" Padding="8,2" Margin="12,0,0,0" VerticalAlignment="Center"
+                    Background="{DynamicResource ControlFillColorSecondaryBrush}">
+                <TextBlock Text="{Binding StatusText}" FontSize="11" FontWeight="SemiBold"
+                           Foreground="{Binding StatusBrush}" />
+            </Border>
+            <Border CornerRadius="999" Padding="8,2" Margin="8,0,0,0" VerticalAlignment="Center"
+                    Background="#1A2E7D32"
+                    Visibility="{Binding HasAnswer, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                <TextBlock Text="{Binding AnsweredText}" FontSize="11" FontWeight="SemiBold" Foreground="#2E7D32" />
+            </Border>
+            <TextBlock Text="{Binding ImportStatusText}" FontSize="12" Margin="12,0,0,0" VerticalAlignment="Center"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+        </StackPanel>
+
+        <TabControl Grid.Row="2" SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
+            <!-- ═══ Задание ═══ -->
+            <TabItem Header="Задание">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="320" />
+                    </Grid.ColumnDefinitions>
+
+                    <controls:NoteEditor Grid.Column="0" DataContext="{Binding TaskEditor}" />
+
+                    <!-- Материалы задания: зона приёма перетаскивания -->
+                    <Grid Grid.Column="2"
+                          behaviors:FileDropBehavior.DropCommand="{Binding DropTaskCommand}"
+                          behaviors:FileDropBehavior.IsDragOver="{Binding IsTaskDragOver, Mode=TwoWay}"
+                          Background="Transparent">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Материалы" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <ui:Button Grid.Column="1" Appearance="Secondary" Padding="8,4"
+                                       Icon="{ui:SymbolIcon Add24}" Content="Добавить"
+                                       ToolTip="Выбрать файлы. Можно также перетащить их сюда."
+                                       Command="{Binding AddTaskFilesCommand}" />
+                        </Grid>
+
+                        <!-- Файл, привязанный Архивариусом, — тоже материал задания -->
+                        <Border Grid.Row="1" Style="{StaticResource Cards.RowBorder}" Padding="10,6" Margin="0,0,0,6"
+                                Visibility="{Binding HasLinkedFile, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ui:SymbolIcon Grid.Column="0" Symbol="Attach24" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding LinkedFileName}" FontSize="13" TextTrimming="CharacterEllipsis"
+                                               ToolTip="{Binding LinkedFilePath}" />
+                                    <TextBlock Text="привязан Архивариусом" FontSize="11"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                </StackPanel>
+                                <ui:Button Grid.Column="2" Appearance="Secondary" Padding="6,3" ToolTip="Открыть"
+                                           Icon="{ui:SymbolIcon Open24}" Command="{Binding OpenLinkedFileCommand}" />
+                            </Grid>
+                        </Border>
+
+                        <ListBox Grid.Row="2" Style="{StaticResource AttachmentList}" ItemsSource="{Binding TaskAttachments}" />
+
+                        <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="12"
+                                    Visibility="{Binding HasTaskAttachments, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}">
+                            <ui:SymbolIcon Symbol="DocumentAdd24" FontSize="28" HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                            <TextBlock Text="Методичка, условие, исходные данные" FontSize="12" Margin="0,8,0,0"
+                                       TextAlignment="Center" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="Перетащите файлы сюда или нажмите «Добавить»" FontSize="11" Margin="0,4,0,0"
+                                       TextAlignment="Center" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                        </StackPanel>
+
+                        <Border Grid.Row="0" Grid.RowSpan="3" Style="{StaticResource DropOverlay}"
+                                Visibility="{Binding IsTaskDragOver, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="32" HorizontalAlignment="Center"
+                                               Foreground="{StaticResource ColorPrimaryBrush}" />
+                                <TextBlock Text="В материалы задания" FontSize="14" FontWeight="SemiBold" Margin="0,6,0,0" HorizontalAlignment="Center" />
+                                <TextBlock Text="Ctrl — скопировать, Shift — перенести" FontSize="11" Margin="0,4,0,0" HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <!-- ═══ Ответ ═══ -->
+            <TabItem Header="Ответ">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="320" />
+                    </Grid.ColumnDefinitions>
+
+                    <controls:NoteEditor Grid.Column="0" DataContext="{Binding AnswerEditor}" />
+
+                    <Grid Grid.Column="2"
+                          behaviors:FileDropBehavior.DropCommand="{Binding DropAnswerCommand}"
+                          behaviors:FileDropBehavior.IsDragOver="{Binding IsAnswerDragOver, Mode=TwoWay}"
+                          Background="Transparent">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Сдача: главное действие вкладки, поэтому сверху и Primary -->
+                        <Border Grid.Row="0" Style="{StaticResource Cards.RowBorder}" Padding="12,10" Margin="0,0,0,10">
+                            <StackPanel>
+                                <ui:Button Appearance="Primary" HorizontalAlignment="Stretch"
+                                           Icon="{ui:SymbolIcon Send24}" Content="Сдано"
+                                           ToolTip="Зафиксировать дату сдачи и закрыть дедлайн"
+                                           Visibility="{Binding HasAnswer, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}"
+                                           Command="{Binding SubmitCommand}" />
+                                <StackPanel Visibility="{Binding HasAnswer, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="18" Foreground="#2E7D32" Margin="0,0,6,0" />
+                                        <TextBlock Text="{Binding AnsweredText}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <ui:Button Appearance="Secondary" HorizontalAlignment="Center" Margin="0,8,0,0"
+                                               Content="Вернуть в работу" Command="{Binding ReopenCommand}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Grid Grid.Row="1" Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Файлы ответа" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            <ui:Button Grid.Column="1" Appearance="Secondary" Padding="8,4"
+                                       Icon="{ui:SymbolIcon Add24}" Content="Добавить"
+                                       ToolTip="Выбрать файлы. Можно также перетащить их сюда."
+                                       Command="{Binding AddAnswerFilesCommand}" />
+                        </Grid>
+
+                        <ListBox Grid.Row="2" Style="{StaticResource AttachmentList}" ItemsSource="{Binding AnswerAttachments}" />
+
+                        <StackPanel Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="12"
+                                    Visibility="{Binding HasAnswerAttachments, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}">
+                            <ui:SymbolIcon Symbol="DocumentArrowRight24" FontSize="28" HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                            <TextBlock Text="Готовая работа, отчёт, архив с кодом" FontSize="12" Margin="0,8,0,0"
+                                       TextAlignment="Center" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                            <TextBlock Text="Перетащите файлы сюда или нажмите «Добавить»" FontSize="11" Margin="0,4,0,0"
+                                       TextAlignment="Center" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                        </StackPanel>
+
+                        <Border Grid.Row="0" Grid.RowSpan="3" Style="{StaticResource DropOverlay}"
+                                Visibility="{Binding IsAnswerDragOver, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="32" HorizontalAlignment="Center"
+                                               Foreground="{StaticResource ColorPrimaryBrush}" />
+                                <TextBlock Text="В файлы ответа" FontSize="14" FontWeight="SemiBold" Margin="0,6,0,0" HorizontalAlignment="Center" />
+                                <TextBlock Text="Ctrl — скопировать, Shift — перенести" FontSize="11" Margin="0,4,0,0" HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

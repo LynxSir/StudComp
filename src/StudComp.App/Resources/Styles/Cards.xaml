@@ -1,0 +1,136 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+
+    <!--
+        Оформление раздела «Картотека» (new_addons.md §8.1). Раздел должен выглядеть картотекой, а
+        не таблицей в базе: у плитки есть поля, мягкая тень, цветная полоса предмета и заметная,
+        но спокойная реакция на наведение. Собственных цветов здесь нет — всё через токены темы,
+        кроме подсветки совпадений: ей нужна полупрозрачность, одинаково читаемая в обеих темах.
+    -->
+
+    <!-- Подсветка найденного: тёплая полупрозрачная заливка поверх любого фона. -->
+    <SolidColorBrush x:Key="Cards.HighlightBrush" Color="#E0A33E" Opacity="0.38" />
+
+    <!-- Размеры плитки. Панель виртуализации требует равного размера — отсюда и константы. -->
+    <sys:Double x:Key="Cards.Tile.Width">268</sys:Double>
+    <sys:Double x:Key="Cards.Tile.Height">158</sys:Double>
+
+    <!-- Плитка карточки: рамка, тень, состояния наведения и выбора. -->
+    <Style x:Key="Cards.TileBorder" TargetType="Border">
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Margin" Value="0,0,10,10" />
+        <Setter Property="Padding" Value="14,12" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+        <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="1" Direction="270" Opacity="0.10" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--
+        Строка списка: та же карточка, только во всю ширину и ниже ростом. Несмотря на префикс
+        «Cards.» (историческое имя — здесь оформление появилось первым), это универсальная карточка
+        строки/плитки для ЛЮБОЙ страницы приложения — переиспользуется в Архивариусе, Органайзере
+        и т.д. вместо того, чтобы каждый экран копировал Border+DropShadowEffect вручную (Phase 13.9).
+    -->
+    <Style x:Key="Cards.RowBorder" TargetType="Border" BasedOn="{StaticResource Cards.TileBorder}">
+        <Setter Property="Margin" Value="0,0,0,8" />
+        <Setter Property="CornerRadius" Value="10" />
+    </Style>
+
+    <!--
+        Кнопка второстепенного действия на строке списка (например «Отменить»/«Убрать»), видимая
+        только по наведению на строку — снижает число всегда видимых элементов, не убирая саму
+        функцию (Phase 13.9). Обязательно с BasedOn — без него затирается тема WPF-UI (ловили дважды:
+        Phase 12.8, Phase 13.5). Строка-контейнер должна быть ListBoxItem.
+    -->
+    <Style x:Key="RowAction.HoverReveal" TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+        <Setter Property="Opacity" Value="0" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                <Setter Property="Opacity" Value="1" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Чип метки. -->
+    <Style x:Key="Cards.TagChip" TargetType="Border">
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="6,1" />
+        <Setter Property="Margin" Value="0,0,4,0" />
+        <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+    </Style>
+
+    <!-- Точка состояния повторения: новая, в работе, просрочена. -->
+    <Style x:Key="Cards.ReviewDot" TargetType="Ellipse">
+        <Setter Property="Width" Value="7" />
+        <Setter Property="Height" Value="7" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,5,0" />
+        <Setter Property="Fill" Value="{DynamicResource TextFillColorTertiaryBrush}" />
+    </Style>
+
+    <!-- Пункт рельса фильтров: та же геометрия, что у кнопок настроек. -->
+    <Style x:Key="Cards.RailButton" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Padding" Value="8,5" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" CornerRadius="7" Background="{TemplateBinding Background}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Заголовок группы в рельсе. -->
+    <Style x:Key="Cards.RailHeader" TargetType="TextBlock">
+        <Setter Property="Margin" Value="8,16,0,4" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorTertiaryBrush}" />
+    </Style>
+
+    <!--
+        Контейнер выдачи: голый ContentPresenter, потому что рамку и состояния рисует сама плитка.
+        Выбор пробрасывается в строку — на нём держится мультивыбор и панель массовых операций.
+    -->
+    <Style x:Key="Cards.ItemContainer" TargetType="ListBoxItem">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <ContentPresenter />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

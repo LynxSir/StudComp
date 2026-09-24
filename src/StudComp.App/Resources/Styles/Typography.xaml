@@ -1,0 +1,16 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!--
+        Ограниченная типографическая шкала (ARCHITECTURE §19.3): 4 уровня, применяется единообразно
+        во всех модулях. Phase 3 — только размеры; полноценные стили заголовков/карточек — Phase 4+.
+        Шрифт системный (Segoe UI Variable) — берётся из темы WPF-UI, здесь не переопределяем.
+    -->
+
+    <sys:Double x:Key="TextTitleSize">28</sys:Double>
+    <sys:Double x:Key="TextSubtitleSize">20</sys:Double>
+    <sys:Double x:Key="TextBodySize">14</sys:Double>
+    <sys:Double x:Key="TextCaptionSize">12</sys:Double>
+
+</ResourceDictionary>

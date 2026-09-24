@@ -1,0 +1,114 @@
+<UserControl x:Class="StudComp.Views.Settings.SemesterSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
+             xmlns:vm="clr-namespace:StudComp.ViewModels.Settings"
+             xmlns:vmOrganizer="clr-namespace:StudComp.ViewModels.Organizer"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:SemesterSettingsViewModel}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="{DynamicResource Space.Page.Padding}">
+        <StackPanel MaxWidth="740" HorizontalAlignment="Left">
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                <ui:SymbolIcon Symbol="CalendarLtr24" FontSize="22" VerticalAlignment="Center"
+                               Foreground="{DynamicResource ColorPrimaryBrush}" />
+                <TextBlock Text="Расписание и семестр" FontSize="22" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center" />
+            </StackPanel>
+            <TextBlock Style="{StaticResource SettingsCaption}" Margin="0,0,0,10"
+                       Text="Семестр задаёт отсчёт недель, чётность и сетку звонков. Активный — тот, по которому Органайзер показывает предметы, расписание и дедлайны." />
+
+            <Grid Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Семестры" Style="{StaticResource SettingsGroupHeader}"
+                           Margin="0" VerticalAlignment="Center" />
+                <ui:Button Grid.Column="1" Appearance="Primary" Padding="10,4"
+                           Icon="{ui:SymbolIcon Add24}" Content="Новый семестр"
+                           Command="{Binding AddSemesterCommand}" />
+            </Grid>
+
+            <TextBlock Style="{StaticResource SettingsCaption}" Margin="0,0,0,10"
+                       Text="Семестров пока нет — создайте первый, чтобы заработали чётность недели и расчёт часов."
+                       Visibility="{Binding HasSemesters, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}" />
+
+            <ItemsControl ItemsSource="{Binding Semesters}" Margin="0,0,0,10">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vmOrganizer:SemesterRowViewModel}">
+                        <Border Style="{StaticResource SettingsCard}" Padding="14,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="4" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" CornerRadius="2"
+                                        Background="{DynamicResource ColorPrimaryBrush}"
+                                        Visibility="{Binding IsActive, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+
+                                <StackPanel Grid.Column="2">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <Border CornerRadius="999" Padding="8,1" Margin="8,0,0,0" VerticalAlignment="Center"
+                                                Background="{DynamicResource ColorPrimaryBrush}"
+                                                Visibility="{Binding IsActive, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}">
+                                            <TextBlock Text="активный" Foreground="White" FontSize="10" />
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding DatesText}" FontSize="12"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    <TextBlock Text="{Binding DetailsText}" FontSize="11"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    <TextBlock FontSize="11" Margin="0,2,0,0"
+                                               Foreground="{DynamicResource ColorAccentGoldBrush}"
+                                               Text="Дата окончания не задана — часы за семестр посчитать нельзя"
+                                               Visibility="{Binding NeedsEndDate, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <ui:Button Appearance="Secondary" Padding="8,4" Margin="0,0,4,0" Content="Сделать активным"
+                                               Command="{Binding DataContext.SetActiveSemesterCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                               CommandParameter="{Binding}"
+                                               Visibility="{Binding IsActive, Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}" />
+                                    <ui:Button Appearance="Secondary" Padding="8,4" Margin="0,0,4,0" Icon="{ui:SymbolIcon Edit24}"
+                                               Command="{Binding DataContext.EditSemesterCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                               CommandParameter="{Binding}" />
+                                    <ui:Button Appearance="Secondary" Padding="8,4" Icon="{ui:SymbolIcon Delete24}"
+                                               Command="{Binding DataContext.DeleteSemesterCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                               CommandParameter="{Binding}" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <TextBlock Text="Напоминания" Style="{StaticResource SettingsGroupHeader}" />
+            <Border Style="{StaticResource SettingsCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Напоминать за N минут до пары" />
+                        <TextBlock Style="{StaticResource SettingsCaption}"
+                                   Text="Общая настройка напоминаний — она же в разделе «Дедлайны и уведомления»." />
+                    </StackPanel>
+                    <ui:NumberBox Grid.Column="1" MinWidth="120" Minimum="0" Maximum="240"
+                                  Value="{Binding RemindMinutesBefore, Mode=TwoWay}" />
+                </Grid>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
