@@ -54,7 +54,12 @@ jobs:
         run: dotnet tool install -g vpk --version 1.2.161
 
       - name: Test
-        run: dotnet test StudComp.slnx --configuration Release --verbosity minimal
+        run: >
+          dotnet test StudComp.slnx
+          --configuration Release
+          --verbosity minimal
+          --disable-build-servers
+          --maxcpucount:1
 
       - name: Publish (self-contained, R2R)
         run: >
@@ -62,6 +67,8 @@ jobs:
           -c Release -r win-x64 --self-contained true
           -p:PublishReadyToRun=true
           -p:Version=${{ steps.ver.outputs.version }}
+          --disable-build-servers
+          --maxcpucount:1
           -o artifacts/publish
 
       - name: Download previous releases (for delta)
