@@ -36,6 +36,9 @@ public partial class NoteDrawingDialog : UserControl
         }
 
         DrawingCanvas.Load(vm.InitialDocument);
+
+        // Снимок холста делается один раз, при подтверждении, — иначе он шёл бы на каждый штрих.
+        vm.Capture = () => (DrawingCanvas.ExportDocument(), DrawingCanvas.RenderToPng());
         SyncViewModel();
     }
 
@@ -65,6 +68,17 @@ public partial class NoteDrawingDialog : UserControl
         }
 
         DrawingCanvas.StrokeThicknessValue = e.NewValue;
+    }
+
+    private void OnFontSizeChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        // Тот же guard, что и у толщины: ValueChanged срабатывает во время InitializeComponent().
+        if (DrawingCanvas is null)
+        {
+            return;
+        }
+
+        DrawingCanvas.TextFontSize = e.NewValue;
     }
 
     private void OnColorPresetClick(object sender, RoutedEventArgs e)
@@ -112,13 +126,11 @@ public partial class NoteDrawingDialog : UserControl
             return;
         }
 
+        // Только состояние кнопок: ни выгрузки модели, ни рендера PNG здесь больше нет.
         vm.CanSave = DrawingCanvas.HasElements;
         vm.CanUndo = DrawingCanvas.CanUndo;
         vm.CanRedo = DrawingCanvas.CanRedo;
         UndoButton.IsEnabled = DrawingCanvas.CanUndo;
         RedoButton.IsEnabled = DrawingCanvas.CanRedo;
-
-        vm.Document = DrawingCanvas.ExportDocument();
-        vm.PngBytes = DrawingCanvas.HasElements ? DrawingCanvas.RenderToPng() : null;
     }
 }

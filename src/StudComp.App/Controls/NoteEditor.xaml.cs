@@ -3,7 +3,9 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Threading;
+using StudComp.Behaviors;
 using StudComp.Core.Abstractions.ReportForge;
+using StudComp.Core.Domain;
 
 namespace StudComp.Controls;
 
@@ -13,7 +15,7 @@ namespace StudComp.Controls;
 /// <c>TextBox.SelectedText</c> — UI-специфичное состояние, VM его не видит, — и переход из
 /// просмотра в правку по клику (new_addons.md §11.5), где нужен кликнутый <c>Run</c>.
 /// </summary>
-public partial class NoteEditor : UserControl
+public partial class NoteEditor : UserControl, INoteTextEditor
 {
     private Point _previewMouseDown;
 
@@ -58,11 +60,13 @@ public partial class NoteEditor : UserControl
         if (e.OldValue is NoteEditorViewModel previous)
         {
             previous.EditRequested -= OnEditRequested;
+            previous.AttachEditor(null);
         }
 
         if (e.NewValue is NoteEditorViewModel current)
         {
             current.EditRequested += OnEditRequested;
+            current.AttachEditor(this);
         }
     }
 
@@ -139,26 +143,22 @@ public partial class NoteEditor : UserControl
             return;
         }
 
+        // Картинка разбирается ДО проверок протяжки и выделения: клик по BlockUIContainer во
+        // FlowDocument сам выделяет вложенный объект, поэтому с обратным порядком меню не
+        // открывалось вовсе (жалоба «не редактируется размер изображения»).
+        if (FindImage(e.OriginalSource as DependencyObject) is { Tag: ImageBlock image } element)
+        {
+            e.Handled = true;
+            ShowImageMenu(viewModel, element, image);
+            return;
+        }
+
         var up = e.GetPosition(PreviewViewer);
         if (e.ClickCount > 1
             || Math.Abs(up.X - _previewMouseDown.X) > SystemParameters.MinimumHorizontalDragDistance
             || Math.Abs(up.Y - _previewMouseDown.Y) > SystemParameters.MinimumVerticalDragDistance
             || PreviewViewer.Selection is { IsEmpty: false })
         {
-            return;
-        }
-
-        if (FindImage(e.OriginalSource as DependencyObject) is { Tag: ImageBlock image } element)
-        {
-            e.Handled = true;
-            var menu = new ContextMenu { PlacementTarget = element };
-            var resize = new MenuItem { Header = "Изменить размер…" };
-            resize.Click += async (_, _) => await viewModel.ResizeImageAsync(image);
-            var edit = new MenuItem { Header = "Редактировать рисунок…" };
-            edit.Click += async (_, _) => await viewModel.EditDrawingAtAsync(image.PathOrBase64);
-            menu.Items.Add(resize);
-            menu.Items.Add(edit);
-            menu.IsOpen = true;
             return;
         }
 
@@ -217,6 +217,67 @@ public partial class NoteEditor : UserControl
         if (ViewModel is { } viewModel)
         {
             viewModel.RequestCardFromSelection(ContentTextBox.SelectedText);
+        }
+    }
+
+    // --- INoteTextEditor: вьюмодель правит текст через живое поле ввода ---------------------
+
+    /// <inheritdoc />
+    public bool IsLive => ContentTextBox.IsVisible;
+
+    /// <inheritdoc />
+    public int Caret => ContentTextBox.CaretIndex;
+
+    /// <inheritdoc />
+    public bool TryApply(MarkdownEdit edit) => MarkdownEditingBehavior.Apply(ContentTextBox, edit);
+
+    /// <inheritdoc />
+    public void ResetUndoHistory()
+    {
+        // Документированный способ выбросить буфер отмены у TextBox.
+        ContentTextBox.IsUndoEnabled = false;
+        ContentTextBox.IsUndoEnabled = true;
+    }
+
+    /// <inheritdoc />
+    public bool TryUndo() => ContentTextBox.CanUndo && ContentTextBox.Undo();
+
+    private void OnUndoCanExecute(object sender, CanExecuteRoutedEventArgs e)
+    {
+        e.CanExecute = ViewModel is { HasNote: true, IsPreview: true } && ContentTextBox.CanUndo;
+        e.Handled = e.CanExecute;
+    }
+
+    private void OnUndoExecuted(object sender, ExecutedRoutedEventArgs e)
+    {
+        ViewModel?.UndoFromPreview();
+        e.Handled = true;
+    }
+
+    /// <summary>
+    /// Меню картинки в предпросмотре: размер, правка рисунка, перемещение и удаление. Свободного
+    /// перетаскивания тут нет намеренно — <see cref="FlowDocumentScrollViewer"/> не отдаёт позицию
+    /// сброса, и цель была бы угадыванием; «выше»/«ниже» детерминированы.
+    /// </summary>
+    private static void ShowImageMenu(NoteEditorViewModel viewModel, Image element, ImageBlock image)
+    {
+        var menu = new ContextMenu { PlacementTarget = element };
+
+        AddItem(menu, "Изменить размер…", () => viewModel.ResizeImageAsync(image));
+        AddItem(menu, "Редактировать рисунок…", () => viewModel.EditDrawingAtAsync(image.PathOrBase64));
+        menu.Items.Add(new Separator());
+        AddItem(menu, "Переместить выше", () => viewModel.MoveImageAsync(image, up: true));
+        AddItem(menu, "Переместить ниже", () => viewModel.MoveImageAsync(image, up: false));
+        menu.Items.Add(new Separator());
+        AddItem(menu, "Удалить изображение", () => viewModel.DeleteImageAsync(image));
+
+        menu.IsOpen = true;
+
+        static void AddItem(ContextMenu menu, string header, Func<Task> action)
+        {
+            var item = new MenuItem { Header = header };
+            item.Click += async (_, _) => await action();
+            menu.Items.Add(item);
         }
     }
 }

@@ -1,7 +1,6 @@
-# Релиз на тег vX.Y.Z (ARCHITECTURE §13): self-contained publish -> Velopack pack -> GitHub Release.
-# Заведён в Phase 13. Активен только при наличии секрета RELEASE_TOKEN (PAT со scope `repo`) —
-# владелец добавляет его в Settings -> Secrets and variables -> Actions. Без секрета шаг upload
-# упадёт с понятной ошибкой, сборка и pack всё равно отработают и приложат артефакты.
+# Релиз на тег vX.Y.Z: self-contained publish -> Velopack pack -> GitHub Release.
+# Для публикации используется временный GITHUB_TOKEN самого workflow; пользовательские токены
+# приложению не нужны, потому что релизы читаются из публичного репозитория.
 name: Release
 
 on:
@@ -12,6 +11,10 @@ on:
       version:
         description: 'Версия X.Y.Z (без v)'
         required: true
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -37,8 +40,18 @@ jobs:
           "version=$v" >> $env:GITHUB_OUTPUT
           "Version: $v"
 
+      - name: Resolve release notes
+        id: notes
+        shell: pwsh
+        run: |
+          $path = ".github/release-notes/v${{ steps.ver.outputs.version }}.md"
+          if (-not (Test-Path -LiteralPath $path)) {
+            throw "Release notes not found: $path"
+          }
+          "path=$path" >> $env:GITHUB_OUTPUT
+
       - name: Install Velopack CLI
-        run: dotnet tool install -g vpk --version 1.2.0
+        run: dotnet tool install -g vpk --version 1.2.161
 
       - name: Test
         run: dotnet test StudComp.slnx --configuration Release --verbosity minimal
@@ -52,12 +65,11 @@ jobs:
           -o artifacts/publish
 
       - name: Download previous releases (for delta)
-        if: ${{ secrets.RELEASE_TOKEN != '' }}
         continue-on-error: true
         run: >
           vpk download github
           --repoUrl https://github.com/${{ github.repository }}
-          --token ${{ secrets.RELEASE_TOKEN }}
+          --token ${{ github.token }}
           --outputDir artifacts/releases
 
       - name: Pack
@@ -69,22 +81,52 @@ jobs:
           --mainExe Rubrica.exe
           --packTitle Rubrica
           --packAuthors LynxSir
+          --runtime win-x64
+          --releaseNotes ${{ steps.notes.outputs.path }}
           --icon src/StudComp.App/Resources/Branding/Rubrica.ico
           --outputDir artifacts/releases
 
       - name: Upload GitHub Release
-        if: ${{ secrets.RELEASE_TOKEN != '' }}
         run: >
           vpk upload github
           --repoUrl https://github.com/${{ github.repository }}
-          --token ${{ secrets.RELEASE_TOKEN }}
+          --token ${{ github.token }}
           --publish
           --releaseName "Rubrica ${{ steps.ver.outputs.version }}"
           --tag v${{ steps.ver.outputs.version }}
           --outputDir artifacts/releases
 
+      - name: Keep only user and updater assets
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tag = `v${{ steps.ver.outputs.version }}`;
+            const { data: release } = await github.rest.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag,
+            });
+            const hiddenBuildFiles = new Set([
+              'RELEASES',
+              'assets.win.json',
+              'Rubrica-win-Portable.zip',
+            ]);
+            for (const asset of release.assets) {
+              if (hiddenBuildFiles.has(asset.name)) {
+                await github.rest.repos.deleteReleaseAsset({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  asset_id: asset.id,
+                });
+              }
+            }
+
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
           name: rubrica-${{ steps.ver.outputs.version }}
-          path: artifacts/releases
+          path: |
+            artifacts/releases/Rubrica-win-Setup.exe
+            artifacts/releases/Rubrica-*-full.nupkg
+            artifacts/releases/Rubrica-*-delta.nupkg
+            artifacts/releases/releases.win.json

@@ -1,4 +1,4 @@
-<UserControl x:Class="StudComp.Controls.NoteEditor"
+﻿<UserControl x:Class="StudComp.Controls.NoteEditor"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -9,6 +9,13 @@
              xmlns:conv="clr-namespace:StudComp.Resources.Converters"
              mc:Ignorable="d" AllowDrop="True" PreviewDragOver="OnImageDragOver" PreviewDrop="OnImageDrop"
              d:DataContext="{d:DesignInstance Type=controls:NoteEditorViewModel}">
+
+    <!-- Ctrl+Z в предпросмотре: поля ввода на экране нет, но стек отмены у него тот же. В режиме
+         правки команду перехватывает сам TextBox, и досюда она не доходит. -->
+    <UserControl.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Undo"
+                        CanExecute="OnUndoCanExecute" Executed="OnUndoExecuted" />
+    </UserControl.CommandBindings>
 
     <Border CornerRadius="10" BorderThickness="1" Padding="14"
             Background="{DynamicResource ControlFillColorDefaultBrush}"
@@ -84,11 +91,16 @@
                                         Converter={x:Static conv:StringPresenceToVisibilityConverter.Instance}}" />
 
                 <!-- Ввод -->
+                <!-- ClearButtonEnabled=False: у ui:TextBox крестик включён по умолчанию и одним
+                     кликом стирает всю заметку, а фокус уходит вместе с исчезнувшей кнопкой, так что
+                     Ctrl+Z до поля уже не доходит. UndoLimit=-1: на живом стеке отмены держится
+                     возврат удалённых картинок. -->
                 <ui:TextBox Grid.Row="2" x:Name="ContentTextBox" AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap"
+                            ClearButtonEnabled="False" UndoLimit="-1" AllowDrop="True"
                             FontFamily="Consolas, Courier New, monospace" FontSize="13"
                             VerticalContentAlignment="Top"
                             VerticalScrollBarVisibility="Auto"
-                            PlaceholderText="Текст заметки в Markdown…"
+                            PlaceholderText="{Binding ContentPlaceholder}"
                             behaviors:MarkdownEditingBehavior.IsEnabled="True"
                             LostFocus="OnEditorLostFocus"
                             PreviewKeyDown="OnContentPreviewKeyDown"

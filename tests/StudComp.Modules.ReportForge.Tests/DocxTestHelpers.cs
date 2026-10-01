@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Validation;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -17,6 +17,10 @@ internal static class DocxTestHelpers
 {
     internal static readonly XNamespace W =
         "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+
+    /// <summary>Пространство имён OMML: уравнения Word живут прямо в <c>document.xml</c>.</summary>
+    internal static readonly XNamespace M =
+        "http://schemas.openxmlformats.org/officeDocument/2006/math";
 
     internal static GostStyleProfile DefaultProfile { get; } =
         new GostStyleProfileProvider(new EmptyTemplateRepository()).GetDefault();

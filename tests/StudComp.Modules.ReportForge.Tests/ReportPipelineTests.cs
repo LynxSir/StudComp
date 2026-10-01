@@ -1,4 +1,4 @@
-using StudComp.Core.Abstractions.ReportForge;
+﻿using StudComp.Core.Abstractions.ReportForge;
 using StudComp.Core.Domain;
 
 namespace StudComp.Modules.ReportForge.Tests;
@@ -91,6 +91,49 @@ public class ReportPipelineTests : ReportForgeDatabaseTestBase
         var docx = await File.ReadAllBytesAsync(output);
         Assert.Single(DocxTestHelpers.ReadDocument(docx).Descendants(DocxTestHelpers.W + "drawing"));
         Assert.Contains("Рисунок 1 — Схема", DocxTestHelpers.ReadParagraphs(docx));
+    }
+
+    [Fact]
+    public async Task Typed_text_resolves_relative_images_against_the_image_base_directory()
+    {
+        // Текст, набранный в приложении, не имеет файла-источника, а картинки в нём записаны
+        // относительно учебной папки – до этого такая картинка не попадала в документ вовсе.
+        using var folder = new TempFolder("rf-pipeline-image-base");
+        TestImages.Write(folder.Combine("Матан", "Рисунки", "схема.png"));
+        var output = folder.Combine("отчёт.docx");
+
+        var result = await Pipeline.RunAsync(
+            Request(
+                output,
+                markdown: "![Схема](Матан/Рисунки/схема.png)",
+                imageBaseDirectory: folder.Path),
+            CancellationToken.None);
+
+        Assert.True(result.Succeeded, result.Error?.Message);
+
+        var docx = await File.ReadAllBytesAsync(output);
+        Assert.Single(DocxTestHelpers.ReadDocument(docx).Descendants(DocxTestHelpers.W + "drawing"));
+        Assert.DoesNotContain("Изображение не найдено", string.Join("\n", DocxTestHelpers.ReadParagraphs(docx)));
+    }
+
+    [Fact]
+    public async Task Imported_file_can_still_reach_images_stored_next_to_the_study_root()
+    {
+        // У импортированного .md два кандидата: своя папка и учебная. Побеждает не первая по
+        // списку, а та, где файл действительно лежит, – иначе отчёт из заметок терял картинки.
+        using var folder = new TempFolder("rf-pipeline-image-fallback");
+        TestImages.Write(folder.Combine("Рисунки", "из-заметки.png"));
+        var source = folder.WriteFile(Path.Combine("Заметки", "конспект.md"), "![Схема](Рисунки/из-заметки.png)");
+        var output = folder.Combine("отчёт.docx");
+
+        var result = await Pipeline.RunAsync(
+            Request(output, sourcePath: source, imageBaseDirectory: folder.Path),
+            CancellationToken.None);
+
+        Assert.True(result.Succeeded, result.Error?.Message);
+
+        var docx = await File.ReadAllBytesAsync(output);
+        Assert.Single(DocxTestHelpers.ReadDocument(docx).Descendants(DocxTestHelpers.W + "drawing"));
     }
 
     [Fact]
@@ -275,12 +318,14 @@ public class ReportPipelineTests : ReportForgeDatabaseTestBase
     private static ReportJobRequest Request(
         string outputPath,
         string? markdown = null,
-        string? sourcePath = null) => new(
+        string? sourcePath = null,
+        string? imageBaseDirectory = null) => new(
         TemplateId: null,
         SubjectId: null,
         MarkdownSource: markdown,
         SourcePath: sourcePath,
         OutputPath: outputPath,
         TitlePage: null,
-        GenerateTableOfContents: false);
+        GenerateTableOfContents: false,
+        ImageBaseDirectory: imageBaseDirectory);
 }

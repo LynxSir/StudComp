@@ -9,13 +9,13 @@ using UpdateOptions = StudComp.Infrastructure.Settings.UpdateOptions;
 namespace StudComp.Services;
 
 /// <summary>
-/// <see cref="IUpdateService"/> поверх Velopack <see cref="UpdateManager"/> и приватного
-/// GitHub-репозитория (ARCHITECTURE §13). Живёт в <c>App</c>, потому что тянет пакет
+/// <see cref="IUpdateService"/> поверх Velopack <see cref="UpdateManager"/> и публичных
+/// GitHub Releases. Живёт в <c>App</c>, потому что тянет пакет
 /// <c>Velopack</c> — по той же логике, что и реестровый автозапуск (ADR §16.16).
 /// </summary>
 /// <remarks>
-/// <see cref="UpdateManager"/> строится лениво: под F5 / из распакованного zip копия не
-/// «установлена», токен не задан, и вся служба схлопывается в no-op
+/// <see cref="UpdateManager"/> строится лениво: под F5 / из обычного распакованного каталога копия
+/// не «установлена», и вся служба схлопывается в no-op
 /// (<see cref="IsUpdateSupported"/> = <c>false</c>).
 /// </remarks>
 internal sealed class UpdateService(
@@ -25,6 +25,7 @@ internal sealed class UpdateService(
     private UpdateManager? _manager;
     private bool _probed;
     private UpdateInfo? _pendingUpdate;
+    private bool _applyOnExit;
 
     public string CurrentVersion
     {
@@ -51,8 +52,7 @@ internal sealed class UpdateService(
         {
             var opt = options.CurrentValue;
             return TryGetManager() is { IsInstalled: true }
-                   && !string.IsNullOrWhiteSpace(opt.GithubRepoUrl)
-                   && !string.IsNullOrWhiteSpace(opt.GithubToken);
+                   && !string.IsNullOrWhiteSpace(opt.GithubRepoUrl);
         }
     }
 
@@ -60,7 +60,7 @@ internal sealed class UpdateService(
     {
         if (!IsUpdateSupported)
         {
-            logger.LogDebug("Проверка обновлений недоступна: копия не установлена или не задан токен");
+            logger.LogDebug("Проверка обновлений недоступна: копия не установлена или не задан репозиторий");
             return null;
         }
 
@@ -75,8 +75,14 @@ internal sealed class UpdateService(
         _pendingUpdate = info;
         var isDelta = info.DeltasToTarget is { Length: > 0 } && info.BaseRelease is not null;
         var version = info.TargetFullRelease.Version.ToString();
+        var releaseNotes = string.IsNullOrWhiteSpace(info.TargetFullRelease.NotesMarkdown)
+            ? $"Новая версия Rubrica {version}."
+            : info.TargetFullRelease.NotesMarkdown.Trim();
+        var downloadSize = isDelta
+            ? info.DeltasToTarget!.Sum(asset => asset.Size)
+            : info.TargetFullRelease.Size;
         logger.LogInformation("Найдено обновление до {Version} (delta: {IsDelta})", version, isDelta);
-        return new AppUpdateInfo(version, isDelta);
+        return new AppUpdateInfo(version, isDelta, releaseNotes, downloadSize);
     }
 
     public async Task DownloadAsync(
@@ -98,15 +104,35 @@ internal sealed class UpdateService(
         logger.LogInformation("Обновление до {Version} скачано и готово к установке", update.Version);
     }
 
-    public void ApplyAndRestart(AppUpdateInfo update)
+    public void RequestApplyOnExit(AppUpdateInfo update)
     {
-        var manager = TryGetManager()
-                      ?? throw new InvalidOperationException("Обновление недоступно в этой среде");
         var info = _pendingUpdate
                    ?? throw new InvalidOperationException("Обновление не было скачано");
 
-        logger.LogInformation("Применяю обновление до {Version} и перезапускаю", update.Version);
-        manager.ApplyUpdatesAndRestart(info.TargetFullRelease);
+        if (!string.Equals(info.TargetFullRelease.Version.ToString(), update.Version, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Скачанная версия обновления изменилась");
+        }
+
+        _applyOnExit = true;
+        logger.LogInformation("Обновление до {Version} будет установлено при выходе", update.Version);
+    }
+
+    public void ApplyPendingUpdateOnExit()
+    {
+        if (!_applyOnExit || _pendingUpdate is null)
+        {
+            return;
+        }
+
+        var manager = TryGetManager()
+                      ?? throw new InvalidOperationException("Обновление недоступно в этой среде");
+
+        _applyOnExit = false;
+        logger.LogInformation(
+            "Передаю обновление до {Version} внешнему updater перед завершением приложения",
+            _pendingUpdate.TargetFullRelease.Version);
+        manager.WaitExitThenApplyUpdates(_pendingUpdate.TargetFullRelease, true, true, []);
     }
 
     private UpdateManager? TryGetManager()
@@ -120,10 +146,7 @@ internal sealed class UpdateService(
         try
         {
             var opt = options.CurrentValue;
-            var source = new GithubSource(
-                opt.GithubRepoUrl,
-                string.IsNullOrWhiteSpace(opt.GithubToken) ? null : opt.GithubToken,
-                opt.IncludePrerelease);
+            var source = new GithubSource(opt.GithubRepoUrl, null, opt.IncludePrerelease);
             _manager = new UpdateManager(source);
         }
         catch (Exception ex)

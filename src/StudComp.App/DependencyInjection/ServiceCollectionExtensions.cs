@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using StudComp.Controls;
 using StudComp.Infrastructure.Notifications;
 using StudComp.Infrastructure.Startup;
+using StudComp.Core.Abstractions.Workspace;
 using StudComp.Services;
 using StudComp.ViewModels.Archivist;
 using StudComp.ViewModels.Cards;
@@ -44,6 +45,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IToastService, WindowsToastService>();
         services.AddSingleton<IAutostartService, RegistryAutostartService>();
         services.AddSingleton<IUpdateService, UpdateService>();
+        services.AddSingleton<UpdateCoordinator>();
         services.AddSingleton<IShellLauncher, ShellLauncher>();
 
         // Активный предмет (new_addons.md §1.8): singleton + IHostedService ради момента создания.
@@ -118,6 +120,10 @@ public static class ServiceCollectionExtensions
         services.AddTransient<CardPreviewViewModel>();
 
         // Вкладки Архивариуса — живут внутри ArchivistPageViewModel.
+        // Единственный путь, по которому файл может покинуть диск, — «Корзина» Windows. Реализация
+        // в App-слое: API платформенный, а Infrastructure собирается под net10.0 (ADR §16.16).
+        services.AddSingleton<IRecycleBinPort, WindowsRecycleBin>();
+
         services.AddTransient<UnsortedFilesViewModel>();
         services.AddTransient<RulesViewModel>();
         services.AddTransient<OperationsLogViewModel>();

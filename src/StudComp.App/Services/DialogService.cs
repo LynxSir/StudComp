@@ -30,6 +30,28 @@ internal sealed class DialogService(IContentDialogService contentDialogService) 
             ContentDialog.IsPrimaryButtonEnabledProperty,
             new Binding("CanSave") { Source = editorViewModel, FallbackValue = true });
 
+        // Подтверждение ловится на закрытии, пока содержимое ещё в дереве и размечено: после
+        // возврата из ShowAsync диалог уже снят, и снимок холста дал бы пустую картинку.
+        if (editorViewModel is IDialogConfirmHook hook)
+        {
+            dialog.Closing += (_, args) =>
+            {
+                if (args.Result != ContentDialogResult.Primary)
+                {
+                    return;
+                }
+
+                try
+                {
+                    hook.OnConfirming();
+                }
+                catch (Exception)
+                {
+                    // Форма сама решает, что делать с неудачей; диалог из-за неё падать не должен.
+                }
+            };
+        }
+
         var result = await contentDialogService.ShowAsync(dialog, CancellationToken.None);
         return result == ContentDialogResult.Primary;
     }

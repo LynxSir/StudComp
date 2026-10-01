@@ -1,4 +1,4 @@
-using DocumentFormat.OpenXml;
+﻿using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Extensions.Logging;
@@ -125,6 +125,14 @@ internal sealed class GostDocxRenderer(ILogger<GostDocxRenderer> logger) : IGost
 
         private Paragraph BuildParagraph(ParagraphBlock block)
         {
+            // Абзац целиком из одной формулы – это выключная формула ($$…$$): её место по центру
+            // и в m:oMathPara, а не среди текста.
+            if (block.Runs is [{ Break: InlineBreak.None } single]
+                && single.Style.HasFlag(InlineStyle.Math))
+            {
+                return new Paragraph(OmmlWriter.BuildDisplay(single.Text));
+            }
+
             var paragraph = new Paragraph();
 
             foreach (var run in FlattenSoftBreaks(block.Runs))
@@ -179,6 +187,13 @@ internal sealed class GostDocxRenderer(ILogger<GostDocxRenderer> logger) : IGost
                     : new Run(new Text(" ") { Space = SpaceProcessingModeValues.Preserve });
             }
 
+            // Формула внутри строки — настоящее уравнение Word. m:oMath законный ребёнок w:p,
+            // поэтому её достаточно вернуть вместо w:r.
+            if (run.Style.HasFlag(InlineStyle.Math))
+            {
+                return OmmlWriter.BuildInline(run.Text);
+            }
+
             if (string.IsNullOrEmpty(run.Hyperlink)
                 || !Uri.TryCreate(run.Hyperlink, UriKind.Absolute, out var uri))
             {
@@ -201,8 +216,9 @@ internal sealed class GostDocxRenderer(ILogger<GostDocxRenderer> logger) : IGost
                 properties.Append(new RunStyle { Val = characterStyleId });
             }
 
-            // Формула уезжает в .docx исходником моноширинным курсивом: до этой фазы она пропадала
-            // из отчёта вовсе. Настоящий OMML — по-прежнему в бэклоге (ARCHITECTURE §18).
+            // Формулы сюда больше не доходят: BuildRunOrHyperlink отдаёт их уравнением (OMML).
+            // Флаг остаётся учтённым для путей, где уравнение вставить некуда – заголовок и ячейка
+            // таблицы собираются из готовой строки: там формула по-прежнему исходник.
             var isMath = run.Style.HasFlag(InlineStyle.Math);
 
             // Каждый элемент w:rPr по схеме встречается не больше раза, поэтому сочетания флагов

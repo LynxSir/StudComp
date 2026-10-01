@@ -1,4 +1,4 @@
-using StudComp.Core.Common;
+﻿using StudComp.Core.Common;
 
 namespace StudComp.Core.Abstractions.ReportForge;
 
@@ -12,6 +12,11 @@ namespace StudComp.Core.Abstractions.ReportForge;
 /// <param name="OutputPath">Абсолютный путь <c>.docx</c>, который нужно создать.</param>
 /// <param name="TitlePage">Данные титульного листа либо <see langword="null"/>, чтобы его не делать.</param>
 /// <param name="GenerateTableOfContents">Вставлять ли поле оглавления.</param>
+/// <param name="ImageBaseDirectory">
+/// Откуда отсчитывать относительные пути картинок, когда текст набран в приложении, а не пришёл
+/// файлом: у заметок это учебная папка. <see langword="null"/> – отсчитывать только от
+/// <paramref name="SourcePath"/>, как было раньше.
+/// </param>
 public record ReportJobRequest(
     Guid? TemplateId,
     Guid? SubjectId,
@@ -19,7 +24,8 @@ public record ReportJobRequest(
     string? SourcePath,
     string OutputPath,
     TitlePageInfo? TitlePage,
-    bool GenerateTableOfContents);
+    bool GenerateTableOfContents,
+    string? ImageBaseDirectory = null);
 
 /// <summary>
 /// Чем закончилась генерация отчёта (ARCHITECTURE §10.3).

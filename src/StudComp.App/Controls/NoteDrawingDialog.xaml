@@ -9,19 +9,14 @@
              d:DataContext="{d:DesignInstance Type=controls:NoteDrawingDialogViewModel}">
 
     <StackPanel>
-        <!-- Тулбар: инструменты, толщина, цвет, отмена/повтор/очистить -->
-        <Grid Margin="0,0,0,10">
+        <!-- Верхний ряд: инструменты и отмена/повтор/очистить -->
+        <Grid Margin="0,0,0,8">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="16" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="16" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <!-- Инструменты -->
             <StackPanel Grid.Column="0" Orientation="Horizontal">
                 <ui:Button x:Name="PenButton" Icon="{ui:SymbolIcon Pen24}" ToolTip="Карандаш"
                            Click="OnToolButtonClick" Tag="Pen" Appearance="Primary" Margin="0,0,4,0" />
@@ -35,19 +30,47 @@
                            Click="OnToolButtonClick" Tag="Ellipse" Appearance="Secondary" Margin="0,0,4,0" />
                 <ui:Button x:Name="ArrowButton" Icon="{ui:SymbolIcon ArrowUpRight24}" ToolTip="Стрелка"
                            Click="OnToolButtonClick" Tag="Arrow" Appearance="Secondary" Margin="0,0,4,0" />
-                <ui:Button x:Name="TextButton" Icon="{ui:SymbolIcon TextT24}" ToolTip="Текст"
+                <ui:Button x:Name="TextButton" Icon="{ui:SymbolIcon TextT24}"
+                           ToolTip="Текст: щёлкните по холсту и печатайте, Enter — готово, Esc — отмена"
                            Click="OnToolButtonClick" Tag="Text" Appearance="Secondary" />
             </StackPanel>
 
-            <!-- Толщина -->
-            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <ui:Button x:Name="UndoButton" Icon="{ui:SymbolIcon ArrowUndo24}" ToolTip="Отменить (Ctrl+Z)"
+                           Click="OnUndoClick" Appearance="Secondary" Margin="0,0,4,0" />
+                <ui:Button x:Name="RedoButton" Icon="{ui:SymbolIcon ArrowRedo24}" ToolTip="Повторить (Ctrl+Y)"
+                           Click="OnRedoClick" Appearance="Secondary" Margin="0,0,10,0" />
+                <ui:Button Icon="{ui:SymbolIcon Delete24}" ToolTip="Очистить холст"
+                           Click="OnClearClick" Appearance="Secondary" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Нижний ряд: толщина, кегль текста, цвет -->
+        <Grid Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="Толщина" VerticalAlignment="Center" Margin="0,0,8,0"
                            Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
                 <Slider x:Name="ThicknessSlider" Width="90" Minimum="1" Maximum="16" Value="3"
                         ValueChanged="OnThicknessChanged" VerticalAlignment="Center" />
             </StackPanel>
 
-            <!-- Цвет: пресеты + свой -->
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Кегль" VerticalAlignment="Center" Margin="0,0,8,0"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                <Slider x:Name="FontSizeSlider" Width="90" Minimum="10" Maximum="72" Value="18"
+                        ValueChanged="OnFontSizeChanged" VerticalAlignment="Center"
+                        ToolTip="Размер текста для инструмента «Текст»" />
+            </StackPanel>
+
             <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
                 <Button Click="OnColorPresetClick" Tag="#1A1A1A" Width="22" Height="22" Margin="0,0,4,0"
                         Background="#1A1A1A" BorderThickness="0" ToolTip="Чёрный" />
@@ -61,16 +84,6 @@
                         Background="#E67E22" BorderThickness="0" ToolTip="Оранжевый" />
                 <ui:TextBox x:Name="CustomColorBox" Width="90" PlaceholderText="#RRGGBB"
                             LostFocus="OnCustomColorChanged" />
-            </StackPanel>
-
-            <!-- Отмена / повтор / очистить -->
-            <StackPanel Grid.Column="6" Orientation="Horizontal">
-                <ui:Button x:Name="UndoButton" Icon="{ui:SymbolIcon ArrowUndo24}" ToolTip="Отменить (Ctrl+Z)"
-                           Click="OnUndoClick" Appearance="Secondary" Margin="0,0,4,0" />
-                <ui:Button x:Name="RedoButton" Icon="{ui:SymbolIcon ArrowRedo24}" ToolTip="Повторить (Ctrl+Y)"
-                           Click="OnRedoClick" Appearance="Secondary" Margin="0,0,10,0" />
-                <ui:Button Icon="{ui:SymbolIcon Delete24}" ToolTip="Очистить холст"
-                           Click="OnClearClick" Appearance="Secondary" />
             </StackPanel>
         </Grid>
 

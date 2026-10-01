@@ -21,6 +21,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ISubjectService, SubjectService>();
         services.AddSingleton<INoteService, NoteService>();
         services.AddSingleton<IWorkspaceFileLedger, WorkspaceFileLedger>();
+        services.AddSingleton<INoteImageTrash, NoteImageTrash>();
+        services.AddHostedService<NoteImageTrashSweepHostedService>();
         services.AddSingleton<IScheduleService, ScheduleService>();
         services.AddSingleton<IDeadlineService, DeadlineService>();
         services.AddSingleton<IDeadlineWorkService, DeadlineWorkService>();

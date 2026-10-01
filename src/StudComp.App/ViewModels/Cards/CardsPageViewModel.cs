@@ -1,5 +1,6 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using StudComp.Resources;
 using StudComp.Services;
 
 namespace StudComp.ViewModels.Cards;
@@ -34,13 +35,17 @@ public sealed partial class CardsPageViewModel : ObservableObject, INavigationAw
         CardLibraryViewModel library,
         CardReviewViewModel review,
         CardExamViewModel exam,
-        CardStatsViewModel stats)
+        CardStatsViewModel stats,
+        IDialogService dialogs)
     {
         Library = library;
         Review = review;
         Exam = exam;
         Stats = stats;
+        _dialogs = dialogs;
     }
+
+    private readonly IDialogService _dialogs;
 
     public CardLibraryViewModel Library { get; }
 
@@ -52,6 +57,16 @@ public sealed partial class CardsPageViewModel : ObservableObject, INavigationAw
 
     [ObservableProperty]
     private int _selectedTabIndex;
+
+
+    /// <summary>Помощник по разделу: открывается на теме текущей подвкладки.</summary>
+    [RelayCommand]
+    private Task ShowHelpAsync() => _dialogs.ShowInfoAsync(
+        new SectionHelpViewModel(HelpSection.Cards, SelectedTabIndex),
+        HelpCatalog.TitleOf(HelpSection.Cards),
+
+        // Запас по ширине: содержимое ровно в DialogMaxWidth обрезается полями диалога.
+        maxWidth: 860);
 
     partial void OnSelectedTabIndexChanged(int value)
     {

@@ -261,6 +261,10 @@ public static class MarkdownFlowRenderer
         var list = new List
         {
             MarkerStyle = block.Ordered ? TextMarkerStyle.Decimal : TextMarkerStyle.Disc,
+
+            // Без этого нумерованный список, разорванный маркированным, начинал счёт заново — на
+            // экране «3.» превращалось в «1.» (new_addons.md §11, жалоба владельца).
+            StartIndex = Math.Max(1, block.Start),
             Margin = new Thickness(0, 0, 0, 8),
             Padding = new Thickness(20, 0, 0, 0),
         };

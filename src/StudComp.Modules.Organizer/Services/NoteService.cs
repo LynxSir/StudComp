@@ -1,4 +1,4 @@
-using StudComp.Core.Common;
+﻿using StudComp.Core.Common;
 using StudComp.Core.Domain;
 using StudComp.Data.Repositories;
 using StudComp.Core.Abstractions.Workspace;
@@ -48,6 +48,12 @@ public interface INoteService
     Task<Result> DeleteAsync(Guid id, CancellationToken ct = default);
 
     Task<Result<string>> ExportMarkdownAsync(Guid id, CancellationToken ct = default);
+
+    /// <summary>
+    /// Черновик текста отчёта для предмета: найти существующий или создать. Один черновик на
+    /// предмет (<paramref name="subjectId"/> равный <see langword="null"/> – черновик «вне предмета»).
+    /// </summary>
+    Task<Result<Guid>> EnsureReportDraftAsync(Guid? subjectId, CancellationToken ct = default);
 }
 
 internal sealed class NoteService(
@@ -62,6 +68,11 @@ internal sealed class NoteService(
     private const string NotesFolder = "Заметки";
     private const string ImagesFolder = "Рисунки";
     private const string DeadlinesFolder = "Дедлайны";
+
+    /// <summary>Та же подпапка, куда раздел «Отчёты» кладёт готовые .docx (Phase 12.4).</summary>
+    private const string ReportsFolder = "Отчёты";
+
+    private const string ReportDraftTitle = "Черновик отчёта";
 
     public async Task<NoteStorage?> GetStorageAsync(Guid id, CancellationToken ct = default)
     {
@@ -99,6 +110,23 @@ internal sealed class NoteService(
             return new NoteStorage(deadlineDirectory, fileName, Path.Combine(deadlineDirectory, ImagesFolder));
         }
 
+        // Черновик отчёта живёт рядом с готовыми отчётами и, главное, со СВОЕЙ папкой картинок:
+        // корзина картинок трогает только файлы внутри папки картинок своей заметки, и дели черновик
+        // «Рисунки» с заметками предмета – замена его текста (например, после «Собрать из заметок»)
+        // увела бы картинки самих заметок в корзину.
+        if (note.Kind == NoteKind.ReportDraft)
+        {
+            var reportsDirectory = !string.IsNullOrWhiteSpace(subjectDirectory)
+                ? Path.Combine(subjectDirectory, ReportsFolder)
+                : workspace.HasStudyRoot ? Path.Combine(workspace.StudyRootPath, ReportsFolder) : null;
+
+            return reportsDirectory is null
+                ? null
+                // .md-копия черновику не нужна: настоящий выход отчёта – .docx. Имя задано, чтобы
+                // NoteStorage оставался цельным, но ExportMarkdownAsync для черновика не зовётся.
+                : new NoteStorage(reportsDirectory, $"Черновик_{note.Id:N}.md", Path.Combine(reportsDirectory, ImagesFolder));
+        }
+
         if (!string.IsNullOrWhiteSpace(subjectDirectory))
         {
             return new NoteStorage(
@@ -116,10 +144,42 @@ internal sealed class NoteService(
         return new NoteStorage(notesDirectory, $"Заметка_{note.Id:N}.md", Path.Combine(notesDirectory, ImagesFolder));
     }
 
+    public async Task<Result<Guid>> EnsureReportDraftAsync(Guid? subjectId, CancellationToken ct = default)
+    {
+        if (subjectId is { } id && await subjects.GetByIdAsync(id, ct).ConfigureAwait(false) is null)
+        {
+            return Result<Guid>.Failure("organizer.subject_not_found", "Предмет не найден.");
+        }
+
+        if (await notes.GetReportDraftAsync(subjectId, ct).ConfigureAwait(false) is { } existing)
+        {
+            return Result<Guid>.Success(existing.Id);
+        }
+
+        return await CreateAsync(
+            new Note
+            {
+                SubjectId = subjectId,
+                Kind = NoteKind.ReportDraft,
+                Title = ReportDraftTitle,
+                ContentMarkdown = string.Empty,
+            },
+            ct).ConfigureAwait(false);
+    }
+
     public async Task<Result<string>> ExportMarkdownAsync(Guid id, CancellationToken ct = default)
     {
         var note = await notes.GetByIdAsync(id, ct).ConfigureAwait(false);
         if (note is null) return Result<string>.Failure("organizer.note_not_found", "Заметка не найдена.");
+
+        // У черновика отчёта копии .md нет намеренно: его готовый вид – сгенерированный .docx,
+        // а второй файл рядом только путал бы.
+        if (note.Kind == NoteKind.ReportDraft)
+        {
+            return Result<string>.Failure(
+                "note.no_copy",
+                "Черновик хранится в базе. На диск попадает готовый отчёт .docx.");
+        }
         var storage = await ResolveStorageAsync(note, ct).ConfigureAwait(false);
         if (storage is null)
             return Result<string>.Failure("note.no_folder", "Текст сохранён в базе. Укажите учебную папку для копии .md.");

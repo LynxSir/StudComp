@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using StudComp.Core.Abstractions.ReportForge;
 using StudComp.Modules.ReportForge.Services.Docx;
 
@@ -11,6 +11,8 @@ namespace StudComp.Modules.ReportForge.Tests;
 public class GostDocxRendererTests
 {
     private static readonly XNamespace W = DocxTestHelpers.W;
+
+    private static readonly XNamespace M = DocxTestHelpers.M;
 
     private static TitlePageInfo SampleTitlePage => new(
         University: "Технологический университет",
@@ -496,18 +498,130 @@ public class GostDocxRendererTests
     }
 
     [Fact]
-    public async Task Formula_reaches_the_document_as_a_monospace_source()
+    public async Task Formula_reaches_the_document_as_a_real_equation()
     {
         var docx = await DocxTestHelpers.RenderMarkdownAsync("формула $E = mc^2$ здесь");
         var document = DocxTestHelpers.ReadDocument(docx);
 
-        var run = Assert.Single(
-            document.Descendants(W + "r"),
-            element => element.Element(W + "t")?.Value == "E = mc^2");
+        // Уравнение лежит прямо в абзаце рядом с обычным текстом, а не отдельным блоком.
+        var paragraph = Assert.Single(
+            document.Descendants(W + "p"),
+            element => element.Descendants(M + "oMath").Any());
 
-        var properties = run.Element(W + "rPr")!;
-        Assert.Equal("Consolas", properties.Element(W + "rFonts")!.Attribute(W + "ascii")!.Value);
-        Assert.NotNull(properties.Element(W + "i"));
+        Assert.Contains(paragraph.Descendants(W + "t"), text => text.Value == "формула ");
+
+        var script = Assert.Single(paragraph.Descendants(M + "sSup"));
+        Assert.Equal("E = mc", script.Element(M + "e")!.Descendants(M + "t").Single().Value);
+        Assert.Equal("2", script.Element(M + "sup")!.Descendants(M + "t").Single().Value);
+
+        // Исходника TeX в документе не остаётся вовсе – это и было жалобой.
+        Assert.DoesNotContain(document.Descendants(W + "t"), text => text.Value.Contains("mc^2"));
+        Assert.Empty(DocxTestHelpers.Validate(docx));
+    }
+
+    [Fact]
+    public async Task Display_formula_becomes_a_centred_equation_paragraph()
+    {
+        var docx = await DocxTestHelpers.RenderMarkdownAsync("$$\\frac{a}{b}$$");
+        var document = DocxTestHelpers.ReadDocument(docx);
+
+        var paragraph = Assert.Single(document.Descendants(M + "oMathPara"));
+        Assert.Equal(
+            "center",
+            paragraph.Element(M + "oMathParaPr")!.Element(M + "jc")!.Attribute(M + "val")!.Value);
+
+        var fraction = Assert.Single(paragraph.Descendants(M + "f"));
+        Assert.Equal("a", fraction.Element(M + "num")!.Descendants(M + "t").Single().Value);
+        Assert.Equal("b", fraction.Element(M + "den")!.Descendants(M + "t").Single().Value);
+        Assert.Empty(DocxTestHelpers.Validate(docx));
+    }
+
+    [Theory]
+    // Корень без степени: сам элемент степени по схеме обязателен, но скрыт.
+    [InlineData("$\\sqrt{x}$", "rad", "degHide")]
+    // Корень со степенью – степень показывается.
+    [InlineData("$\\sqrt[3]{8}$", "rad", "deg")]
+    [InlineData("$\\boxed{x}$", "borderBox", null)]
+    [InlineData("$\\overline{AB}$", "bar", "barPr")]
+    [InlineData("$\\vec{v}$", "acc", "chr")]
+    [InlineData("$\\binom{n}{k}$", "d", "type")]
+    [InlineData("$\\begin{pmatrix} 1 & 2 \\\\ 3 & 4 \\end{pmatrix}$", "m", "mr")]
+    // Система – та же матрица, но в фигурной скобке слева: так уцелеет колонка условия после «&».
+    [InlineData("$\\begin{cases} x \\\\ y \\end{cases}$", "m", "begChr")]
+    [InlineData("$x_i^2$", "sSubSup", null)]
+    public async Task Every_supported_construction_becomes_its_own_omml_element(
+        string markdown, string element, string? nested)
+    {
+        var docx = await DocxTestHelpers.RenderMarkdownAsync(markdown);
+        var document = DocxTestHelpers.ReadDocument(docx);
+
+        Assert.NotEmpty(document.Descendants(M + element));
+
+        if (nested is not null)
+        {
+            Assert.NotEmpty(document.Descendants(M + nested));
+        }
+
+        Assert.Empty(DocxTestHelpers.Validate(docx));
+    }
+
+    [Fact]
+    public async Task Line_break_inside_a_formula_becomes_a_multi_line_equation()
+    {
+        // Перенос «\\» вне матрицы — штатный для OMML m:eqArr, по строке на кусок.
+        var docx = await DocxTestHelpers.RenderMarkdownAsync("$a = 1 \\\\ b = 2$");
+        var document = DocxTestHelpers.ReadDocument(docx);
+
+        var array = Assert.Single(document.Descendants(M + "eqArr"));
+        Assert.Equal(2, array.Elements(M + "e").Count());
+        Assert.Empty(DocxTestHelpers.Validate(docx));
+    }
+
+    [Fact]
+    public async Task Function_names_stay_upright_inside_an_equation()
+    {
+        // \sin обязан быть прямым: математический курсив здесь был бы прямой типографской ошибкой.
+        var docx = await DocxTestHelpers.RenderMarkdownAsync("$\\sin(x)$");
+        var document = DocxTestHelpers.ReadDocument(docx);
+
+        var run = Assert.Single(
+            document.Descendants(M + "r"),
+            element => element.Element(M + "t")?.Value == "sin");
+
+        Assert.NotNull(run.Element(M + "rPr")!.Element(M + "nor"));
+        Assert.Empty(DocxTestHelpers.Validate(docx));
+    }
+
+    [Fact]
+    public async Task Unknown_command_stays_a_monospace_source_inside_the_equation()
+    {
+        var docx = await DocxTestHelpers.RenderMarkdownAsync("$\\nosuchcommand{x}$");
+        var document = DocxTestHelpers.ReadDocument(docx);
+
+        // Пустота была бы хуже: пользователь должен видеть то, что написал.
+        var run = Assert.Single(
+            document.Descendants(M + "r"),
+            element => element.Element(M + "t")?.Value.Contains("nosuchcommand") == true);
+
+        Assert.Equal(
+            "Consolas",
+            run.Element(W + "rPr")!.Element(W + "rFonts")!.Attribute(W + "ascii")!.Value);
+        Assert.Empty(DocxTestHelpers.Validate(docx));
+    }
+
+    [Fact]
+    public async Task Formula_in_a_table_cell_stays_plain_text()
+    {
+        // Принятый предел: ячейка приходит в модель готовой строкой (TableBlock хранит string),
+        // поэтому уравнения в таблице не собрать без смены формы блока – она пинится контрактом.
+        var docx = await DocxTestHelpers.RenderMarkdownAsync(
+            "| Величина | Формула |\n| --- | --- |\n| Энергия | $E = mc^2$ |");
+        var document = DocxTestHelpers.ReadDocument(docx);
+
+        Assert.Empty(document.Descendants(W + "tbl").Descendants(M + "oMath"));
+        Assert.Contains(
+            document.Descendants(W + "tbl").Descendants(W + "t"),
+            text => text.Value.Contains("mc^2"));
         Assert.Empty(DocxTestHelpers.Validate(docx));
     }
 

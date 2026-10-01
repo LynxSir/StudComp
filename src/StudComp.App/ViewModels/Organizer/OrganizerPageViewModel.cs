@@ -1,9 +1,10 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using StudComp.Core.Domain;
 using StudComp.Modules.Organizer.Services;
+using StudComp.Resources;
 using StudComp.Services;
 using StudComp.ViewModels.Shell;
 
@@ -35,13 +36,16 @@ public sealed partial class OrganizerPageViewModel : ObservableObject, INavigati
 
     private bool _switching;
 
+    private readonly IDialogService _dialogs;
+
     public OrganizerPageViewModel(
         SubjectsViewModel subjects,
         ScheduleViewModel schedule,
         DeadlinesViewModel deadlines,
         GradeBookViewModel gradeBook,
         ISemesterService semesters,
-        IMessenger messenger)
+        IMessenger messenger,
+        IDialogService dialogs)
     {
         Subjects = subjects;
         Schedule = schedule;
@@ -49,6 +53,7 @@ public sealed partial class OrganizerPageViewModel : ObservableObject, INavigati
         GradeBook = gradeBook;
         _semesters = semesters;
         _messenger = messenger;
+        _dialogs = dialogs;
     }
 
     public SubjectsViewModel Subjects { get; }
@@ -70,6 +75,16 @@ public sealed partial class OrganizerPageViewModel : ObservableObject, INavigati
 
     [ObservableProperty]
     private int _selectedTabIndex;
+
+
+    /// <summary>Помощник по разделу: открывается на теме текущей подвкладки.</summary>
+    [RelayCommand]
+    private Task ShowHelpAsync() => _dialogs.ShowInfoAsync(
+        new SectionHelpViewModel(HelpSection.Organizer, SelectedTabIndex),
+        HelpCatalog.TitleOf(HelpSection.Organizer),
+
+        // Запас по ширине: содержимое ровно в DialogMaxWidth обрезается полями диалога.
+        maxWidth: 860);
 
     partial void OnSelectedTabIndexChanged(int value)
     {

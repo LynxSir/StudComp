@@ -2,12 +2,52 @@ using System.Text.RegularExpressions;
 
 namespace StudComp.Core.Domain;
 
-/// <summary>Local inline image links, including the angle-bracket syntax used by the editor.</summary>
+/// <summary>
+/// Ссылки на локальные картинки в размеченном тексте, включая форму с угловыми скобками
+/// (её ставит редактор заметки: по CommonMark путь без скобок не может содержать пробел).
+/// </summary>
 public static partial class MarkdownLocalImages
 {
-    public static IEnumerable<string> Paths(string markdown) => ImageMatches(markdown)
-        .Select(x => Decode(x.Groups["angle"].Success ? x.Groups["angle"].Value : x.Groups["plain"].Value))
-        .Where(IsLocal);
+    /// <summary>Локальные пути всех картинок текста, в порядке следования.</summary>
+    public static IEnumerable<string> Paths(string markdown) =>
+        Tokens(markdown).Where(token => token.IsLocal).Select(token => token.Path);
+
+    /// <summary>
+    /// Границы всех вставок картинок — вместе с хвостовым блоком атрибутов <c>{width=N}</c>, который
+    /// сам Markdig в спан ссылки не включает. Сканер кодовых заборов тут один и тот же, что у
+    /// <see cref="Paths"/>: пример внутри <c>`…`</c> или <c>```…```</c> картинкой не считается.
+    /// </summary>
+    public static IReadOnlyList<MarkdownImageToken> Tokens(string? markdown)
+    {
+        var source = markdown ?? string.Empty;
+
+        // Разбор зовётся на каждое движение каретки и на каждое нажатие клавиши, поэтому сначала
+        // дешёвая отсечка: без «](» ссылки в тексте быть не может, и обходить кодовые заборы
+        // регулярками незачем.
+        if (!source.Contains("](", StringComparison.Ordinal))
+        {
+            return [];
+        }
+
+        var tokens = new List<MarkdownImageToken>();
+
+        foreach (var match in ImageMatches(source))
+        {
+            var group = match.Groups["angle"].Success ? match.Groups["angle"] : match.Groups["plain"];
+            var path = Decode(group.Value);
+
+            // Блок атрибутов принадлежит картинке только если прилегает к ней без пробела.
+            var attributes = AttributeBlock().Match(source, match.Index + match.Length);
+            var tail = attributes.Success && attributes.Index == match.Index + match.Length
+                ? attributes.Length
+                : 0;
+
+            tokens.Add(new MarkdownImageToken(
+                match.Index, match.Length + tail, match.Length, path, IsLocal(path)));
+        }
+
+        return tokens;
+    }
 
     public static string Rewrite(string markdown, Func<string, string> map)
     {
@@ -24,49 +64,8 @@ public static partial class MarkdownLocalImages
 
     private static IEnumerable<Match> ImageMatches(string markdown)
     {
-        var code = new List<(int Start, int End)>();
-        for (var i = 0; i < markdown.Length;)
-        {
-            var lineStart = i == 0 || markdown[i - 1] == '\n';
-            var token = i;
-            if (lineStart) while (token < markdown.Length && token - i < 3 && markdown[token] == ' ') token++;
-            var symbol = token < markdown.Length ? markdown[token] : '\0';
-            if (symbol is not ('`' or '~')) { i++; continue; }
-            var end = token;
-            while (end < markdown.Length && markdown[end] == symbol) end++;
-            var length = end - token;
-            if (lineStart && length >= 3)
-            {
-                var close = markdown.IndexOf('\n', end);
-                var blockEnd = markdown.Length;
-                while (close >= 0 && close + 1 < markdown.Length)
-                {
-                    var start = close + 1;
-                    var at = start;
-                    while (at < markdown.Length && at - start < 3 && markdown[at] == ' ') at++;
-                    var run = at;
-                    while (at < markdown.Length && markdown[at] == symbol) at++;
-                    var next = markdown.IndexOf('\n', at);
-                    var tail = markdown[at..(next < 0 ? markdown.Length : next)];
-                    if (at - run >= length && string.IsNullOrWhiteSpace(tail))
-                    { blockEnd = next < 0 ? markdown.Length : next + 1; break; }
-                    close = next;
-                }
-                code.Add((i, blockEnd));
-                i = blockEnd;
-            }
-            else if (symbol == '`')
-            {
-                var delimiter = new string('`', length);
-                var close = markdown.IndexOf(delimiter, end, StringComparison.Ordinal);
-                while (close >= 0 && (close > 0 && markdown[close - 1] == '`'
-                    || close + length < markdown.Length && markdown[close + length] == '`'))
-                    close = markdown.IndexOf(delimiter, close + length, StringComparison.Ordinal);
-                if (close >= 0) { code.Add((token, close + length)); i = close + length; }
-                else i = end;
-            }
-            else i = end;
-        }
+        var code = MarkdownScanner.CodeRanges(markdown);
+
         return Links().Matches(markdown).Where(match => !code.Any(range => match.Index >= range.Start && match.Index < range.End));
     }
 
@@ -80,4 +79,8 @@ public static partial class MarkdownLocalImages
 
     [GeneratedRegex(@"!\[(?:\\.|[^\]\\])*\]\(\s*(?:<(?<angle>[^>\r\n]+)>|(?<plain>(?:\\.|[^\s()]+|\([^()]*\))+))(?:\s+""[^""\r\n]*"")?\s*\)", RegexOptions.None, 1000)]
     private static partial Regex Links();
+
+    /// <summary>Блок generic-атрибутов сразу за ссылкой: <c>{width=320 #anchor}</c>.</summary>
+    [GeneratedRegex(@"\G\{[^\r\n}]*\}")]
+    internal static partial Regex AttributeBlock();
 }

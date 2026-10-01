@@ -4,9 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-             xmlns:conv="clr-namespace:StudComp.Resources.Converters"
              xmlns:vm="clr-namespace:StudComp.ViewModels.Settings"
-             xmlns:controls="clr-namespace:StudComp.Controls"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=vm:AboutViewModel}">
 
@@ -49,10 +47,8 @@
                             <TextBlock Style="{StaticResource SettingsCaption}" Text="{Binding UpdateStatus}" TextWrapping="Wrap" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                            <ui:Button Command="{Binding CheckForUpdatesCommand}" Appearance="Secondary" Content="Проверить" />
-                            <ui:Button Command="{Binding DownloadAndApplyCommand}" Appearance="Primary" Margin="8,0,0,0"
-                                       Content="Обновить и перезапустить"
-                                       Visibility="{Binding UpdateAvailable, Converter={x:Static conv:BooleanToVisibilityConverter.Instance}}" />
+                            <ui:Button Command="{Binding CheckForUpdatesCommand}" Appearance="Secondary"
+                                       Content="Проверить обновления" />
                         </StackPanel>
                     </Grid>
 
@@ -70,23 +66,6 @@
                                          IsChecked="{Binding AutoCheckOnStartup, Mode=TwoWay}" />
                     </Grid>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
-                        <TextBlock Style="{StaticResource SettingsLabel}" Text="Токен GitHub" Margin="0" />
-                        <controls:TermHint Margin="6,10,0,0"
-                                            Text="Личный токен доступа GitHub — нужен только если обновления публикуются в приватном репозитории. Обычным пользователям это поле не нужно." />
-                    </StackPanel>
-                    <TextBlock Style="{StaticResource SettingsCaption}"
-                               Text="Нужен для приватного репозитория обновлений. Хранится только на этом компьютере." />
-                    <Grid Margin="0,6,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <ui:TextBox Grid.Column="0" Text="{Binding GithubToken, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    PlaceholderText="ghp_…" FontFamily="Consolas" />
-                        <ui:Button Grid.Column="1" Command="{Binding SaveTokenCommand}" Appearance="Secondary"
-                                   Margin="8,0,0,0" Content="Сохранить" />
-                    </Grid>
                 </StackPanel>
             </Border>
 

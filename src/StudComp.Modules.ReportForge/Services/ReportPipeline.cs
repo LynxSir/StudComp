@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using StudComp.Core.Abstractions.ReportForge;
 using StudComp.Core.Common;
 using StudComp.Core.Domain;
@@ -44,7 +44,7 @@ internal sealed class ReportPipeline(
         {
             TitlePage = request.TitlePage,
             GenerateTableOfContents = request.GenerateTableOfContents,
-            Blocks = ResolveImagePaths(model.Blocks, ResolveBaseDirectory(request)),
+            Blocks = ResolveImagePaths(model.Blocks, ResolveBaseDirectories(request)),
         };
 
         // Запись заводится до рендера — как журнал операций Архивариуса (ADR §16.27): упавшая
@@ -135,36 +135,56 @@ internal sealed class ReportPipeline(
     }
 
     /// <summary>
-    /// Относительные пути картинок в markdown отсчитываются от самого markdown, а рендерер о нём
-    /// не знает (контракт §10.3 принимает только модель) — разворачиваем их здесь.
+    /// Точки отсчёта для относительных путей картинок, в порядке предпочтения. Рендерер о них не
+    /// знает (контракт §10.3 принимает только модель), поэтому пути разворачиваются здесь.
     /// </summary>
-    private static string? ResolveBaseDirectory(ReportJobRequest request) =>
-        string.IsNullOrWhiteSpace(request.SourcePath)
-            ? null
-            : Path.GetDirectoryName(Path.GetFullPath(request.SourcePath));
-
-    private static IReadOnlyList<IReportBlock> ResolveImagePaths(IReadOnlyList<IReportBlock> blocks, string? baseDirectory)
+    /// <remarks>
+    /// Их две, потому что текст отчёта приходит из двух разных мест: у импортированного <c>.md</c>
+    /// пути отсчитываются от его собственной папки, а у набранного в приложении – от учебной папки,
+    /// ровно как их пишет редактор заметок. Импортированный файл при этом может ссылаться и на
+    /// картинки заметок, поэтому побеждает не первая база по списку, а первая, где файл нашёлся.
+    /// </remarks>
+    private static IReadOnlyList<string> ResolveBaseDirectories(ReportJobRequest request)
     {
-        if (baseDirectory is null)
+        var bases = new List<string>(2);
+
+        if (!string.IsNullOrWhiteSpace(request.SourcePath)
+            && Path.GetDirectoryName(Path.GetFullPath(request.SourcePath)) is { Length: > 0 } sourceFolder)
+        {
+            bases.Add(sourceFolder);
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.ImageBaseDirectory))
+        {
+            bases.Add(request.ImageBaseDirectory);
+        }
+
+        return bases;
+    }
+
+    private static IReadOnlyList<IReportBlock> ResolveImagePaths(
+        IReadOnlyList<IReportBlock> blocks, IReadOnlyList<string> baseDirectories)
+    {
+        if (baseDirectories.Count == 0)
         {
             return blocks;
         }
 
         return [.. blocks.Select(block => block switch
         {
-            ImageBlock image => image with { PathOrBase64 = ToAbsolute(image.PathOrBase64, baseDirectory) },
+            ImageBlock image => image with { PathOrBase64 = ToAbsolute(image.PathOrBase64, baseDirectories) },
             ListBlock list => list with
             {
                 Items = [.. list.Items.Select(item => item with
                 {
-                    Blocks = ResolveImagePaths(item.Blocks, baseDirectory),
+                    Blocks = ResolveImagePaths(item.Blocks, baseDirectories),
                 })],
             },
             _ => block,
         })];
     }
 
-    private static string ToAbsolute(string pathOrBase64, string baseDirectory)
+    private static string ToAbsolute(string pathOrBase64, IReadOnlyList<string> baseDirectories)
     {
         if (string.IsNullOrWhiteSpace(pathOrBase64)
             || pathOrBase64.StartsWith("data:", StringComparison.OrdinalIgnoreCase)
@@ -174,14 +194,31 @@ internal sealed class ReportPipeline(
             return pathOrBase64;
         }
 
-        try
+        string? first = null;
+
+        foreach (var baseDirectory in baseDirectories)
         {
-            return Path.GetFullPath(Path.Combine(baseDirectory, pathOrBase64));
+            string candidate;
+            try
+            {
+                candidate = Path.GetFullPath(Path.Combine(baseDirectory, pathOrBase64));
+            }
+            catch (ArgumentException)
+            {
+                continue;
+            }
+
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+
+            first ??= candidate;
         }
-        catch (ArgumentException)
-        {
-            return pathOrBase64;
-        }
+
+        // Нигде не нашлось – отдаём первый разумный путь, чтобы в заглушке рендерера было видно,
+        // что именно искали.
+        return first ?? pathOrBase64;
     }
 
     private static Error Describe(Exception exception) => exception switch

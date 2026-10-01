@@ -1,4 +1,4 @@
-namespace StudComp.Core.Abstractions.ReportForge;
+﻿namespace StudComp.Core.Abstractions.ReportForge;
 
 /// <summary>
 /// Начертание <see cref="InlineRun"/>. Флаги — потому что в Markdown выделения вкладываются друг в друга.
@@ -17,8 +17,9 @@ public enum InlineStyle
 
     /// <summary>
     /// Формула <c>$…$</c>: в <see cref="InlineRun.Text"/> лежит исходник TeX, а не готовый текст.
-    /// Предпросмотр разбирает его и верстает (new_addons.md §11.1), генератор .docx выводит
-    /// исходником — полноценный OMML остаётся в бэклоге (ARCHITECTURE §18).
+    /// Предпросмотр разбирает его и верстает (new_addons.md §11.1), генератор .docx собирает из него
+    /// настоящее уравнение Word (OMML). Исходником формула остаётся только там, куда уравнение не
+    /// вставить: заголовок и ячейка таблицы приходят в модель готовой строкой.
     /// </summary>
     Math = 32,
 }
@@ -89,7 +90,13 @@ public record HeadingBlock(int Level, string Text) : IReportBlock;
 public record ParagraphBlock(IReadOnlyList<InlineRun> Runs) : IReportBlock;
 
 /// <summary>Маркированный или нумерованный список; каждый пункт — вложенная модель, поэтому в пункте может быть что угодно.</summary>
-public record ListBlock(bool Ordered, IReadOnlyList<ReportDocumentModel> Items) : IReportBlock;
+/// <param name="Ordered">Нумерованный список.</param>
+/// <param name="Items">Пункты.</param>
+/// <param name="Start">
+/// С какого номера начинается нумерация. Нужен потому, что маркированный список между пунктами
+/// разрывает нумерованный на два, и второй обязан продолжить счёт, а не начать с единицы.
+/// </param>
+public record ListBlock(bool Ordered, IReadOnlyList<ReportDocumentModel> Items, int Start = 1) : IReportBlock;
 
 /// <summary>
 /// Таблица. Номер в подписи «Таблица N — …» рендерер проставляет сам, название берёт из

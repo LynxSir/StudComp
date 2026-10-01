@@ -1,4 +1,4 @@
-using System.Windows.Media;
+﻿using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using StudComp.Core.Abstractions.Workspace;
@@ -6,6 +6,7 @@ using StudComp.Core.Domain;
 using StudComp.Infrastructure.Notifications;
 using StudComp.Modules.Organizer.Services;
 using StudComp.Modules.ReportForge.Services;
+using StudComp.Resources;
 using StudComp.Services;
 using StudComp.ViewModels.Organizer.Hub;
 using StudComp.ViewModels.ReportForge;
@@ -119,6 +120,15 @@ public sealed partial class SubjectHubViewModel : ObservableObject, INavigationA
 
     [ObservableProperty]
     private int _selectedTabIndex;
+
+    /// <summary>Помощник: открывается на теме текущей подвкладки.</summary>
+    [RelayCommand]
+    private Task ShowHelpAsync() => _dialogs.ShowInfoAsync(
+        new SectionHelpViewModel(HelpSection.SubjectHub, SelectedTabIndex),
+        HelpCatalog.TitleOf(HelpSection.SubjectHub),
+
+        // Запас по ширине: содержимое ровно в DialogMaxWidth обрезается полями диалога.
+        maxWidth: 860);
 
     /// <summary>Есть ли куда вернуться — кнопка «Назад» в шапке Хаба.</summary>
     public bool CanGoBack => _navigation.CanGoBack;

@@ -10,7 +10,7 @@
     <Border x:Name="Paper" Background="White" BorderThickness="1"
             BorderBrush="{DynamicResource ControlElevationBorderBrush}"
             HorizontalAlignment="Left" VerticalAlignment="Top" ClipToBounds="True">
-        <Grid x:Name="RootGrid">
+        <Grid x:Name="RootGrid" Background="White">
             <InkCanvas x:Name="Ink" Background="Transparent" />
             <Canvas x:Name="Overlay" Background="Transparent" IsHitTestVisible="False" />
         </Grid>

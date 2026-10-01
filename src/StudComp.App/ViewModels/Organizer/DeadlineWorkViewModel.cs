@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Windows.Media;
@@ -114,6 +114,15 @@ public sealed partial class DeadlineWorkViewModel : ObservableObject, INavigatio
 
     [ObservableProperty]
     private int _selectedTabIndex;
+
+    /// <summary>Помощник: открывается на теме текущей подвкладки.</summary>
+    [RelayCommand]
+    private Task ShowHelpAsync() => _dialogs.ShowInfoAsync(
+        new SectionHelpViewModel(HelpSection.DeadlineWork, SelectedTabIndex),
+        HelpCatalog.TitleOf(HelpSection.DeadlineWork),
+
+        // Запас по ширине: содержимое ровно в DialogMaxWidth обрезается полями диалога.
+        maxWidth: 860);
 
     [ObservableProperty]
     private string _title = string.Empty;

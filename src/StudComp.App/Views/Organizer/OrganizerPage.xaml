@@ -1,4 +1,4 @@
-<UserControl x:Class="StudComp.Views.Organizer.OrganizerPage"
+﻿<UserControl x:Class="StudComp.Views.Organizer.OrganizerPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -46,7 +46,8 @@
                        Command="{Binding ManageSemestersCommand}" />
         </Grid>
 
-        <TabControl Grid.Row="1" SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
+        <TabControl Grid.Row="1" SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
+                    Margin="{StaticResource TabStripHelpReserve}">
             <TabItem Header="Расписание">
                 <local:SchedulePage DataContext="{Binding Schedule}" />
             </TabItem>
@@ -60,6 +61,10 @@
                 <local:SubjectsPage DataContext="{Binding Subjects}" />
             </TabItem>
         </TabControl>
+
+        <!-- Помощник по разделу: кнопка накладкой у правого края полосы вкладок (см. Tabs.xaml). -->
+        <ui:Button Grid.Row="1" Style="{StaticResource TabStripHelpButton}"
+                   Command="{Binding ShowHelpCommand}" />
     </Grid>
 
 </UserControl>

@@ -74,8 +74,11 @@ public class MarkdownEditingTests
 
         Assert.NotNull(edit);
         var (text, caret) = Apply(source, edit.Value);
-        Assert.Equal("- пункт\n", text);
-        Assert.Equal("- пункт\n".Length, caret);
+
+        // Пустая строка обязательна: без неё следующий набранный текст по CommonMark стал бы
+        // ленивым продолжением пункта и уехал внутрь списка с отступом.
+        Assert.Equal("- пункт\n\n", text);
+        Assert.Equal("- пункт\n\n".Length, caret);
     }
 
     [Fact]
@@ -86,7 +89,7 @@ public class MarkdownEditingTests
         var edit = MarkdownEditing.ContinueLine(source, source.Length);
 
         Assert.NotNull(edit);
-        Assert.Equal("- верх\n", Apply(source, edit.Value).Text);
+        Assert.Equal("- верх\n\n", Apply(source, edit.Value).Text);
     }
 
     [Fact]
@@ -108,7 +111,7 @@ public class MarkdownEditingTests
         var edit = MarkdownEditing.ContinueLine(source, source.Length);
 
         Assert.NotNull(edit);
-        Assert.Equal("> цитата\n", Apply(source, edit.Value).Text);
+        Assert.Equal("> цитата\n\n", Apply(source, edit.Value).Text);
     }
 
     [Theory]
@@ -465,5 +468,64 @@ public class MarkdownEditingTests
     public void Enter_elsewhere_does_not_split(string source, int caret)
     {
         Assert.Null(MarkdownEditing.SplitDisplayMath(source, caret));
+    }
+
+    [Fact]
+    public void Tab_under_a_numbered_item_indents_to_the_parent_content_column()
+    {
+        // Под «1. » колонка содержимого третья: двух пробелов по CommonMark не хватает, и вложенный
+        // нумерованный пункт вообще не вкладывался (new_addons.md §11, «ненадёжная вложенность»).
+        var source = string.Join("\n", ["1. пункт", "2. второй"]);
+
+        var edit = MarkdownEditing.Indent(source, source.IndexOf("2.", StringComparison.Ordinal), 0, outdent: false);
+
+        Assert.NotNull(edit);
+        Assert.Equal(string.Join("\n", ["1. пункт", "   2. второй"]), Apply(source, edit.Value).Text);
+    }
+
+    [Fact]
+    public void Tab_under_a_wide_marker_indents_wider()
+    {
+        var source = string.Join("\n", ["10. пункт", "11. второй"]);
+
+        var edit = MarkdownEditing.Indent(source, source.IndexOf("11.", StringComparison.Ordinal), 0, outdent: false);
+
+        Assert.NotNull(edit);
+        Assert.Equal(string.Join("\n", ["10. пункт", "    11. второй"]), Apply(source, edit.Value).Text);
+    }
+
+    [Fact]
+    public void Tab_under_a_bullet_item_still_indents_by_two()
+    {
+        var source = string.Join("\n", ["- пункт", "- второй"]);
+
+        var edit = MarkdownEditing.Indent(source, source.IndexOf("- второй", StringComparison.Ordinal), 0, outdent: false);
+
+        Assert.NotNull(edit);
+        Assert.Equal(string.Join("\n", ["- пункт", "  - второй"]), Apply(source, edit.Value).Text);
+    }
+
+    [Fact]
+    public void Shift_tab_removes_exactly_the_unit_that_tab_added()
+    {
+        var source = string.Join("\n", ["1. пункт", "   2. второй"]);
+        var lineStart = source.IndexOf("   2.", StringComparison.Ordinal);
+
+        var edit = MarkdownEditing.Indent(source, lineStart + 3, 0, outdent: true);
+
+        Assert.NotNull(edit);
+        Assert.Equal(string.Join("\n", ["1. пункт", "2. второй"]), Apply(source, edit.Value).Text);
+    }
+
+    [Fact]
+    public void Tab_and_shift_tab_round_trip()
+    {
+        var source = string.Join("\n", ["1. пункт", "2. второй"]);
+        var position = source.IndexOf("2.", StringComparison.Ordinal);
+
+        var indented = Apply(source, MarkdownEditing.Indent(source, position, 0, outdent: false)!.Value).Text;
+        var back = Apply(indented, MarkdownEditing.Indent(indented, indented.Length, 0, outdent: true)!.Value).Text;
+
+        Assert.Equal(source, back);
     }
 }

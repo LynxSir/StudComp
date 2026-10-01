@@ -1,0 +1,38 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+
+    <!--
+        Кнопка «?» справа от полосы подвкладок раздела: открывает помощника по текущей подвкладке.
+
+        Почему именно накладкой, а не элементом внутри полосы вкладок: полосу генерирует шаблон
+        TabControl из WPF-UI, добраться до неё из разметки страницы нельзя, а воспроизводить чужой
+        шаблон целиком – несоразмерный риск ради одной кнопки. Поэтому кнопка лежит в той же ячейке
+        Grid, что и TabControl, но после него, и прижата к правому верхнему углу. Весь вертикальный
+        подгон под высоту полосы – здесь, в одном месте: страницы этих чисел не знают.
+
+        Неявных стилей для TabControl/TabItem этот словарь не заводит намеренно – иначе молча
+        переоформились бы чужие вкладки на Дашборде и на странице дедлайна.
+    -->
+    <Style x:Key="TabStripHelpButton" TargetType="{x:Type ui:Button}" BasedOn="{StaticResource {x:Type ui:Button}}">
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="Margin" Value="0,2,0,0" />
+        <Setter Property="Padding" Value="8,5" />
+        <Setter Property="Appearance" Value="Transparent" />
+        <Setter Property="Cursor" Value="Help" />
+        <Setter Property="ToolTip" Value="Помощник по этому разделу" />
+        <Setter Property="Icon">
+            <Setter.Value>
+                <ui:SymbolIcon Symbol="QuestionCircle24" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--
+        Правый отступ для самого TabControl: ровно под ширину кнопки выше, чтобы на узком окне
+        заголовки вкладок не уезжали под неё.
+    -->
+    <Thickness x:Key="TabStripHelpReserve">0,0,40,0</Thickness>
+
+</ResourceDictionary>

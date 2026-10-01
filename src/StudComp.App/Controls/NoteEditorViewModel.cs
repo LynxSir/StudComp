@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
 using System.Windows.Documents;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -7,7 +7,9 @@ using StudComp.Core.Abstractions.ReportForge;
 using StudComp.Core.Abstractions.Workspace;
 using StudComp.Core.Domain;
 using StudComp.Data.Repositories;
+using Microsoft.Extensions.Options;
 using StudComp.Infrastructure.FileSystem;
+using StudComp.Infrastructure.Settings;
 using StudComp.Infrastructure.Notifications;
 using StudComp.Modules.Organizer.Services;
 using StudComp.Services;
@@ -42,6 +44,9 @@ public sealed partial class NoteEditorViewModel : ObservableObject, IDisposable
     private readonly ISubjectService _subjects;
     private readonly IFileSystem _fileSystem;
     private readonly IToastService _toasts;
+    private readonly INoteImageTrash _trash;
+    private readonly IOptionsMonitor<NotesOptions> _notesOptions;
+    private readonly UserSettingsProvider _settings;
 
     private CancellationTokenSource? _saveCts;
     private Guid _noteId;
@@ -60,7 +65,10 @@ public sealed partial class NoteEditorViewModel : ObservableObject, IDisposable
         IStudyWorkspace workspace,
         ISubjectService subjects,
         IFileSystem fileSystem,
-        IToastService toasts)
+        IToastService toasts,
+        INoteImageTrash trash,
+        IOptionsMonitor<NotesOptions> notesOptions,
+        UserSettingsProvider settings)
     {
         _notes = notes;
         _markdown = markdown;
@@ -70,6 +78,9 @@ public sealed partial class NoteEditorViewModel : ObservableObject, IDisposable
         _subjects = subjects;
         _fileSystem = fileSystem;
         _toasts = toasts;
+        _trash = trash;
+        _notesOptions = notesOptions;
+        _settings = settings;
     }
 
     /// <summary>Срабатывает после каждого удачного сохранения — списки заметок перечитывают себя.</summary>
@@ -140,6 +151,13 @@ public sealed partial class NoteEditorViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private bool _showTitle = true;
 
+    /// <summary>
+    /// Подсказка в пустом поле. Зависит от того, что именно тут пишут: редактор один, а заметка,
+    /// задание дедлайна и черновик отчёта – разные вещи, и «Текст заметки» в отчёте сбивает с толку.
+    /// </summary>
+    [ObservableProperty]
+    private string _contentPlaceholder = "Текст заметки в Markdown…";
+
     private string? _markdownFilePath;
 
     [RelayCommand]
@@ -161,14 +179,18 @@ public sealed partial class NoteEditorViewModel : ObservableObject, IDisposable
 
     partial void OnTitleChanged(string value) => ScheduleSave();
 
-    partial void OnContentChanged(string value) => ScheduleSave();
+    partial void OnContentChanged(string value)
+    {
+        ScheduleSave();
+        ReconcileImages(value);
+    }
 
     partial void OnIsPreviewChanged(bool value)
     {
         // При загрузке документ соберёт сам LoadAsync — иначе он строился бы дважды.
         if (value && !_loading)
         {
-            Preview = MarkdownFlowRenderer.Render(_markdown, Content, ImageBaseDirectory);
+            RefreshPreview();
         }
     }
 
@@ -184,6 +206,7 @@ public sealed partial class NoteEditorViewModel : ObservableObject, IDisposable
             return;
         }
 
+        var leaving = _noteId;
         var loadRevision = ++_loadRevision;
         await FlushAsync().ConfigureAwait(true);
         if (loadRevision != _loadRevision) return;
@@ -206,7 +229,14 @@ public sealed partial class NoteEditorViewModel : ObservableObject, IDisposable
         {
             _noteId = note.Id;
             _subjectId = note.SubjectId;
-            ShowTitle = note.Kind is not (NoteKind.DeadlineTask or NoteKind.DeadlineAnswer);
+            ShowTitle = note.Kind is not (NoteKind.DeadlineTask or NoteKind.DeadlineAnswer or NoteKind.ReportDraft);
+            ContentPlaceholder = note.Kind switch
+            {
+                NoteKind.ReportDraft => "Текст отчёта в Markdown…",
+                NoteKind.DeadlineTask => "Условие задания в Markdown…",
+                NoteKind.DeadlineAnswer => "Ваш ответ в Markdown…",
+                _ => "Текст заметки в Markdown…",
+            };
             Title = note.Title;
             Content = note.ContentMarkdown;
             LinkText = DescribeLink(note);
@@ -220,13 +250,28 @@ public sealed partial class NoteEditorViewModel : ObservableObject, IDisposable
 
             if (IsPreview)
             {
-                Preview = MarkdownFlowRenderer.Render(_markdown, Content, ImageBaseDirectory);
+                RefreshPreview();
             }
         }
         finally
         {
             _loading = false;
         }
+        // Поле ввода одно на всю жизнь редактора, и присваивание Content выше легло в его стек
+        // отмены. Без сброса Ctrl+Z в этой заметке откатил бы текст к тексту предыдущей, а
+        // автосохранение записало бы чужой текст в базу.
+        _editor?.ResetUndoHistory();
+
+        // Стек отмены прошлой заметки только что умер — её картинки можно отпускать окончательно.
+        if (leaving != note.Id)
+        {
+            CommitImageTrash(leaving);
+        }
+
+        // Текст ссылается на картинку, которой нет на диске, а в корзине она есть: приложение
+        // закрылось между удалением и сохранением — возвращаем.
+        await _trash.RestoreReferencedAsync(note.Id, Content).ConfigureAwait(true);
+
         await UpdateMarkdownCopyAsync(note.Id);
     }
 
@@ -313,14 +358,265 @@ public sealed partial class NoteEditorViewModel : ObservableObject, IDisposable
     /// </summary>
     private string? ImageBaseDirectory => _workspace.HasStudyRoot ? _workspace.StudyRootPath : null;
 
+    /// <summary>
+    /// Кто применяет правки к тексту. Подставляется код-behind'ом редактора; <see langword="null"/> —
+    /// вьюмодель живёт без View (тесты, разбор заметки на карточки), тогда правки идут прямо в текст.
+    /// </summary>
+    private INoteTextEditor? _editor;
+
+    /// <summary>Редактор отдаёт себя вьюмодели при смене <c>DataContext</c>.</summary>
+    public void AttachEditor(INoteTextEditor? editor) => _editor = editor;
+
+    /// <summary>
+    /// Единственная точка, через которую вьюмодель меняет текст заметки. В режиме правки правка
+    /// уходит в живое поле ввода и попадает в стек <c>Ctrl+Z</c> пошагово; в предпросмотре поля нет,
+    /// и текст пишется целиком — это один шаг отмены на всю операцию, ровно нужная гранулярность.
+    /// </summary>
+    private void ApplyEdit(MarkdownEdit edit)
+    {
+        if (!IsPreview && _editor is { IsLive: true } editor && editor.TryApply(edit))
+        {
+            return;
+        }
+
+        Content = MarkdownEditing.Apply(Content, edit);
+    }
+
+    /// <summary>
+    /// Сколько раз текст ссылался на каждую картинку в прошлый раз. Сверка этого среза с новым и
+    /// двигает файлы: перехватить <c>Ctrl+Z</c> нельзя, но после отмены текст снова ссылается на
+    /// картинку — и одного этого достаточно, чтобы вернуть файл.
+    /// </summary>
+    private IReadOnlyDictionary<string, int> _imageCounts =
+        new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Одно правило закрывает разом удаление картинки, <c>Ctrl+Z</c>, <c>Ctrl+Y</c>, вырезание и
+    /// вставку: ссылок на файл стало ноль — убрать его в корзину, ссылка вернулась — вернуть файл.
+    /// </summary>
+    private void ReconcileImages(string value)
+    {
+        // Ни раньше, ни теперь картинок нет — разбирать нечего.
+        if (_imageCounts.Count == 0 && !MarkdownImageReconciliation.MightContainImages(value))
+        {
+            return;
+        }
+
+        var after = MarkdownImageReconciliation.CountReferences(value);
+        if (_loading || _noteId == Guid.Empty)
+        {
+            _imageCounts = after;
+            return;
+        }
+
+        var delta = MarkdownImageReconciliation.Compare(_imageCounts, after);
+        _imageCounts = after;
+
+        if (delta.Detached.Count > 0 || delta.Reattached.Count > 0)
+        {
+            _ = MoveImageFilesAsync(_noteId, delta);
+        }
+    }
+
+    private async Task MoveImageFilesAsync(Guid noteId, ImageReferenceDelta delta)
+    {
+        try
+        {
+            foreach (var path in delta.Detached)
+            {
+                await _trash.StageAsync(noteId, path).ConfigureAwait(true);
+            }
+
+            foreach (var path in delta.Reattached)
+            {
+                await _trash.RestoreAsync(noteId, path).ConfigureAwait(true);
+            }
+        }
+        catch (Exception)
+        {
+            // Корзина картинок — удобство, а не данные заметки: ронять из-за неё редактор нельзя.
+        }
+    }
+
+    /// <summary>
+    /// Стек отмены этой заметки больше недостижим — всё, что лежит в её корзине, уходит в «Корзину»
+    /// Windows. Тело <see cref="INoteImageTrash.CommitAsync"/> синхронное, поэтому задача
+    /// завершается тут же.
+    /// </summary>
+    private void CommitImageTrash(Guid noteId)
+    {
+        if (noteId == Guid.Empty)
+        {
+            return;
+        }
+
+        try
+        {
+            _ = _trash.CommitAsync(noteId);
+        }
+        catch (Exception)
+        {
+            // См. выше: сбой уборки не должен мешать работе с заметкой.
+        }
+    }
+
+    /// <summary>Пересобрать документ предпросмотра из текущего текста.</summary>
+    private void RefreshPreview() => Preview = MarkdownFlowRenderer.Render(_markdown, Content, ImageBaseDirectory);
+
+    /// <summary>
+    /// <c>Ctrl+Z</c> из предпросмотра: поля ввода на экране нет, но стек отмены у него тот же самый,
+    /// поэтому откат работает одинаково в обоих режимах.
+    /// </summary>
+    public void UndoFromPreview()
+    {
+        if (_editor?.TryUndo() == true)
+        {
+            RefreshPreview();
+        }
+    }
+
+    /// <summary>
+    /// Найти картинку в тексте по блоку, который пришёл из предпросмотра. Текст мог уйти вперёд —
+    /// тогда правку применять нельзя, и пользователю честно об этом говорится.
+    /// </summary>
+    private MarkdownImageToken? ResolveImage(ImageBlock image)
+    {
+        var token = MarkdownImageEditing.Resolve(
+            Content, image.SourceStart, image.SourceLength, image.PathOrBase64);
+
+        if (token is null)
+        {
+            _toasts.Show("Изображение", "Текст заметки изменился — откройте картинку заново.", ToastKind.Warning);
+        }
+
+        return token;
+    }
+
+    /// <summary>Изменить ширину картинки. Значение зажимается, диалог сам не пропустит мусор.</summary>
+    public async Task ResizeImageAsync(ImageBlock image)
+    {
+        if (ResolveImage(image) is null)
+        {
+            return;
+        }
+
+        var editor = new NoteImageSizeViewModel(image.Width);
+        if (!await _dialogs.ShowEditorAsync(editor, "Размер изображения").ConfigureAwait(true))
+        {
+            return;
+        }
+
+        // Пока висел диалог, текст мог измениться — ищем картинку заново.
+        if (ResolveImage(image) is not { } token
+            || MarkdownImageEditing.SetWidth(Content, token, editor.Width) is not { } edit)
+        {
+            return;
+        }
+
+        ApplyEdit(edit);
+        RefreshPreview();
+        await FlushAsync().ConfigureAwait(true);
+    }
+
+    /// <summary>
+    /// Удалить картинку из заметки. Сам файл уезжает в скрытую папку сверкой ссылок, поэтому
+    /// отмена возвращает и ссылку, и файл.
+    /// </summary>
+    public async Task DeleteImageAsync(ImageBlock image)
+    {
+        if (ResolveImage(image) is not { } token)
+        {
+            return;
+        }
+
+        ApplyEdit(MarkdownImageEditing.Delete(Content, token));
+        RefreshPreview();
+        await FlushAsync().ConfigureAwait(true);
+    }
+
+    /// <summary>Передвинуть картинку на строку выше или ниже.</summary>
+    public async Task MoveImageAsync(ImageBlock image, bool up)
+    {
+        if (ResolveImage(image) is not { } token)
+        {
+            return;
+        }
+
+        if (MarkdownImageEditing.MoveByLine(Content, token, up) is not { } edit)
+        {
+            return;
+        }
+
+        ApplyEdit(edit);
+        RefreshPreview();
+        await FlushAsync().ConfigureAwait(true);
+    }
+
     public static bool IsSupportedImage(string path) => Path.GetExtension(path).ToLowerInvariant()
         is ".png" or ".jpg" or ".jpeg" or ".gif" or ".bmp" or ".tif" or ".tiff";
 
+    /// <summary>
+    /// Выбрать картинки с диска и вставить их копии в заметку. Диалог открывается там, где
+    /// пользователь брал картинку в прошлый раз для этого предмета, а в первый раз — в папке
+    /// предмета: именно там лежат снятые лекции, и искать путь заново незачем (new_addons.md §12).
+    /// </summary>
     public async Task<int?> PickImageAsync(int caretIndex)
     {
-        var path = _dialogs.PickOpenFile("Вставить изображение", "Изображения|*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.tif;*.tiff");
-        return path is null ? null : await InsertImagesAsync([path], caretIndex);
+        var paths = _dialogs.PickOpenFiles(
+            "Вставить изображение",
+            "Изображения|*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.tif;*.tiff",
+            await ResolveImagePickerDirectoryAsync().ConfigureAwait(true));
+
+        if (paths.Count == 0)
+        {
+            return null;
+        }
+
+        RememberImageFolder(paths[0]);
+        return await InsertImagesAsync(paths, caretIndex).ConfigureAwait(true);
     }
+
+    /// <summary>Где открыть диалог выбора картинки: последняя папка → папка предмета → учебная папка.</summary>
+    private async Task<string?> ResolveImagePickerDirectoryAsync()
+    {
+        if (_subjectId is { } subjectId
+            && _notesOptions.CurrentValue.LastImageFolders.TryGetValue(SubjectKey(subjectId), out var remembered)
+            && _fileSystem.DirectoryExists(remembered))
+        {
+            return remembered;
+        }
+
+        if (_subjectId is { } id && await _subjects.GetByIdAsync(id).ConfigureAwait(true) is { } subject)
+        {
+            var directory = _workspace.GetSubjectDirectory(subject);
+            if (!string.IsNullOrWhiteSpace(directory) && _fileSystem.DirectoryExists(directory))
+            {
+                return directory;
+            }
+        }
+
+        return _workspace.HasStudyRoot ? _workspace.StudyRootPath : null;
+    }
+
+    private void RememberImageFolder(string pickedFile)
+    {
+        if (_subjectId is not { } subjectId || Path.GetDirectoryName(pickedFile) is not { Length: > 0 } folder)
+        {
+            return;
+        }
+
+        try
+        {
+            _settings.Update<NotesOptions>(
+                NotesOptions.SectionName, options => options.LastImageFolders[SubjectKey(subjectId)] = folder);
+        }
+        catch (Exception)
+        {
+            // Запомнить папку — удобство; сорвать из-за него вставку картинки нельзя.
+        }
+    }
+
+    private static string SubjectKey(Guid subjectId) => subjectId.ToString("N", CultureInfo.InvariantCulture);
 
     public async Task<int?> InsertImagesAsync(IEnumerable<string> paths, int caretIndex)
     {
@@ -341,30 +637,18 @@ public sealed partial class NoteEditorViewModel : ObservableObject, IDisposable
                 // Keep the original safe; the note owns its independent copy.
                 _fileSystem.Copy(source, destination);
                 var relative = _workspace.ResolveRelative(destination) ?? destination;
-                var insertion = SpliceImageMarkdown(Content, caret, relative);
-                Content = insertion.Content;
-                caret = insertion.CaretAfter;
+                var edit = MarkdownImageEditing.Insert(Content, caret, relative, Path.GetFileNameWithoutExtension(source));
+                ApplyEdit(edit);
+                caret = edit.Start + edit.CaretOffset;
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
             {
                 _toasts.Show("Изображение не вставлено", $"{Path.GetFileName(source)}: {ex.Message}", ToastKind.Error);
             }
         }
-        Preview = MarkdownFlowRenderer.Render(_markdown, Content, ImageBaseDirectory);
+        RefreshPreview();
         await FlushAsync();
         return caret;
-    }
-
-    public async Task ResizeImageAsync(ImageBlock image)
-    {
-        var original = Content;
-        var editor = new NoteImageSizeViewModel(image.Width);
-        if (await _dialogs.ShowEditorAsync(editor, "Размер изображения") && Content == original)
-        {
-            Content = MarkdownImageSize.SetWidth(Content, image.SourceStart, image.SourceLength, editor.Width);
-            Preview = MarkdownFlowRenderer.Render(_markdown, Content, ImageBaseDirectory);
-            await FlushAsync();
-        }
     }
 
     /// <summary>
@@ -399,11 +683,11 @@ public sealed partial class NoteEditorViewModel : ObservableObject, IDisposable
         WriteFile(jsonPath, System.Text.Encoding.UTF8.GetBytes(document.ToJson()));
 
         var relativePath = _workspace.ResolveRelative(pngPath) ?? pngPath;
-        var (newContent, caretAfter) = SpliceImageMarkdown(Content, Math.Clamp(caretIndex, 0, Content.Length), relativePath);
-        Content = newContent;
-        Preview = MarkdownFlowRenderer.Render(_markdown, Content, ImageBaseDirectory);
+        var edit = MarkdownImageEditing.Insert(Content, Math.Clamp(caretIndex, 0, Content.Length), relativePath);
+        ApplyEdit(edit);
+        RefreshPreview();
 
-        return caretAfter;
+        return edit.Start + edit.CaretOffset;
     }
 
     /// <summary>
@@ -449,7 +733,7 @@ public sealed partial class NoteEditorViewModel : ObservableObject, IDisposable
         WriteFile(pngPath, pngBytes);
         WriteFile(jsonPath, System.Text.Encoding.UTF8.GetBytes(dialogViewModel.Document.ToJson()));
 
-        Preview = MarkdownFlowRenderer.Render(_markdown, Content, ImageBaseDirectory);
+        RefreshPreview();
     }
 
     /// <summary>
@@ -503,28 +787,10 @@ public sealed partial class NoteEditorViewModel : ObservableObject, IDisposable
         stream.Write(bytes, 0, bytes.Length);
     }
 
-    /// <summary>
-    /// Вставить markdown-картинку в позицию курсора. Переносы строк вокруг — только для читаемости
-    /// исходника: картинка обрывает абзац независимо от окружения (см. <c>MarkdownDocumentModelBuilder</c>).
-    /// </summary>
-    private static (string Content, int CaretAfter) SpliceImageMarkdown(string content, int caretIndex, string relativePath)
-    {
-        // Путь почти всегда содержит пробелы (папка предмета обычно называется в несколько слов) —
-        // по CommonMark путь ссылки без угловых скобок не может содержать пробел, иначе Markdig не
-        // распознаёт вставку как картинку вовсе и показывает её буквальным текстом (new_addons.md
-        // §12, найдено на реальном запуске). Угловые скобки <...> — штатный экранирующий синтаксис,
-        // разбирается уже подключённым Markdig без изменений в самом парсере/рендерере.
-        var snippet = $"![Рисунок](<{MarkdownLocalImages.Encode(relativePath)}>)";
-        var before = caretIndex > 0 && content[caretIndex - 1] != '\n' ? "\n" : string.Empty;
-        var after = caretIndex < content.Length && content[caretIndex] != '\n' ? "\n" : string.Empty;
-        var insertion = before + snippet + after;
-
-        return (content.Insert(caretIndex, insertion), caretIndex + before.Length + snippet.Length);
-    }
-
     private void Close()
     {
         CancelPendingSave();
+        CommitImageTrash(_noteId);
         _noteId = Guid.Empty;
         _subjectId = null;
         _dirty = false;
@@ -654,5 +920,9 @@ public sealed partial class NoteEditorViewModel : ObservableObject, IDisposable
         cts.Dispose();
     }
 
-    public void Dispose() => CancelPendingSave();
+    public void Dispose()
+    {
+        CancelPendingSave();
+        CommitImageTrash(_noteId);
+    }
 }

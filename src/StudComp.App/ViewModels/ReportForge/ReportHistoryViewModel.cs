@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -36,6 +36,13 @@ public sealed partial class ReportHistoryViewModel(
     [ObservableProperty]
     private bool _isBusy;
 
+    /// <summary>
+    /// Предмет, который нужно выбрать при первом же обновлении списка – умолчание сессии из
+    /// <c>ReportForgePageViewModel</c>. Через поле, а не прямым присваиванием, потому что
+    /// <see cref="RefreshAsync"/> пересобирает выбор на каждом прогоне и затёр бы его.
+    /// </summary>
+    public Guid? DefaultSubjectFilterId { get; set; }
+
     [ObservableProperty]
     private Subject? _selectedSubjectFilter;
 
@@ -60,7 +67,9 @@ public sealed partial class ReportHistoryViewModel(
                 SubjectFilterChoices.Add(subject);
             }
 
-            SelectedSubjectFilter = SubjectFilterChoices.FirstOrDefault(s => s.Id == SelectedSubjectFilter?.Id);
+            var wantedSubject = SelectedSubjectFilter?.Id ?? DefaultSubjectFilterId;
+            DefaultSubjectFilterId = null;
+            SelectedSubjectFilter = SubjectFilterChoices.FirstOrDefault(s => s.Id == wantedSubject);
 
             var recent = await jobs.GetRecentAsync(PageSize);
 

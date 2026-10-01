@@ -1,24 +1,26 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using StudComp.Core.Domain;
+using StudComp.Services;
 
 namespace StudComp.Controls;
 
 /// <summary>
-/// Тонкая VM диалога рисования (new_addons.md §12, Phase 13.7): сама не читает и не пишет диск — все
-/// файловые операции делает вызывающая сторона (<c>NoteEditorViewModel</c>) после подтверждения.
-/// <see cref="Document"/>/<see cref="PngBytes"/> код-behind диалога обновляет немедленно на каждое
-/// событие <see cref="NoteDrawingCanvas.Changed"/>, поэтому к моменту, когда <c>ShowEditorAsync</c>
-/// возвращает подтверждение, данные уже готовы — ждать закрытия диалога не нужно.
+/// Форма рисования: состояние кнопок плюс результат — модель рисунка и её снимок в PNG.
 /// </summary>
-public sealed partial class NoteDrawingDialogViewModel : ObservableObject
+/// <remarks>
+/// <see cref="Document"/> и <see cref="PngBytes"/> — обычные свойства без оповещений: их читают
+/// один раз после закрытия диалога. Заполняются они в момент подтверждения
+/// (<see cref="OnConfirming"/>), а не на каждое изменение холста: полный рендер и PNG-кодирование
+/// в UI-потоке на каждый штрих и на каждый задетый ластиком штрих и были той самой
+/// «задумчивостью» рисования.
+/// </remarks>
+public sealed partial class NoteDrawingDialogViewModel : ObservableObject, IDialogConfirmHook
 {
-    /// <summary>Существующий рисунок для повторного редактирования; <see langword="null"/> — новый.</summary>
-    public NoteDrawingDocument? InitialDocument { get; }
-
-    public NoteDrawingDialogViewModel(NoteDrawingDocument? initialDocument = null)
-    {
+    public NoteDrawingDialogViewModel(NoteDrawingDocument? initialDocument = null) =>
         InitialDocument = initialDocument;
-    }
+
+    /// <summary>Рисунок, открытый на повторное редактирование, либо <see langword="null"/>.</summary>
+    public NoteDrawingDocument? InitialDocument { get; }
 
     [ObservableProperty]
     private bool _canSave;
@@ -29,7 +31,26 @@ public sealed partial class NoteDrawingDialogViewModel : ObservableObject
     [ObservableProperty]
     private bool _canRedo;
 
-    public NoteDrawingDocument? Document { get; set; }
+    /// <summary>Модель рисунка — заполняется при подтверждении.</summary>
+    public NoteDrawingDocument? Document { get; private set; }
 
-    public byte[]? PngBytes { get; set; }
+    /// <summary>Снимок холста в PNG — заполняется при подтверждении.</summary>
+    public byte[]? PngBytes { get; private set; }
+
+    /// <summary>
+    /// Чем снять результат с холста. Ставит код-behind формы: сама вьюмодель про холст не знает.
+    /// </summary>
+    public Func<(NoteDrawingDocument Document, byte[] Png)>? Capture { get; set; }
+
+    public void OnConfirming()
+    {
+        if (Capture is not { } capture)
+        {
+            return;
+        }
+
+        var (document, png) = capture();
+        Document = document;
+        PngBytes = png;
+    }
 }

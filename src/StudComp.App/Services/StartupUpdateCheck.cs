@@ -1,9 +1,7 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using StudComp.Infrastructure.Notifications;
 using StudComp.Infrastructure.Settings;
-using StudComp.Infrastructure.Startup;
 
 namespace StudComp.Services;
 
@@ -14,8 +12,7 @@ namespace StudComp.Services;
 /// старт (NFR §14).
 /// </summary>
 internal sealed class StartupUpdateCheck(
-    IUpdateService updates,
-    IToastService toasts,
+    UpdateCoordinator updateCoordinator,
     IOptions<UpdateOptions> options,
     ILogger<StartupUpdateCheck> logger) : BackgroundService
 {
@@ -23,7 +20,7 @@ internal sealed class StartupUpdateCheck(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (!options.Value.AutoCheckOnStartup || !updates.IsUpdateSupported)
+        if (!options.Value.AutoCheckOnStartup)
         {
             return;
         }
@@ -32,21 +29,9 @@ internal sealed class StartupUpdateCheck(
         {
             await Task.Delay(StartupDelay, stoppingToken).ConfigureAwait(false);
 
-            var update = await updates.CheckAsync(stoppingToken).ConfigureAwait(false);
-            if (update is null)
-            {
-                return;
-            }
-
-            toasts.ShowAction(
-                "Доступно обновление Rubrica",
-                $"Версия {update.Version} готова к установке.",
-                "Обновить и перезапустить",
-                async () =>
-                {
-                    await updates.DownloadAsync(update).ConfigureAwait(false);
-                    updates.ApplyAndRestart(update);
-                });
+            await updateCoordinator
+                .CheckAndPromptAsync(respectSkippedVersion: true, stoppingToken)
+                .ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {

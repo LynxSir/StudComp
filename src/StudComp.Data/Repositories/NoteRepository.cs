@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using StudComp.Core.Domain;
 
 namespace StudComp.Data.Repositories;
@@ -11,6 +11,12 @@ public interface INoteRepository
     /// дедлайнов (<c>DeadlineId</c> задан) в список не входят — у них своя страница.
     /// </summary>
     Task<IReadOnlyList<Note>> GetBySubjectAsync(Guid subjectId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Черновик отчёта предмета (<see cref="NoteKind.ReportDraft"/>), либо <see langword="null"/>.
+    /// <paramref name="subjectId"/> равный <see langword="null"/> – черновик «вне предмета».
+    /// </summary>
+    Task<Note?> GetReportDraftAsync(Guid? subjectId, CancellationToken ct = default);
 
     /// <summary>Последние изменённые заметки — зона «Последние заметки» на Дашборде.</summary>
     Task<IReadOnlyList<Note>> GetRecentAsync(int take, CancellationToken ct = default);
@@ -41,10 +47,21 @@ internal sealed class NoteRepository(IDbContextFactory<StudCompDbContext> contex
         await using var context = await CreateContextAsync(ct).ConfigureAwait(false);
         return await context.Notes
             .AsNoTracking()
-            .Where(x => x.SubjectId == subjectId && x.DeadlineId == null)
+            .Where(x => x.SubjectId == subjectId && x.DeadlineId == null && x.Kind != NoteKind.ReportDraft)
             .OrderByDescending(x => x.IsPinned)
             .ThenByDescending(x => x.UpdatedAt)
             .ToListAsync(ct)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<Note?> GetReportDraftAsync(Guid? subjectId, CancellationToken ct = default)
+    {
+        await using var context = await CreateContextAsync(ct).ConfigureAwait(false);
+        return await context.Notes
+            .AsNoTracking()
+            .Where(x => x.Kind == NoteKind.ReportDraft && x.SubjectId == subjectId)
+            .OrderBy(x => x.CreatedAt)
+            .FirstOrDefaultAsync(ct)
             .ConfigureAwait(false);
     }
 
@@ -53,7 +70,7 @@ internal sealed class NoteRepository(IDbContextFactory<StudCompDbContext> contex
         await using var context = await CreateContextAsync(ct).ConfigureAwait(false);
         return await context.Notes
             .AsNoTracking()
-            .Where(x => x.DeadlineId == null)
+            .Where(x => x.DeadlineId == null && x.Kind != NoteKind.ReportDraft)
             .OrderByDescending(x => x.UpdatedAt)
             .Take(take)
             .ToListAsync(ct)

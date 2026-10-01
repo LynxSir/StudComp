@@ -45,6 +45,25 @@ public static partial class MarkdownEditing
     private static partial Regex QuoteLinePattern();
 
     /// <summary>
+    /// Применить правку к тексту. Нужна там, где живого поля ввода нет (предпросмотр заметки), и в
+    /// тестах — чтобы «правка легла туда, куда мы думаем» проверялось, а не подразумевалось.
+    /// Диапазон за границами текста оставляет текст без изменений.
+    /// </summary>
+    public static string Apply(string? text, MarkdownEdit edit)
+    {
+        var source = text ?? string.Empty;
+        if (edit.Start < 0 || edit.Length < 0 || edit.Start + edit.Length > source.Length)
+        {
+            return source;
+        }
+
+        return string.Concat(
+            source.AsSpan(0, edit.Start),
+            edit.Replacement ?? string.Empty,
+            source.AsSpan(edit.Start + edit.Length));
+    }
+
+    /// <summary>
     /// Нажат <c>Enter</c>: продолжить список или цитату тем же маркером. Пустой пункт списка
     /// вместо новой строки снимает маркер — так из списка выходят одним лишним Enter'ом,
     /// как в любом привычном Markdown-редакторе.
@@ -74,8 +93,10 @@ public static partial class MarkdownEditing
 
             if (rest.Length == 0)
             {
-                // Пустой пункт: выходим из списка, стирая его маркер целиком.
-                return new MarkdownEdit(lineStart, line.Length, string.Empty, 0);
+                // Пустой пункт: выходим из списка. Маркер стирается, и на его месте остаётся пустая
+                // строка — без неё следующий набранный текст по CommonMark становится ленивым
+                // продолжением пункта и уезжает внутрь списка с отступом (new_addons.md §11).
+                return LeaveBlock(lineStart, line.Length);
             }
 
             var nextMarker = NextMarker(marker);
@@ -93,7 +114,7 @@ public static partial class MarkdownEditing
 
             if (rest.Length == 0)
             {
-                return new MarkdownEdit(lineStart, line.Length, string.Empty, 0);
+                return LeaveBlock(lineStart, line.Length);
             }
 
             var inserted = $"\n{indent}{marker} ";
@@ -126,7 +147,10 @@ public static partial class MarkdownEditing
             return null;
         }
 
-        var builder = new StringBuilder(block.Length + (lines.Length * IndentUnit.Length));
+        var firstListLine = lines.First(ListLinePattern().IsMatch);
+        var unit = IndentUnitFor(source, blockStart, firstListLine, outdent);
+
+        var builder = new StringBuilder(block.Length + (lines.Length * unit.Length));
         var changed = false;
 
         for (var i = 0; i < lines.Length; i++)
@@ -145,14 +169,14 @@ public static partial class MarkdownEditing
 
             if (outdent)
             {
-                var removed = RemoveIndentUnit(line);
+                var removed = RemoveIndentUnit(line, unit.Length);
                 changed |= removed.Length != line.Length;
                 builder.Append(removed);
             }
             else
             {
                 changed = true;
-                builder.Append(IndentUnit).Append(line);
+                builder.Append(unit).Append(line);
             }
         }
 
@@ -386,22 +410,88 @@ public static partial class MarkdownEditing
             : marker;
     }
 
-    private static string RemoveIndentUnit(string line)
+    /// <summary>Снять ровно тот отступ, который добавляет вложение — не больше и не меньше.</summary>
+    private static string RemoveIndentUnit(string line, int unitLength)
     {
-        if (line.StartsWith(IndentUnit, StringComparison.Ordinal))
-        {
-            return line[IndentUnit.Length..];
-        }
-
-        if (line.Length > 0 && (line[0] == '\t' || line[0] == ' '))
+        if (line.Length > 0 && line[0] == '\t')
         {
             return line[1..];
         }
 
-        return line;
+        var spaces = 0;
+        while (spaces < unitLength && spaces < line.Length && line[spaces] == ' ')
+        {
+            spaces++;
+        }
+
+        return spaces > 0 ? line[spaces..] : line;
     }
 
-    private static int LineStart(string source, int position)
+    /// <summary>
+    /// Выход из списка или цитаты: маркер убирается, а вместо него остаётся пустая строка —
+    /// разделитель абзацев. В самом начале текста разделять нечего.
+    /// </summary>
+    private static MarkdownEdit LeaveBlock(int lineStart, int lineLength) =>
+        lineStart == 0
+            ? new MarkdownEdit(lineStart, lineLength, string.Empty, 0)
+            : new MarkdownEdit(lineStart, lineLength, "\n", 1);
+
+    /// <summary>
+    /// Насколько сдвигать строку. При вложении по CommonMark нужно дойти до колонки содержимого
+    /// родителя: под «<c>- </c>» это два пробела, под «<c>1. </c>» — три, под «<c>10. </c>» —
+    /// четыре. Жёстких двух пробелов не хватало, и вложенный нумерованный пункт вообще не
+    /// вкладывался — это и была «ненадёжная вложенность» (new_addons.md §11). При выступе наоборот:
+    /// снять ровно столько, чтобы встать на уровень ближайшего родителя.
+    /// </summary>
+    private static string IndentUnitFor(string source, int blockStart, string firstListLine, bool outdent)
+    {
+        var currentIndent = ListLinePattern().Match(firstListLine) is { Success: true } current
+            ? current.Groups["indent"].Value.Length
+            : 0;
+
+        for (var position = blockStart; position > 0;)
+        {
+            var previousEnd = position - 1;
+            var previousStart = LineStart(source, previousEnd);
+            var previousLine = source[previousStart..previousEnd];
+            position = previousStart;
+
+            if (ListLinePattern().Match(previousLine) is not { Success: true } parent)
+            {
+                continue;
+            }
+
+            var parentIndent = parent.Groups["indent"].Value.Length;
+
+            if (outdent)
+            {
+                // Родитель — ближайшая строка, отступ которой меньше нашего.
+                if (parentIndent >= currentIndent)
+                {
+                    continue;
+                }
+
+                var remove = currentIndent - parentIndent;
+                return remove >= 1 ? new string(' ', remove) : IndentUnit;
+            }
+
+            // Строка глубже нашей — это чей-то вложенный пункт, а не наш родитель.
+            if (parentIndent > currentIndent)
+            {
+                continue;
+            }
+
+            var contentColumn = parentIndent
+                + parent.Groups["marker"].Value.Length
+                + parent.Groups["space"].Value.Length;
+            var add = contentColumn - currentIndent;
+            return add >= 1 ? new string(' ', add) : IndentUnit;
+        }
+
+        return IndentUnit;
+    }
+
+    internal static int LineStart(string source, int position)
     {
         if (position <= 0 || source.Length == 0)
         {
@@ -412,7 +502,7 @@ public static partial class MarkdownEditing
         return index < 0 ? 0 : index + 1;
     }
 
-    private static int LineEnd(string source, int position)
+    internal static int LineEnd(string source, int position)
     {
         var index = source.IndexOf('\n', Math.Min(position, source.Length));
         return index < 0 ? source.Length : index;

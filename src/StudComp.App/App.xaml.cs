@@ -14,6 +14,7 @@ using StudComp.Infrastructure.DependencyInjection;
 using StudComp.Infrastructure.Logging;
 using StudComp.Infrastructure.Notifications;
 using StudComp.Infrastructure.Settings;
+using StudComp.Infrastructure.Startup;
 using StudComp.Modules.Archivist.DependencyInjection;
 using StudComp.Modules.Cards.DependencyInjection;
 using StudComp.Modules.Organizer.DependencyInjection;
@@ -143,6 +144,17 @@ public partial class App : Application
     {
         if (_host is not null)
         {
+            try
+            {
+                // Updater стартует отдельным процессом, ждёт полного завершения Rubrica,
+                // тихо заменяет файлы и открывает уже новую версию.
+                _host.Services.GetService<IUpdateService>()?.ApplyPendingUpdateOnExit();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Не удалось передать скачанное обновление updater'у");
+            }
+
             await _host.StopAsync(TimeSpan.FromSeconds(5));
             _host.Dispose();
         }

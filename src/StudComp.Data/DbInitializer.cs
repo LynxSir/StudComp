@@ -24,6 +24,10 @@ internal sealed class DbInitializer(
 
         logger.LogInformation("Применяю миграции ({Count}): {Migrations}", pending.Length, string.Join(", ", pending));
         await context.Database.MigrateAsync(ct).ConfigureAwait(false);
-        logger.LogInformation("Миграции применены, база готова: {Path}", RubricaPaths.DatabaseFile);
+        // Путь берётся у самого соединения, а не из RubricaPaths: строку подключения можно
+        // переопределить настройками или переменной окружения, и печатать при этом путь по
+        // умолчанию — значит вводить в заблуждение ровно там, где проверяют, какая база открыта.
+        logger.LogInformation(
+            "Миграции применены, база готова: {Path}", context.Database.GetDbConnection().DataSource);
     }
 }

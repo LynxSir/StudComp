@@ -1,5 +1,6 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using StudComp.Resources;
 using StudComp.Services;
 
 namespace StudComp.ViewModels.Archivist;
@@ -10,11 +11,18 @@ namespace StudComp.ViewModels.Archivist;
 /// </summary>
 public sealed partial class ArchivistPageViewModel : ObservableObject, INavigationAware, IPersistentPage, IDisposable
 {
-    public ArchivistPageViewModel(UnsortedFilesViewModel unsorted, RulesViewModel rules, OperationsLogViewModel history)
+    private readonly IDialogService _dialogs;
+
+    public ArchivistPageViewModel(
+        UnsortedFilesViewModel unsorted,
+        RulesViewModel rules,
+        OperationsLogViewModel history,
+        IDialogService dialogs)
     {
         Unsorted = unsorted;
         Rules = rules;
         History = history;
+        _dialogs = dialogs;
 
         // Ссылка «Открыть в Неразобранном» на строке Журнала (Phase 12.2) — переключает вкладку без
         // отдельного контракта между дочерними VM.
@@ -29,6 +37,16 @@ public sealed partial class ArchivistPageViewModel : ObservableObject, INavigati
 
     [ObservableProperty]
     private int _selectedTabIndex;
+
+
+    /// <summary>Помощник по разделу: открывается на теме текущей подвкладки.</summary>
+    [RelayCommand]
+    private Task ShowHelpAsync() => _dialogs.ShowInfoAsync(
+        new SectionHelpViewModel(HelpSection.Archivist, SelectedTabIndex),
+        HelpCatalog.TitleOf(HelpSection.Archivist),
+
+        // Запас по ширине: содержимое ровно в DialogMaxWidth обрезается полями диалога.
+        maxWidth: 860);
 
     partial void OnSelectedTabIndexChanged(int value)
     {

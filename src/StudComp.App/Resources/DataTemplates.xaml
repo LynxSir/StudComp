@@ -187,6 +187,11 @@
         <viewShellDialogs:MarkdownHelp />
     </DataTemplate>
 
+    <!-- Общее для всех разделов: помощник по разделу и его подвкладкам (кнопка «?» у полосы вкладок). -->
+    <DataTemplate DataType="{x:Type vm:SectionHelpViewModel}">
+        <viewShellDialogs:SectionHelp />
+    </DataTemplate>
+
     <!-- Рисование в заметках (new_addons.md §12, Phase 13.7). -->
     <DataTemplate DataType="{x:Type controls:NoteDrawingDialogViewModel}">
         <controls:NoteDrawingDialog />

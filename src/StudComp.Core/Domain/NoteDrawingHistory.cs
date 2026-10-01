@@ -8,7 +8,14 @@ namespace StudComp.Core.Domain;
 /// </summary>
 public sealed class NoteDrawingHistory
 {
-    private readonly Stack<IReadOnlyList<NoteDrawingElement>> _undo = new();
+    /// <summary>
+    /// Сколько шагов отмены хранится. Снимок полный, а каждый штрих несёт все свои точки, поэтому
+    /// без потолка длинная сессия рисования растила бы память квадратично.
+    /// </summary>
+    public const int MaxDepth = 50;
+
+    /// <summary>Список вместо стека: у стека нельзя выбросить самый старый снимок.</summary>
+    private readonly List<IReadOnlyList<NoteDrawingElement>> _undo = [];
     private readonly Stack<IReadOnlyList<NoteDrawingElement>> _redo = new();
 
     public NoteDrawingHistory(IReadOnlyList<NoteDrawingElement>? initial = null)
@@ -30,7 +37,12 @@ public sealed class NoteDrawingHistory
     /// </summary>
     public void Push(IReadOnlyList<NoteDrawingElement> newState)
     {
-        _undo.Push(Elements);
+        _undo.Add(Elements);
+        if (_undo.Count > MaxDepth)
+        {
+            _undo.RemoveAt(0);
+        }
+
         Elements = newState;
         _redo.Clear();
     }
@@ -44,7 +56,8 @@ public sealed class NoteDrawingHistory
         }
 
         _redo.Push(Elements);
-        Elements = _undo.Pop();
+        Elements = _undo[^1];
+        _undo.RemoveAt(_undo.Count - 1);
     }
 
     /// <summary>Вернуть отменённое. Нечего возвращать — no-op, не бросает.</summary>
@@ -55,7 +68,7 @@ public sealed class NoteDrawingHistory
             return;
         }
 
-        _undo.Push(Elements);
+        _undo.Add(Elements);
         Elements = _redo.Pop();
     }
 }

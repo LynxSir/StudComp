@@ -324,4 +324,49 @@ public class MarkdownDocumentModelBuilderTests
             Assert.IsType<ParagraphBlock>(blocks[0]).Runs,
             run => run.Break != InlineBreak.None);
     }
+
+    [Fact]
+    public void An_ordered_list_interrupted_by_a_bullet_list_keeps_its_numbering()
+    {
+        // Маркированный список между пунктами разрывает нумерованный на два, и второй обязан
+        // продолжить счёт: на экране «3.» превращалось в «1.» (new_addons.md §11).
+        var markdown = string.Join(
+            "\n",
+            ["1. первый", "2. второй", "", "- вставка", "", "3. третий"]);
+
+        var lists = Build(markdown).OfType<ListBlock>().ToList();
+
+        Assert.Equal(3, lists.Count);
+        Assert.Equal(1, lists[0].Start);
+        Assert.Equal(1, lists[1].Start);
+        Assert.Equal(3, lists[2].Start);
+    }
+
+    [Fact]
+    public void A_plain_list_starts_from_one()
+    {
+        var list = Assert.Single(Build("- один\n- два").OfType<ListBlock>());
+
+        Assert.Equal(1, list.Start);
+    }
+
+    [Fact]
+    public void Tex_style_delimiters_are_parsed_as_formulas()
+    {
+        // Такую запись выдают языковые модели; раньше она печаталась буквально, вместе с косыми.
+        var paragraph = Assert.IsType<ParagraphBlock>(Build(@"где \(s\) — скольжение")[0]);
+
+        var math = Assert.Single(paragraph.Runs, run => run.Style.HasFlag(InlineStyle.Math));
+        Assert.Equal("s", math.Text);
+    }
+
+    [Fact]
+    public void A_display_tex_block_becomes_a_display_formula()
+    {
+        var paragraph = Assert.IsType<ParagraphBlock>(Build(@"\[E=mc^2\]")[0]);
+
+        var math = Assert.Single(paragraph.Runs);
+        Assert.True(math.Style.HasFlag(InlineStyle.Math));
+        Assert.Equal("E=mc^2", math.Text);
+    }
 }

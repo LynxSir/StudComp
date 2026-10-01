@@ -54,6 +54,7 @@ public static class ServiceCollectionExtensions
         services.Configure<AppearanceOptions>(configuration.GetSection(AppearanceOptions.SectionName));
         services.Configure<GeneralOptions>(configuration.GetSection(GeneralOptions.SectionName));
         services.Configure<WorkspaceOptions>(configuration.GetSection(WorkspaceOptions.SectionName));
+        services.Configure<NotesOptions>(configuration.GetSection(NotesOptions.SectionName));
         services.Configure<ArchivistOptions>(configuration.GetSection(ArchivistOptions.SectionName));
         services.Configure<NotificationOptions>(configuration.GetSection(NotificationOptions.SectionName));
         services.Configure<ReportForgeOptions>(configuration.GetSection(ReportForgeOptions.SectionName));

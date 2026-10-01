@@ -16,28 +16,28 @@ public sealed partial class AboutViewModel : SettingsSectionViewModelBase
     private readonly UserSettingsProvider _settings;
     private readonly IShellLauncher _shellLauncher;
     private readonly IUpdateService _updates;
-
-    private AppUpdateInfo? _foundUpdate;
+    private readonly UpdateCoordinator _updateCoordinator;
 
     public AboutViewModel(
         UserSettingsProvider settings,
         IShellLauncher shellLauncher,
         IUpdateService updates,
+        UpdateCoordinator updateCoordinator,
         IOptions<DiagnosticsOptions> diagnostics,
         IOptions<UpdateOptions> update)
     {
         _settings = settings;
         _shellLauncher = shellLauncher;
         _updates = updates;
+        _updateCoordinator = updateCoordinator;
 
         using (BeginLoad())
         {
             _performanceLoggingEnabled = diagnostics.Value.PerformanceLoggingEnabled;
             _autoCheckOnStartup = update.Value.AutoCheckOnStartup;
-            _githubToken = update.Value.GithubToken;
             _updateStatus = updates.IsUpdateSupported
                 ? "Нажмите «Проверить», чтобы узнать о новой версии."
-                : "Проверка обновлений доступна только в установленной версии.";
+                : "Автообновление работает в версии, установленной через Rubrica Setup.";
         }
     }
 
@@ -54,7 +54,7 @@ public sealed partial class AboutViewModel : SettingsSectionViewModelBase
 
     public string Version => _updates.CurrentVersion;
 
-    public string LicenseText => "Приватный проект. Все права принадлежат автору.";
+    public string LicenseText => "Все права принадлежат автору.";
 
     [ObservableProperty]
     private bool _performanceLoggingEnabled;
@@ -63,14 +63,13 @@ public sealed partial class AboutViewModel : SettingsSectionViewModelBase
     private bool _autoCheckOnStartup;
 
     [ObservableProperty]
-    private string _githubToken;
-
-    [ObservableProperty]
     private string _updateStatus;
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(DownloadAndApplyCommand))]
-    private bool _updateAvailable;
+    [NotifyCanExecuteChangedFor(nameof(CheckForUpdatesCommand))]
+    private bool _isCheckingForUpdates;
+
+    private bool CanCheckForUpdates => !IsCheckingForUpdates;
 
     partial void OnPerformanceLoggingEnabledChanged(bool value)
     {
@@ -89,60 +88,19 @@ public sealed partial class AboutViewModel : SettingsSectionViewModelBase
         }
     }
 
-    [RelayCommand]
-    private void SaveToken()
-    {
-        _settings.Update<UpdateOptions>(UpdateOptions.SectionName, o => o.GithubToken = GithubToken?.Trim() ?? string.Empty);
-        UpdateStatus = "Токен сохранён. Нажмите «Проверить».";
-    }
-
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanCheckForUpdates))]
     private async Task CheckForUpdatesAsync()
     {
-        if (!_updates.IsUpdateSupported)
-        {
-            UpdateStatus = "Проверка обновлений доступна только в установленной версии.";
-            return;
-        }
-
-        UpdateStatus = "Проверяем…";
-        UpdateAvailable = false;
+        IsCheckingForUpdates = true;
         try
         {
-            _foundUpdate = await _updates.CheckAsync();
-            if (_foundUpdate is null)
-            {
-                UpdateStatus = "Установлена последняя версия.";
-                return;
-            }
-
-            UpdateAvailable = true;
-            UpdateStatus = $"Доступна версия {_foundUpdate.Version}.";
+            UpdateStatus = "Проверяем обновления…";
+            var result = await _updateCoordinator.CheckAndPromptAsync(respectSkippedVersion: false);
+            UpdateStatus = result.Message;
         }
-        catch (Exception ex)
+        finally
         {
-            UpdateStatus = $"Не удалось проверить обновления: {ex.Message}";
-        }
-    }
-
-    [RelayCommand(CanExecute = nameof(UpdateAvailable))]
-    private async Task DownloadAndApplyAsync()
-    {
-        if (_foundUpdate is null)
-        {
-            return;
-        }
-
-        try
-        {
-            UpdateStatus = "Скачиваем обновление…";
-            await _updates.DownloadAsync(_foundUpdate);
-            UpdateStatus = "Перезапуск…";
-            _updates.ApplyAndRestart(_foundUpdate);
-        }
-        catch (Exception ex)
-        {
-            UpdateStatus = $"Не удалось установить обновление: {ex.Message}";
+            IsCheckingForUpdates = false;
         }
     }
 

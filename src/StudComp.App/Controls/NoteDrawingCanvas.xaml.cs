@@ -41,6 +41,8 @@ public partial class NoteDrawingCanvas : UserControl
     private NoteDrawingHistory _history = new();
     private bool _suppressStrokesChanged;
 
+    private bool _eraserGesture;
+
     private Point? _dragStart;
     private Shape? _previewShape;
     private TextBox? _activeTextBox;
@@ -59,6 +61,19 @@ public partial class NoteDrawingCanvas : UserControl
         Overlay.MouseLeftButtonDown += OnOverlayMouseDown;
         Overlay.MouseMove += OnOverlayMouseMove;
         Overlay.MouseLeftButtonUp += OnOverlayMouseUp;
+
+        // Потеря захвата мыши оставляла фигуру предпросмотра висеть и тянуться за курсором без
+        // нажатой кнопки.
+        Overlay.LostMouseCapture += (_, _) => CancelPreviewShape();
+
+        Ink.PreviewMouseLeftButtonDown += OnInkMouseDown;
+        Ink.PreviewMouseLeftButtonUp += OnInkMouseUp;
+        Ink.LostMouseCapture += (_, _) => EndEraserGesture();
+
+        // Штатная stylus-обвязка WPF добавляет заметную задержку ввода даже без дигитайзера.
+        Stylus.SetIsFlicksEnabled(Ink, false);
+        Stylus.SetIsTapFeedbackEnabled(Ink, false);
+        Stylus.SetIsTouchFeedbackEnabled(Ink, false);
     }
 
     /// <summary>Активный инструмент рисования.</summary>
@@ -106,21 +121,31 @@ public partial class NoteDrawingCanvas : UserControl
 
     public void Undo()
     {
-        CommitPendingText();
+        // Идёт ввод текста — Ctrl+Z отменяет именно его, а не предыдущее действие. Прежний порядок
+        // (сначала зафиксировать текст, потом откатить) съедал ровно этот только что созданный шаг.
+        if (CancelPendingText())
+        {
+            return;
+        }
+
         _history.Undo();
         RebuildAll();
     }
 
     public void Redo()
     {
-        CommitPendingText();
+        if (CancelPendingText())
+        {
+            return;
+        }
+
         _history.Redo();
         RebuildAll();
     }
 
     public void Clear()
     {
-        CommitPendingText();
+        CancelPendingText();
         _history.Push([]);
         RebuildAll();
     }
@@ -146,10 +171,14 @@ public partial class NoteDrawingCanvas : UserControl
     /// <summary>Снимок холста в PNG — то, что вставляется в Markdown.</summary>
     public byte[] RenderToPng()
     {
-        var width = (int)Math.Ceiling(Paper.Width);
-        var height = (int)Math.Ceiling(Paper.Height);
+        // Рендерится внутренняя сетка, а не Paper: у того есть темовая рамка в 1 пиксель, которая
+        // попадала в картинку, а сам рисунок на её толщину обрезался.
+        RootGrid.UpdateLayout();
+
+        var width = (int)Math.Ceiling(Math.Max(1, RootGrid.ActualWidth));
+        var height = (int)Math.Ceiling(Math.Max(1, RootGrid.ActualHeight));
         var bitmap = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
-        bitmap.Render(Paper);
+        bitmap.Render(RootGrid);
 
         var encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(bitmap));
@@ -157,6 +186,72 @@ public partial class NoteDrawingCanvas : UserControl
         using var stream = new MemoryStream();
         encoder.Save(stream);
         return stream.ToArray();
+    }
+
+    /// <summary>Кегль текстового инструмента.</summary>
+    public static readonly DependencyProperty TextFontSizeProperty = DependencyProperty.Register(
+        nameof(TextFontSize), typeof(double), typeof(NoteDrawingCanvas), new PropertyMetadata(18d));
+
+    public double TextFontSize
+    {
+        get => (double)GetValue(TextFontSizeProperty);
+        set => SetValue(TextFontSizeProperty, value);
+    }
+
+    /// <summary>
+    /// Замороженные кисти по цвету. Незамороженная <see cref="SolidColorBrush"/> тащит за собой
+    /// оповещения об изменении и не может быть разделена с потоком композиции, а полная пересборка
+    /// рисунка создавала их заново на каждый элемент.
+    /// </summary>
+    private static readonly Dictionary<string, SolidColorBrush> BrushCache = [];
+
+    private static SolidColorBrush FrozenBrush(string? colorHex)
+    {
+        var key = colorHex ?? string.Empty;
+        if (BrushCache.TryGetValue(key, out var cached))
+        {
+            return cached;
+        }
+
+        var brush = new SolidColorBrush(ParseColor(key));
+        brush.Freeze();
+        BrushCache[key] = brush;
+        return brush;
+    }
+
+    /// <summary>
+    /// Ластик удаляет штрихи <b>во время</b> протяжки, и каждое удаление поднимало полную
+    /// пересборку модели и событие <see cref="Changed"/>. Жест схлопывается в одну запись истории:
+    /// именно это и делало ластик самым медленным инструментом.
+    /// </summary>
+    private void OnInkMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (Tool == NoteDrawingTool.Eraser)
+        {
+            _eraserGesture = true;
+        }
+    }
+
+    private void OnInkMouseUp(object sender, MouseButtonEventArgs e) => EndEraserGesture();
+
+    private void EndEraserGesture()
+    {
+        if (!_eraserGesture)
+        {
+            return;
+        }
+
+        _eraserGesture = false;
+        SyncStrokesToHistory();
+    }
+
+    /// <summary>Привести модель в соответствие с текущим набором штрихов и сообщить об изменении.</summary>
+    private void SyncStrokesToHistory()
+    {
+        var strokes = Ink.Strokes.Select(ToElement).ToList();
+        var shapes = _history.Elements.Where(el => el.Kind != NoteDrawingElementKind.Stroke).ToList();
+        _history.Push([.. strokes, .. shapes]);
+        RaiseChanged();
     }
 
     private static void OnToolChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) =>
@@ -185,7 +280,10 @@ public partial class NoteDrawingCanvas : UserControl
         Color = ParseColor(StrokeColorHex),
         Width = Math.Max(1, StrokeThicknessValue),
         Height = Math.Max(1, StrokeThicknessValue),
-        FitToCurve = true,
+
+        // Подгонка кривой делает статичную отрисовку дороже динамической и даёт видимый рывок в
+        // момент отпускания кнопки — «как в Paint» её быть не должно.
+        FitToCurve = false,
     };
 
     private static Color ParseColor(string hex)
@@ -203,15 +301,12 @@ public partial class NoteDrawingCanvas : UserControl
     /// <summary>Синхронизация модели после любого изменения штрихов — и рисования, и ластика разом.</summary>
     private void OnStrokesChanged(object? sender, StrokeCollectionChangedEventArgs e)
     {
-        if (_suppressStrokesChanged)
+        if (_suppressStrokesChanged || _eraserGesture)
         {
             return;
         }
 
-        var strokes = Ink.Strokes.Select(ToElement).ToList();
-        var shapes = _history.Elements.Where(el => el.Kind != NoteDrawingElementKind.Stroke).ToList();
-        _history.Push([.. strokes, .. shapes]);
-        RaiseChanged();
+        SyncStrokesToHistory();
     }
 
     private void OnOverlayMouseDown(object sender, MouseButtonEventArgs e)
@@ -219,6 +314,7 @@ public partial class NoteDrawingCanvas : UserControl
         if (Tool == NoteDrawingTool.Text)
         {
             BeginTextInput(e.GetPosition(Overlay));
+            e.Handled = true;
             return;
         }
 
@@ -251,12 +347,13 @@ public partial class NoteDrawingCanvas : UserControl
             return;
         }
 
-        Overlay.ReleaseMouseCapture();
+        // Состояние снимается ДО освобождения захвата: освобождение синхронно поднимает
+        // LostMouseCapture, и обработчик отмены иначе унёс бы только что дорисованную фигуру.
         var end = e.GetPosition(Overlay);
-        _dragStart = null;
-
         var preview = _previewShape;
+        _dragStart = null;
         _previewShape = null;
+        Overlay.ReleaseMouseCapture();
 
         if (preview is null)
         {
@@ -318,15 +415,15 @@ public partial class NoteDrawingCanvas : UserControl
                 Canvas.SetTop(shape, y);
                 break;
 
-            case ShapePath path:
-                path.Data = BuildArrowGeometry(start, current, StrokeThicknessValue);
+            case ShapePath { Data: PathGeometry geometry }:
+                UpdateArrowGeometry(geometry, start, current, StrokeThicknessValue);
                 break;
         }
     }
 
     private Line NewLine() => new()
     {
-        Stroke = new SolidColorBrush(ParseColor(StrokeColorHex)),
+        Stroke = FrozenBrush(StrokeColorHex),
         StrokeThickness = StrokeThicknessValue,
         StrokeStartLineCap = PenLineCap.Round,
         StrokeEndLineCap = PenLineCap.Round,
@@ -334,52 +431,97 @@ public partial class NoteDrawingCanvas : UserControl
 
     private Rectangle NewRectangle() => new()
     {
-        Stroke = new SolidColorBrush(ParseColor(StrokeColorHex)),
+        Stroke = FrozenBrush(StrokeColorHex),
         StrokeThickness = StrokeThicknessValue,
         Fill = Brushes.Transparent,
     };
 
     private Ellipse NewEllipse() => new()
     {
-        Stroke = new SolidColorBrush(ParseColor(StrokeColorHex)),
+        Stroke = FrozenBrush(StrokeColorHex),
         StrokeThickness = StrokeThicknessValue,
         Fill = Brushes.Transparent,
     };
 
     private ShapePath NewArrowPath() => new()
     {
-        Stroke = new SolidColorBrush(ParseColor(StrokeColorHex)),
+        Stroke = FrozenBrush(StrokeColorHex),
         StrokeThickness = StrokeThicknessValue,
         StrokeStartLineCap = PenLineCap.Round,
         StrokeEndLineCap = PenLineCap.Round,
         StrokeLineJoin = PenLineJoin.Round,
+        Data = NewArrowGeometry(),
     };
 
-    private static Geometry BuildArrowGeometry(Point start, Point end, double thickness)
+    /// <summary>Снять незавершённую фигуру: захват мыши потерян, рисовать больше нечего.</summary>
+    private void CancelPreviewShape()
+    {
+        var preview = _previewShape;
+        _previewShape = null;
+        _dragStart = null;
+
+        if (preview is not null)
+        {
+            Overlay.Children.Remove(preview);
+        }
+    }
+
+    /// <summary>
+    /// Заготовка стрелки: две фигуры, точки которых потом только переставляются. Прежний вариант
+    /// собирал новую <c>GeometryGroup</c> с тремя отрезками на каждое движение мыши.
+    /// </summary>
+    private static PathGeometry NewArrowGeometry()
+    {
+        var shaft = new PathFigure { Segments = { new LineSegment() } };
+        var head = new PathFigure { Segments = { new LineSegment(), new LineSegment() } };
+        return new PathGeometry { Figures = { shaft, head } };
+    }
+
+    private static void UpdateArrowGeometry(PathGeometry geometry, Point start, Point end, double thickness)
     {
         var wingSize = Math.Max(10, thickness * 4);
         var (wing1, wing2) = NoteDrawingGeometry.ArrowHead(
             new NoteDrawingPoint(start.X, start.Y), new NoteDrawingPoint(end.X, end.Y), wingSize);
 
-        var group = new GeometryGroup();
-        group.Children.Add(new LineGeometry(start, end));
-        group.Children.Add(new LineGeometry(end, new Point(wing1.X, wing1.Y)));
-        group.Children.Add(new LineGeometry(end, new Point(wing2.X, wing2.Y)));
-        return group;
+        var shaft = geometry.Figures[0];
+        shaft.StartPoint = start;
+        ((LineSegment)shaft.Segments[0]).Point = end;
+
+        var head = geometry.Figures[1];
+        head.StartPoint = new Point(wing1.X, wing1.Y);
+        ((LineSegment)head.Segments[0]).Point = end;
+        ((LineSegment)head.Segments[1]).Point = new Point(wing2.X, wing2.Y);
     }
 
+    /// <summary>Готовая неизменяемая стрелка — для пересборки уже нарисованного.</summary>
+    private static Geometry BuildArrowGeometry(Point start, Point end, double thickness)
+    {
+        var geometry = NewArrowGeometry();
+        UpdateArrowGeometry(geometry, start, end, thickness);
+        geometry.Freeze();
+        return geometry;
+    }
+
+    /// <summary>
+    /// Начать ввод текста. Событие мыши обязательно помечается обработанным, а фокус берётся
+    /// отложенно: иначе клик продолжает всплывать, фокус перехватывает хост диалога, и поле
+    /// мгновенно закрывается по <c>LostFocus</c> — со стороны выглядит как «нажимаю, и ничего не
+    /// происходит» (new_addons.md §12, жалоба владельца).
+    /// </summary>
     private void BeginTextInput(Point at)
     {
         CommitPendingText();
 
+        var brush = FrozenBrush(StrokeColorHex);
         var textBox = new TextBox
         {
-            MinWidth = 120,
-            FontSize = 18,
-            Foreground = new SolidColorBrush(ParseColor(StrokeColorHex)),
+            MinWidth = 140,
+            FontSize = TextFontSize,
+            Foreground = brush,
             Background = Brushes.White,
-            BorderBrush = new SolidColorBrush(ParseColor(StrokeColorHex)),
+            BorderBrush = brush,
             BorderThickness = new Thickness(1),
+            Padding = new Thickness(4, 2, 4, 2),
         };
 
         Canvas.SetLeft(textBox, at.X);
@@ -387,8 +529,11 @@ public partial class NoteDrawingCanvas : UserControl
         Overlay.Children.Add(textBox);
         _activeTextBox = textBox;
 
-        textBox.LostFocus += (_, _) => CommitPendingText();
-        textBox.KeyDown += (_, args) =>
+        // Подписка на потерю фокуса только после того, как фокус реально получен: пока поле его не
+        // взяло, любая возня с фокусом при открытии не должна его убивать.
+        textBox.GotKeyboardFocus += (_, _) => textBox.LostKeyboardFocus += (_, _) => CommitPendingText();
+
+        textBox.PreviewKeyDown += (_, args) =>
         {
             if (args.Key == Key.Enter)
             {
@@ -397,13 +542,35 @@ public partial class NoteDrawingCanvas : UserControl
             }
             else if (args.Key == Key.Escape)
             {
+                // Помечаем обработанным, иначе Escape закроет весь диалог рисования.
                 Overlay.Children.Remove(textBox);
                 _activeTextBox = null;
                 args.Handled = true;
             }
         };
 
-        textBox.Focus();
+        _ = Dispatcher.BeginInvoke(
+            System.Windows.Threading.DispatcherPriority.Input,
+            () =>
+            {
+                textBox.Focus();
+                Keyboard.Focus(textBox);
+            });
+    }
+
+    /// <summary>Выбросить незавершённый ввод текста. <see langword="true"/> — было что выбрасывать.</summary>
+    private bool CancelPendingText()
+    {
+        var textBox = _activeTextBox;
+        _activeTextBox = null;
+
+        if (textBox is null || !Overlay.Children.Contains(textBox))
+        {
+            return false;
+        }
+
+        Overlay.Children.Remove(textBox);
+        return true;
     }
 
     private void CommitPendingText()
@@ -418,6 +585,7 @@ public partial class NoteDrawingCanvas : UserControl
         var text = textBox.Text?.Trim() ?? string.Empty;
         var left = Canvas.GetLeft(textBox);
         var top = Canvas.GetTop(textBox);
+        var fontSize = textBox.FontSize;
         Overlay.Children.Remove(textBox);
 
         if (text.Length == 0)
@@ -425,14 +593,19 @@ public partial class NoteDrawingCanvas : UserControl
             return;
         }
 
-        var colorHex = StrokeColorHex;
-        var block = BuildTextVisual(text, colorHex, 18, left, top);
-        Overlay.Children.Add(block);
-
         var element = new NoteDrawingElement(
-            NoteDrawingElementKind.Text, [new NoteDrawingPoint(left, top)], colorHex, 0, text, 18);
+            NoteDrawingElementKind.Text,
+            [new NoteDrawingPoint(left, top)],
+            StrokeColorHex,
+            0,
+            text,
+            fontSize);
+
         _history.Push([.. _history.Elements, element]);
-        RaiseChanged();
+
+        // Через полную пересборку, а не добавлением визуала напрямую: иначе порядок элементов на
+        // экране разошёлся бы с моделью до ближайшей отмены.
+        RebuildAll();
     }
 
     private static TextBlock BuildTextVisual(string text, string colorHex, double fontSize, double left, double top)
@@ -441,7 +614,7 @@ public partial class NoteDrawingCanvas : UserControl
         {
             Text = text,
             FontSize = fontSize,
-            Foreground = new SolidColorBrush(ParseColor(colorHex)),
+            Foreground = FrozenBrush(colorHex),
         };
         Canvas.SetLeft(block, left);
         Canvas.SetTop(block, top);
@@ -450,7 +623,7 @@ public partial class NoteDrawingCanvas : UserControl
 
     private void RebuildAll()
     {
-        CommitPendingText();
+        CancelPendingText();
         _suppressStrokesChanged = true;
         try
         {
@@ -500,7 +673,7 @@ public partial class NoteDrawingCanvas : UserControl
                 var (a, b) = (element.Points[0], element.Points[1]);
                 var rect = new Rectangle
                 {
-                    Stroke = new SolidColorBrush(ParseColor(element.ColorHex)),
+                    Stroke = FrozenBrush(element.ColorHex),
                     StrokeThickness = element.Thickness,
                     Fill = Brushes.Transparent,
                     Width = Math.Abs(b.X - a.X),
@@ -516,7 +689,7 @@ public partial class NoteDrawingCanvas : UserControl
                 var (a, b) = (element.Points[0], element.Points[1]);
                 var ellipse = new Ellipse
                 {
-                    Stroke = new SolidColorBrush(ParseColor(element.ColorHex)),
+                    Stroke = FrozenBrush(element.ColorHex),
                     StrokeThickness = element.Thickness,
                     Fill = Brushes.Transparent,
                     Width = Math.Abs(b.X - a.X),
@@ -532,7 +705,7 @@ public partial class NoteDrawingCanvas : UserControl
                 var (a, b) = (element.Points[0], element.Points[1]);
                 return new ShapePath
                 {
-                    Stroke = new SolidColorBrush(ParseColor(element.ColorHex)),
+                    Stroke = FrozenBrush(element.ColorHex),
                     StrokeThickness = element.Thickness,
                     StrokeStartLineCap = PenLineCap.Round,
                     StrokeEndLineCap = PenLineCap.Round,
@@ -556,7 +729,7 @@ public partial class NoteDrawingCanvas : UserControl
 
     private static Line NewLineWith(string colorHex, double thickness) => new()
     {
-        Stroke = new SolidColorBrush(ParseColor(colorHex)),
+        Stroke = FrozenBrush(colorHex),
         StrokeThickness = thickness,
         StrokeStartLineCap = PenLineCap.Round,
         StrokeEndLineCap = PenLineCap.Round,
@@ -581,7 +754,7 @@ public partial class NoteDrawingCanvas : UserControl
                 Color = ParseColor(element.ColorHex),
                 Width = Math.Max(1, element.Thickness),
                 Height = Math.Max(1, element.Thickness),
-                FitToCurve = true,
+                FitToCurve = false,
             },
         };
     }

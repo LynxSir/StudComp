@@ -1,4 +1,4 @@
-<Application x:Class="StudComp.App"
+﻿<Application x:Class="StudComp.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
@@ -21,6 +21,7 @@
                 <ResourceDictionary Source="Resources/Styles/Expanders.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Dashboard.xaml" />
                 <ResourceDictionary Source="Resources/Styles/DatePicker.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Tabs.xaml" />
                 <ResourceDictionary Source="Resources/DataTemplates.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

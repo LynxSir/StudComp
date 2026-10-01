@@ -27,7 +27,9 @@ internal sealed partial class MarkdownDocumentModelBuilder : IMarkdownDocumentMo
 
     public ReportDocumentModel Build(string markdown)
     {
-        var document = Markdown.Parse(markdown ?? string.Empty, Pipeline);
+        // Ограничители формул из языковых моделей приводятся к тем, что понимает Markdig: без этого
+        // «\(x\)» в конспекте печаталось буквально, вместе с косыми (new_addons.md §11).
+        var document = Markdown.Parse(MathDelimiters.Normalize(markdown), Pipeline);
         return new ReportDocumentModel(TitlePage: null, Blocks: ReadBlocks(document), GenerateTableOfContents: false);
     }
 
@@ -232,7 +234,10 @@ internal sealed partial class MarkdownDocumentModelBuilder : IMarkdownDocumentMo
             }
         }
 
-        return new ListBlock(list.IsOrdered, items);
+        // OrderedStart у Markdig — строка («3»); прерванный маркированным списком нумерованный
+        // приходит вторым ListBlock'ом именно с ней.
+        var start = list.IsOrdered && int.TryParse(list.OrderedStart, out var parsed) ? Math.Max(1, parsed) : 1;
+        return new ListBlock(list.IsOrdered, items, start);
     }
 
     /// <summary>
