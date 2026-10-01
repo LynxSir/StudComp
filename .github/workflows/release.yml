@@ -109,7 +109,6 @@ jobs:
             const hiddenBuildFiles = new Set([
               'RELEASES',
               'assets.win.json',
-              'Rubrica-win-Portable.zip',
             ]);
             for (const asset of release.assets) {
               if (hiddenBuildFiles.has(asset.name)) {
@@ -127,6 +126,7 @@ jobs:
           name: rubrica-${{ steps.ver.outputs.version }}
           path: |
             artifacts/releases/Rubrica-win-Setup.exe
+            artifacts/releases/Rubrica-win-Portable.zip
             artifacts/releases/Rubrica-*-full.nupkg
             artifacts/releases/Rubrica-*-delta.nupkg
             artifacts/releases/releases.win.json
