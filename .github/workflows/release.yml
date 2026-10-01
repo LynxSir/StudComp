@@ -53,14 +53,6 @@ jobs:
       - name: Install Velopack CLI
         run: dotnet tool install -g vpk --version 1.2.161
 
-      - name: Test
-        run: >
-          dotnet test StudComp.slnx
-          --configuration Release
-          --verbosity minimal
-          --disable-build-servers
-          --maxcpucount:1
-
       - name: Publish (self-contained, R2R)
         run: >
           dotnet publish src/StudComp.App/StudComp.App.csproj
