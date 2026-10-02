@@ -618,27 +618,34 @@ public sealed partial class NoteEditorViewModel : ObservableObject, IDisposable
 
     private static string SubjectKey(Guid subjectId) => subjectId.ToString("N", CultureInfo.InvariantCulture);
 
-    public async Task<int?> InsertImagesAsync(IEnumerable<string> paths, int caretIndex)
+    public async Task<int?> InsertImagesAsync(IEnumerable<string> paths, int caretIndex, int selectionLength = 0)
     {
         if (!HasNote) return null;
         var noteId = _noteId;
+        var revision = _revision;
         var directory = await ResolveAttachmentsDirectoryAsync();
-        if (directory is null || noteId != _noteId) return null;
+        if (directory is null || noteId != _noteId || revision != _revision) return null;
         var caret = Math.Clamp(caretIndex, 0, Content.Length);
         foreach (var source in paths.Where(IsSupportedImage))
         {
             try
             {
-                _fileSystem.CreateDirectory(directory);
                 var name = Path.GetFileNameWithoutExtension(source);
                 if (name.Length > 80) name = name[..80];
                 var destination = Path.Combine(directory,
                     $"{name}_{Guid.NewGuid():N}{Path.GetExtension(source)}");
-                // Keep the original safe; the note owns its independent copy.
-                _fileSystem.Copy(source, destination);
+                // Копирование больших файлов не занимает UI; исходник остаётся нетронутым.
+                await Task.Run(() =>
+                {
+                    _fileSystem.CreateDirectory(directory);
+                    _fileSystem.Copy(source, destination);
+                });
+                if (noteId != _noteId || revision != _revision) return null;
                 var relative = _workspace.ResolveRelative(destination) ?? destination;
-                var edit = MarkdownImageEditing.Insert(Content, caret, relative, Path.GetFileNameWithoutExtension(source));
+                var edit = MarkdownImageEditing.Insert(Content, caret, relative, Path.GetFileNameWithoutExtension(source), selectionLength);
                 ApplyEdit(edit);
+                revision = _revision;
+                selectionLength = 0;
                 caret = edit.Start + edit.CaretOffset;
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
@@ -650,6 +657,49 @@ public sealed partial class NoteEditorViewModel : ObservableObject, IDisposable
         await FlushAsync();
         return caret;
     }
+
+    /// <summary>Сохранить снимок буфера как PNG и вставить ссылку, сохранив историю отмены.</summary>
+    public async Task<int?> InsertClipboardImageAsync(System.Windows.Media.Imaging.BitmapSource image,
+        int caretIndex, int selectionLength = 0)
+    {
+        if (!HasNote) return null;
+        var noteId = _noteId;
+        var revision = _revision;
+        var directory = await ResolveAttachmentsDirectoryAsync();
+        if (directory is null || noteId != _noteId || revision != _revision) return null;
+        // Клон BitmapFrame может сохранить привязанный к UI декодер; копируем сами пиксели.
+        var snapshot = new System.Windows.Media.Imaging.WriteableBitmap(image);
+        snapshot.Freeze();
+        var destination = Path.Combine(directory, $"Изображение_{Guid.NewGuid():N}.png");
+        try
+        {
+            await Task.Run(() =>
+            {
+                var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+                encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(snapshot));
+                _fileSystem.CreateDirectory(directory);
+                using var stream = _fileSystem.Open(destination, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+                encoder.Save(stream);
+            });
+            if (noteId != _noteId || revision != _revision) return null;
+            var relative = _workspace.ResolveRelative(destination) ?? destination;
+            var edit = MarkdownImageEditing.Insert(Content, caretIndex, relative, selectionLength: selectionLength);
+            ApplyEdit(edit);
+            RefreshPreview();
+            await FlushAsync();
+            return edit.Start + edit.CaretOffset;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException
+            or InvalidOperationException or NotSupportedException)
+        {
+            _toasts.Show("Изображение не вставлено", ex.Message, ToastKind.Error);
+            return null;
+        }
+    }
+
+    /// <summary>Ошибка чтения буфера не должна прерывать работу редактора.</summary>
+    public void ReportImagePasteError(Exception error) =>
+        _toasts.Show("Изображение не вставлено", error.Message, ToastKind.Error);
 
     /// <summary>
     /// Нарисовать новую картинку и вставить её markdown-ссылкой в позицию курсора (new_addons.md §12,

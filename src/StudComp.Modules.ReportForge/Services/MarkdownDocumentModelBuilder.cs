@@ -21,15 +21,20 @@ namespace StudComp.Modules.ReportForge.Services;
 /// </remarks>
 internal sealed partial class MarkdownDocumentModelBuilder : IMarkdownDocumentModelBuilder
 {
-    private static readonly MarkdownPipeline Pipeline = new MarkdownPipelineBuilder()
-        .UseAdvancedExtensions()
-        .Build();
+    private static readonly MarkdownPipeline Pipeline = CreatePipeline();
+
+    private static MarkdownPipeline CreatePipeline()
+    {
+        var builder = new MarkdownPipelineBuilder().UseAdvancedExtensions();
+        builder.Extensions.Add(new MultilineMathExtension());
+        return builder.Build();
+    }
 
     public ReportDocumentModel Build(string markdown)
     {
         // Ограничители формул из языковых моделей приводятся к тем, что понимает Markdig: без этого
         // «\(x\)» в конспекте печаталось буквально, вместе с косыми (new_addons.md §11).
-        var document = Markdown.Parse(MathDelimiters.Normalize(markdown), Pipeline);
+        var document = Markdown.Parse(MathDelimiters.NormalizeMultilineEnvironments(MathDelimiters.Normalize(markdown)), Pipeline);
         return new ReportDocumentModel(TitlePage: null, Blocks: ReadBlocks(document), GenerateTableOfContents: false);
     }
 

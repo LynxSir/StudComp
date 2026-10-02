@@ -8,6 +8,28 @@ public sealed class MarkdownImageEditingTests
     private const string Inline = "ab![i](i.png)cd";
     private const string OwnLine = "one\n![a](a.png)\ntwo";
 
+    [Fact]
+    public void Pasted_image_replaces_selection_in_one_undoable_edit()
+    {
+        const string text = "до заменить после";
+        var edit = MarkdownImageEditing.Insert(text, 3, "Предмет/Рисунки/снимок.png", selectionLength: 8);
+        var result = MarkdownEditing.Apply(text, edit);
+        Assert.Equal(8, edit.Length);
+        Assert.DoesNotContain("заменить", result);
+        Assert.StartsWith("до \n![Рисунок]", result);
+        Assert.EndsWith("\n после", result);
+        var token = Assert.Single(MarkdownLocalImages.Tokens(result));
+        Assert.Equal("Предмет/Рисунки/снимок.png", token.Path);
+        Assert.Equal(token.End, edit.Start + edit.CaretOffset);
+    }
+
+    [Fact]
+    public void Pasting_over_entire_note_leaves_only_the_image_link()
+    {
+        var edit = MarkdownImageEditing.Insert("старый текст", 0, "a.png", selectionLength: int.MaxValue);
+        Assert.Equal("![Рисунок](<a.png>)", MarkdownEditing.Apply("старый текст", edit));
+    }
+
     private static MarkdownImageToken Token(string source, int index = 0) =>
         MarkdownLocalImages.Tokens(source)[index];
 

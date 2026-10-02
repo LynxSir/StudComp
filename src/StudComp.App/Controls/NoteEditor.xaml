@@ -58,7 +58,7 @@
 
                     <ui:Button Grid.Column="4" Margin="6,0,0,0" Appearance="Secondary"
                                Click="OnInsertImageClick" Content="Фото"
-                               ToolTip="Вставить изображение. Можно также перетащить файл в заметку." />
+                               ToolTip="Вставить изображение из файла. Ctrl+V — из буфера; также можно перетащить картинку в заметку." />
 
                     <ui:Button Grid.Column="1" Margin="8,0,0,0" Appearance="Secondary"
                                Click="OnInsertDrawingClick"
@@ -110,6 +110,16 @@
                                          Converter={x:Static conv:InverseBooleanToVisibilityConverter.Instance}}">
                     <ui:TextBox.ContextMenu>
                         <ContextMenu>
+                            <MenuItem Header="Отменить" Command="ApplicationCommands.Undo"
+                                      CommandTarget="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                            <Separator />
+                            <MenuItem Header="Вырезать" Command="ApplicationCommands.Cut"
+                                      CommandTarget="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                            <MenuItem Header="Копировать" Command="ApplicationCommands.Copy"
+                                      CommandTarget="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                            <MenuItem Header="Вставить" Command="ApplicationCommands.Paste"
+                                      CommandTarget="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                            <Separator />
                             <MenuItem x:Name="MakeCardMenuItem" Header="Сделать карточку"
                                       Click="OnMakeCardFromSelectionClick" />
                         </ContextMenu>
@@ -127,7 +137,16 @@
                                               VerticalScrollBarVisibility="Auto"
                                               HorizontalScrollBarVisibility="Disabled"
                                               PreviewMouseLeftButtonDown="OnPreviewMouseDown"
-                                              PreviewMouseLeftButtonUp="OnPreviewMouseUp" />
+                                              PreviewMouseLeftButtonUp="OnPreviewMouseUp">
+                        <FlowDocumentScrollViewer.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Копировать" Command="ApplicationCommands.Copy"
+                                          CommandTarget="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                <MenuItem Header="Вставить изображение" Command="ApplicationCommands.Paste"
+                                          CommandTarget="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                            </ContextMenu>
+                        </FlowDocumentScrollViewer.ContextMenu>
+                    </FlowDocumentScrollViewer>
                 </Border>
 
                 <StackPanel Grid.Row="3" Margin="0,6,0,0">

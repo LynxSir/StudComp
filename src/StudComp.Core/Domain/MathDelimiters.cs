@@ -13,6 +13,50 @@ namespace StudComp.Core.Domain;
 /// </remarks>
 public static class MathDelimiters
 {
+    /// <summary>
+    /// Защитить окружения TeX от разрыва Markdown на абзацы и списки. Переводы строк заменяются
+    /// пробелами той же длины: позиции изображений после формулы остаются точными.
+    /// </summary>
+    public static string NormalizeMultilineEnvironments(string markdown)
+    {
+        if (!markdown.Contains("\\begin{", StringComparison.Ordinal)) return markdown;
+        var code = MarkdownScanner.CodeRanges(markdown);
+        char[]? result = null;
+        for (var start = 0; start < markdown.Length; start++)
+        {
+            if (markdown[start] != '$' || IsEscaped(markdown, start)
+                || MarkdownScanner.IsInsideCode(code, start)) continue;
+            if (start > 0 && !char.IsWhiteSpace(markdown[start - 1])
+                && !char.IsPunctuation(markdown[start - 1])) continue;
+            var count = start + 1 < markdown.Length && markdown[start + 1] == '$' ? 2 : 1;
+            var bodyStart = start + count;
+            var close = bodyStart;
+            while (close < markdown.Length && (markdown[close] != '$' || IsEscaped(markdown, close))) close++;
+            if (close == markdown.Length) break;
+            var closeCount = 1;
+            while (close + closeCount < markdown.Length && markdown[close + closeCount] == '$') closeCount++;
+            var end = close + closeCount;
+            var body = markdown.AsSpan(bodyStart, close - bodyStart);
+            if (closeCount == count && (end == markdown.Length || char.IsWhiteSpace(markdown[end])
+                || char.IsPunctuation(markdown[end])) && body.Contains("\\begin{", StringComparison.Ordinal)
+                && body.Contains("\\end{", StringComparison.Ordinal)
+                && !code.Any(range => range.Start < close && range.End > bodyStart))
+            {
+                for (var at = bodyStart; at < close; at++)
+                    if (markdown[at] is '\n' or '\r') (result ??= markdown.ToCharArray())[at] = ' ';
+            }
+            start = end - 1;
+        }
+        return result is null ? markdown : new string(result);
+    }
+
+    private static bool IsEscaped(string source, int position)
+    {
+        var count = 0;
+        while (position > 0 && source[--position] == '\\') count++;
+        return count % 2 != 0;
+    }
+
     /// <summary>Обратная косая черта числом: в виде литерала она только мешает читать код.</summary>
     private const char Escape = (char)92;
 

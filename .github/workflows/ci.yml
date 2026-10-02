@@ -28,3 +28,11 @@ jobs:
 
       - name: Test
         run: dotnet test StudComp.slnx --configuration Release --no-build --verbosity minimal
+
+      - name: Verify note editor commands
+        shell: pwsh
+        run: |
+          dotnet build scripts/validation/NoteEditorSmoke -c Release --disable-build-servers --maxcpucount:1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet scripts/validation/NoteEditorSmoke/bin/Release/net10.0-windows10.0.19041.0/NoteEditorSmoke.dll
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

@@ -14,6 +14,25 @@ public class GostDocxRendererTests
 
     private static readonly XNamespace M = DocxTestHelpers.M;
 
+    [Fact]
+    public async Task Multiline_cases_export_as_editable_word_equations_with_russian_conditions()
+    {
+        var markdown = """
+            $r_{ij}=\begin{cases}
+            1, & \text{если вершины смежны} \\
+            0, & \text{если не смежны}
+            \end{cases}$
+            """;
+        var docx = await DocxTestHelpers.RenderMarkdownAsync(markdown);
+        var document = DocxTestHelpers.ReadDocument(docx);
+        Assert.Single(document.Descendants(M + "oMath"));
+        var matrix = Assert.Single(document.Descendants(M + "m"));
+        Assert.Equal(2, matrix.Elements(M + "mr").Count());
+        Assert.Contains(document.Descendants(M + "t"), t => t.Value == "если вершины смежны");
+        Assert.Contains(document.Descendants(M + "begChr"), element => element.Attribute(M + "val")?.Value == "{");
+        Assert.Empty(DocxTestHelpers.Validate(docx));
+    }
+
     private static TitlePageInfo SampleTitlePage => new(
         University: "Технологический университет",
         Faculty: "Институт информационных технологий",

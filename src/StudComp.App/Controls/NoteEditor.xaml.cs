@@ -3,6 +3,9 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Threading;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Windows.Media.Imaging;
 using StudComp.Behaviors;
 using StudComp.Core.Abstractions.ReportForge;
 using StudComp.Core.Domain;
@@ -18,10 +21,15 @@ namespace StudComp.Controls;
 public partial class NoteEditor : UserControl, INoteTextEditor
 {
     private Point _previewMouseDown;
+    private bool _importingImage;
+
+    private sealed record ImageTransfer(string[] Paths, BitmapSource? Bitmap);
 
     public NoteEditor()
     {
         InitializeComponent();
+        BindImagePaste(ContentTextBox);
+        BindImagePaste(PreviewViewer);
 
         // DataContext подставляется хозяином уже после конструктора (HubNotes.xaml), поэтому
         // подписываемся на его смену, а не на текущее значение.
@@ -30,22 +38,134 @@ public partial class NoteEditor : UserControl, INoteTextEditor
 
     private NoteEditorViewModel? ViewModel => DataContext as NoteEditorViewModel;
 
+    private void BindImagePaste(UIElement target)
+    {
+        var binding = new CommandBinding(ApplicationCommands.Paste);
+        binding.PreviewCanExecute += OnImagePasteCanExecute;
+        binding.CanExecute += OnImagePasteCanExecute;
+        binding.PreviewExecuted += OnImagePasteExecuted;
+        target.CommandBindings.Add(binding);
+    }
+
+    private void OnImagePasteCanExecute(object sender, CanExecuteRoutedEventArgs e)
+    {
+        if (ViewModel is not { HasNote: true } || _importingImage) return;
+        try
+        {
+            if (Clipboard.GetDataObject() is { } data && HasImage(data))
+            {
+                e.CanExecute = true;
+                e.Handled = true;
+            }
+        }
+        catch (Exception ex) when (IsTransferError(ex)) { }
+    }
+
+    private async void OnImagePasteExecuted(object sender, ExecutedRoutedEventArgs e)
+    {
+        if (ViewModel is not { HasNote: true } vm || _importingImage) return;
+        try
+        {
+            if (Clipboard.GetDataObject() is not { } data || !HasImage(data)) return;
+            e.Handled = true;
+            var transfer = ReadImage(data);
+            await ImportImageAsync(vm, transfer, vm.IsPreview ? vm.Content.Length : ContentTextBox.SelectionStart,
+                vm.IsPreview ? 0 : ContentTextBox.SelectionLength);
+        }
+        catch (Exception ex) when (IsTransferError(ex))
+        {
+            e.Handled = true;
+            vm.ReportImagePasteError(ex);
+        }
+    }
+
+    private static bool HasImage(IDataObject data) =>
+        data.GetDataPresent(DataFormats.Bitmap) || data.GetDataPresent("PNG")
+        || (data.GetData(DataFormats.FileDrop) is string[] paths && paths.Any(NoteEditorViewModel.IsSupportedImage));
+
+    private static ImageTransfer ReadImage(IDataObject data)
+    {
+        if (data.GetData(DataFormats.FileDrop) is string[] paths && paths.Any(NoteEditorViewModel.IsSupportedImage))
+            return new ImageTransfer(paths.Where(NoteEditorViewModel.IsSupportedImage).ToArray(), null);
+
+        // PNG от браузеров и графических редакторов сохраняет прозрачность точнее формата DIB.
+        if (data.GetData("PNG") is Stream stream)
+        {
+            var originalPosition = stream.CanSeek ? stream.Position : 0;
+            try
+            {
+                if (stream.CanSeek) stream.Position = 0;
+                var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+                var bitmap = decoder.Frames[0];
+                bitmap.Freeze();
+                return new ImageTransfer([], bitmap);
+            }
+            finally
+            {
+                if (stream.CanSeek) stream.Position = originalPosition;
+            }
+        }
+        if (data.GetData(DataFormats.Bitmap) is BitmapSource image) return new ImageTransfer([], image);
+        throw new NotSupportedException("Буфер содержит изображение в неподдерживаемом формате.");
+    }
+
+    private static bool IsTransferError(Exception error) => error is ExternalException or IOException
+        or UnauthorizedAccessException or ArgumentException or InvalidOperationException or NotSupportedException;
+
+    private async Task ImportImageAsync(NoteEditorViewModel vm, ImageTransfer transfer, int caret, int selectionLength = 0)
+    {
+        if (_importingImage) return;
+        _importingImage = true;
+        var readOnly = ContentTextBox.IsReadOnly;
+        ContentTextBox.IsReadOnly = true;
+        try
+        {
+            var after = transfer.Bitmap is { } bitmap
+                ? await vm.InsertClipboardImageAsync(bitmap, caret, selectionLength)
+                : await vm.InsertImagesAsync(transfer.Paths, caret, selectionLength);
+            if (ReferenceEquals(ViewModel, vm) && !vm.IsPreview && after is { } position) OnEditRequested(this, position);
+        }
+        finally
+        {
+            ContentTextBox.IsReadOnly = readOnly;
+            _importingImage = false;
+            CommandManager.InvalidateRequerySuggested();
+        }
+    }
+
     private void OnImageDragOver(object sender, DragEventArgs e)
     {
-        if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
-        e.Effects = ViewModel is { HasNote: true }
-            && e.Data.GetData(DataFormats.FileDrop) is string[] paths
-            && paths.Any(NoteEditorViewModel.IsSupportedImage) ? DragDropEffects.Copy : DragDropEffects.None;
-        e.Handled = true;
+        try
+        {
+            if (!HasImage(e.Data)) return;
+            e.Effects = ViewModel is { HasNote: true } && !_importingImage
+                && e.AllowedEffects.HasFlag(DragDropEffects.Copy) ? DragDropEffects.Copy : DragDropEffects.None;
+            e.Handled = true;
+        }
+        catch (Exception ex) when (IsTransferError(ex))
+        {
+            e.Effects = DragDropEffects.None;
+            e.Handled = true;
+        }
     }
 
     private async void OnImageDrop(object sender, DragEventArgs e)
     {
-        if (ViewModel is not { HasNote: true } vm || e.Data.GetData(DataFormats.FileDrop) is not string[] paths) return;
-        e.Handled = true;
-        var caret = vm.IsPreview ? vm.Content.Length : ContentTextBox.GetCharacterIndexFromPoint(e.GetPosition(ContentTextBox), true);
-        var after = await vm.InsertImagesAsync(paths, caret < 0 ? vm.Content.Length : caret);
-        if (!vm.IsPreview && after is { } position) OnEditRequested(this, position);
+        if (ViewModel is not { HasNote: true } vm) return;
+        try
+        {
+            if (!HasImage(e.Data)) return;
+            e.Handled = true;
+            if (_importingImage || !e.AllowedEffects.HasFlag(DragDropEffects.Copy)) return;
+            var caret = vm.IsPreview ? vm.Content.Length : ContentTextBox.GetCharacterIndexFromPoint(e.GetPosition(ContentTextBox), true);
+            await ImportImageAsync(vm, ReadImage(e.Data), caret < 0 ? vm.Content.Length : caret);
+            e.Effects = DragDropEffects.Copy;
+        }
+        catch (Exception ex) when (IsTransferError(ex))
+        {
+            e.Handled = true;
+            vm.ReportImagePasteError(ex);
+        }
     }
 
     private async void OnInsertImageClick(object sender, RoutedEventArgs e)
@@ -229,7 +349,14 @@ public partial class NoteEditor : UserControl, INoteTextEditor
     public int Caret => ContentTextBox.CaretIndex;
 
     /// <inheritdoc />
-    public bool TryApply(MarkdownEdit edit) => MarkdownEditingBehavior.Apply(ContentTextBox, edit);
+    public bool TryApply(MarkdownEdit edit)
+    {
+        // На время копирования ввод закрыт, но сама вставка должна пройти через стек Undo.
+        var unlock = _importingImage && ContentTextBox.IsReadOnly;
+        if (unlock) ContentTextBox.IsReadOnly = false;
+        try { return MarkdownEditingBehavior.Apply(ContentTextBox, edit); }
+        finally { if (unlock) ContentTextBox.IsReadOnly = true; }
+    }
 
     /// <inheritdoc />
     public void ResetUndoHistory()

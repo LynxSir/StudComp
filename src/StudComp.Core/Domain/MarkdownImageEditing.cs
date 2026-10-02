@@ -198,16 +198,18 @@ public static class MarkdownImageEditing
     /// без скобок Markdig не распознал бы вставку картинкой вовсе (Phase 13.7, найдено на запуске).
     /// Переводы строк вокруг — для читаемости исходника; картинка обрывает абзац независимо от них.
     /// </summary>
-    public static MarkdownEdit Insert(string? markdown, int caret, string relativePath, string caption = "Рисунок")
+    public static MarkdownEdit Insert(string? markdown, int caret, string relativePath, string caption = "Рисунок", int selectionLength = 0)
     {
         var source = markdown ?? string.Empty;
         caret = Math.Clamp(caret, 0, source.Length);
+        selectionLength = Math.Clamp(selectionLength, 0, source.Length - caret);
 
         var snippet = $"![{SafeCaption(caption)}](<{MarkdownLocalImages.Encode(relativePath ?? string.Empty)}>)";
         var before = caret > 0 && source[caret - 1] != '\n' ? "\n" : string.Empty;
-        var after = caret < source.Length && source[caret] != '\n' ? "\n" : string.Empty;
+        var end = caret + selectionLength;
+        var after = end < source.Length && source[end] != '\n' ? "\n" : string.Empty;
 
-        return new MarkdownEdit(caret, 0, before + snippet + after, before.Length + snippet.Length);
+        return new MarkdownEdit(caret, selectionLength, before + snippet + after, before.Length + snippet.Length);
     }
 
     /// <summary>

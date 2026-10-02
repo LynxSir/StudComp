@@ -1,4 +1,5 @@
 using StudComp.Core.Abstractions.ReportForge;
+using StudComp.Core.Domain;
 
 namespace StudComp.Modules.ReportForge.Tests;
 
@@ -368,5 +369,76 @@ public class MarkdownDocumentModelBuilderTests
         var math = Assert.Single(paragraph.Runs);
         Assert.True(math.Style.HasFlag(InlineStyle.Math));
         Assert.Equal("E=mc^2", math.Text);
+    }
+
+    [Theory]
+    [InlineData("$")]
+    [InlineData("$$")]
+    [InlineData("tex-inline")]
+    [InlineData("tex-display")]
+    public void Multiline_cases_reach_the_shared_math_tree(string delimiter)
+    {
+        const string formula = """
+            r_{ij}=\begin{cases}
+            1, & \text{если вершины смежны} \\
+            0, & \text{если не смежны}
+            \end{cases}
+            """;
+        var markdown = delimiter switch
+        {
+            "tex-inline" => "\\(" + formula + "\\)",
+            "tex-display" => "\\[" + formula + "\\]",
+            _ => delimiter + formula + delimiter,
+        };
+        var paragraph = Assert.IsType<ParagraphBlock>(Assert.Single(Build(markdown)));
+        var run = Assert.Single(paragraph.Runs);
+        Assert.True(run.Style.HasFlag(InlineStyle.Math));
+        var sequence = Assert.IsType<MathSequence>(MathExpression.Parse(run.Text));
+        Assert.IsType<MathScript>(sequence.Items[0]);
+        var matrix = Assert.IsType<MathMatrix>(sequence.Items[^1]);
+        Assert.Equal(MathMatrixKind.Cases, matrix.Kind);
+        Assert.Equal(2, matrix.Rows.Count);
+        var condition = Assert.IsType<MathStyled>(matrix.Rows[0][1]);
+        Assert.Equal(new MathText("если вершины смежны"), condition.Inner);
+    }
+
+    [Fact]
+    public void Multiline_cases_keep_surrounding_text_and_image_source_positions()
+    {
+        var markdown = "до $f(x)=\\begin{cases}\n1 & x>0 \\\\\n0 & x\\le 0\n\\end{cases}$ после\n![фото](a.png)";
+        var blocks = Build(markdown);
+        var paragraph = Assert.IsType<ParagraphBlock>(blocks[0]);
+        Assert.Equal("до ", paragraph.Runs[0].Text);
+        Assert.Single(paragraph.Runs, run => run.Style.HasFlag(InlineStyle.Math));
+        Assert.Contains(paragraph.Runs, run => run.Text == " после");
+        var image = Assert.Single(blocks.OfType<ImageBlock>());
+        Assert.Equal(markdown.IndexOf("![фото]", StringComparison.Ordinal), image.SourceStart);
+    }
+
+    [Fact]
+    public void Cases_in_code_and_unclosed_formulas_are_not_math()
+    {
+        var blocks = Build("`$\\begin{cases}1 & x\\end{cases}$`\n\n$\\begin{cases}\n1 & x");
+        Assert.DoesNotContain(blocks.OfType<ParagraphBlock>().SelectMany(p => p.Runs),
+            run => run.Style.HasFlag(InlineStyle.Math));
+    }
+
+    [Theory]
+    [InlineData("$")]
+    [InlineData("$$")]
+    public void Blank_lines_inside_cases_do_not_split_the_formula(string delimiter)
+    {
+        var markdown = delimiter + "\\begin{cases}\n\n1 & \\text{да} \\\\\n\n0 & \\text{нет}\n\\end{cases}" + delimiter;
+        var run = Assert.Single(Assert.IsType<ParagraphBlock>(Assert.Single(Build(markdown))).Runs);
+        Assert.True(run.Style.HasFlag(InlineStyle.Math));
+        Assert.Equal(2, Assert.IsType<MathMatrix>(MathExpression.Parse(run.Text)).Rows.Count);
+    }
+
+    [Fact]
+    public void A_fenced_multiline_cases_example_remains_a_code_block()
+    {
+        var source = "$\\begin{cases}\n\n1 & x \\\\\n0 & y\n\\end{cases}$";
+        var block = Assert.IsType<CodeBlock>(Assert.Single(Build("```tex\n" + source + "\n```")));
+        Assert.Equal(source, block.Code);
     }
 }
