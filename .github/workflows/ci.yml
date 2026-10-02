@@ -27,7 +27,10 @@ jobs:
         run: dotnet build StudComp.slnx --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test StudComp.slnx --configuration Release --no-build --verbosity minimal
+        run: dotnet test StudComp.slnx --configuration Release --no-build --verbosity minimal --filter "FullyQualifiedName!~CardSearchPerformanceTests"
+
+      - name: Verify search performance in isolation
+        run: dotnet test tests/StudComp.Data.Tests --configuration Release --no-build --verbosity minimal --filter "FullyQualifiedName~CardSearchPerformanceTests"
 
       - name: Verify note editor commands
         shell: pwsh
